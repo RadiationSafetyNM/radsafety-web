@@ -1,0 +1,213 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="ko">
+    <head>
+        <BaseHead
+            title={`마이페이지 - ${SITE_TITLE}`}
+            description={SITE_DESCRIPTION}
+        />
+        <style>
+            main {
+                width: 720px;
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 4rem 1rem;
+            }
+            .profile-card {
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .avatar {
+                width: 80px;
+                height: 80px;
+                background: #e5e7eb;
+                border-radius: 50%;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+            }
+            .status-badge {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                border-radius: 99px;
+                font-size: 0.875rem;
+                font-weight: 600;
+                margin-top: 0.5rem;
+            }
+            .status-pending {
+                background: #fef3c7;
+                color: #d97706;
+            }
+            .status-approved {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            .info-grid {
+                width: 100%;
+                margin-top: 2rem;
+                text-align: left;
+                border-top: 1px solid #f3f4f6;
+                padding-top: 1.5rem;
+            }
+            .info-item {
+                margin-bottom: 1rem;
+            }
+            .label {
+                font-size: 0.875rem;
+                color: #6b7280;
+            }
+            .value {
+                font-size: 1rem;
+                color: #111827;
+                font-weight: 500;
+            }
+
+            #logoutBtn {
+                margin-top: 2rem;
+                padding: 0.5rem 1.5rem;
+                background: #ef4444;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <h1>마이페이지</h1>
+
+            <div id="loading" style="text-align:center;">로딩 중...</div>
+
+            <div id="profileContent" class="profile-card" style="display:none;">
+                <div class="avatar">👤</div>
+                <h2 id="userName">사용자 이름</h2>
+                <div id="userEmail" style="color:#6b7280;">
+                    email@example.com
+                </div>
+
+                <div id="statusBadge" class="status-badge status-pending">
+                    승인 대기 중 (관리자 승인 필요)
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">로그인 제공자</div>
+                        <div class="value" id="provider">Google</div>
+                    </div>
+                </div>
+
+                <button id="logoutBtn">로그아웃</button>
+            </div>
+
+            <div id="guestContent" style="display:none; text-align:center;">
+                <p>로인된 사용자가 아닙니다.</p>
+                <a
+                    href="/radsafety/login"
+                    style="display:inline-block; margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white; border-radius:6px; text-decoration:none;"
+                    >로그인 하러 가기</a
+                >
+            </div>
+        </main>
+        <Footer />
+
+        <script>
+            import { userProfile, clearUser } from "../store/user";
+            import { supabase } from "../lib/supabase";
+
+            // Check real Supabase session on load
+            supabase.auth.getSession().then(async ({ data: { session } }) => {
+                if (session?.user) {
+                    const { user } = session;
+
+                    // Fetch profile from DB
+                    const { data: profile } = await supabase
+                        .from("profiles")
+                        .select("is_approved, full_name, avatar_url")
+                        .eq("id", user.id)
+                        .single();
+
+                    const isApproved = profile?.is_approved ? "true" : "false";
+
+                    userProfile.set({
+                        id: user.id,
+                        email: user.email,
+                        full_name:
+                            profile?.full_name ||
+                            user.user_metadata.full_name ||
+                            user.user_metadata.name ||
+                            "사용자",
+                        avatar_url:
+                            profile?.avatar_url ||
+                            user.user_metadata.avatar_url,
+                        provider: user.app_metadata.provider || "sns",
+                        is_approved: isApproved,
+                    });
+                } else {
+                    clearUser();
+                }
+            });
+
+            userProfile.subscribe((user) => {
+                const loading = document.getElementById("loading");
+                const profile = document.getElementById("profileContent");
+                const guest = document.getElementById("guestContent");
+
+                if (loading) loading.style.display = "none";
+
+                if (user && user.email) {
+                    if (profile) profile.style.display = "flex";
+                    if (guest) guest.style.display = "none";
+
+                    document.getElementById("userName").textContent =
+                        user.full_name || "사용자";
+                    document.getElementById("userEmail").textContent =
+                        user.email;
+                    document.getElementById("provider").textContent =
+                        user.provider || "SNS";
+
+                    const badge = document.getElementById("statusBadge");
+                    if (badge) {
+                        if (user.is_approved === "true") {
+                            badge.textContent = "✅ 정회원 (승인 완료)";
+                            badge.className = "status-badge status-approved";
+                        } else {
+                            badge.textContent =
+                                "⏳ 승인 대기 중 (관리자 확인 필요)";
+                            badge.className = "status-badge status-pending";
+                        }
+                    }
+                } else {
+                    if (profile) profile.style.display = "none";
+                    if (guest) guest.style.display = "block";
+                }
+            });
+
+            document
+                .getElementById("logoutBtn")
+                ?.addEventListener("click", async () => {
+                    if (confirm("로그아웃 하시겠습니까?")) {
+                        await supabase.auth.signOut();
+                        clearUser();
+                        window.location.href = "/radsafety";
+                    }
+                });
+        </script>
+    </body>
+</html>

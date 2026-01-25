@@ -1,0 +1,283 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import LoginButton from "../components/auth/LoginButton.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="ko">
+    <head>
+        <BaseHead
+            title={`로그인 - ${SITE_TITLE}`}
+            description={SITE_DESCRIPTION}
+        />
+        <style>
+            main {
+                width: 480px;
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 4rem 1rem;
+                text-align: center;
+            }
+            .login-container {
+                background: white;
+                padding: 2.5rem;
+                border-radius: 12px;
+                box-shadow:
+                    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                border: 1px solid #e5e7eb;
+            }
+            h1 {
+                margin-bottom: 0.5rem;
+                font-size: 1.8rem;
+                color: #111827;
+            }
+            p.subtitle {
+                color: #6b7280;
+                margin-bottom: 2rem;
+            }
+            .divider {
+                display: flex;
+                align-items: center;
+                text-align: center;
+                margin: 1.5rem 0;
+                color: #9ca3af;
+                font-size: 0.9rem;
+            }
+            .divider::before,
+            .divider::after {
+                content: "";
+                flex: 1;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .divider::before {
+                margin-right: 0.5em;
+            }
+            .divider::after {
+                margin-left: 0.5em;
+            }
+
+            .test-login {
+                margin-top: 1rem;
+                padding: 0.5rem;
+                background: #f3f4f6;
+                border-radius: 4px;
+                font-size: 0.85rem;
+                color: #4b5563;
+            }
+            #mockLoginBtn {
+                margin-top: 0.5rem;
+                background: #4b5563;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            /* Email Login Styles */
+            .email-login-section {
+                margin-bottom: 2rem;
+            }
+            .email-form {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .email-form input {
+                padding: 0.75rem;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 1rem;
+            }
+            .email-btn {
+                background: #111827;
+                color: white;
+                padding: 0.75rem;
+                border: none;
+                border-radius: 6px;
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .email-btn:hover {
+                background: #374151;
+            }
+            .helper-text {
+                font-size: 0.85rem;
+                color: #6b7280;
+                margin-top: 0.5rem;
+            }
+
+            .sns-buttons {
+                margin-top: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <div class="login-container">
+                <h1>로그인</h1>
+                <p class="subtitle">
+                    방사선안전관리 도우미 서비스 이용을 위해 로그인해 주세요.
+                </p>
+
+                <div class="email-login-section">
+                    <form id="emailLoginForm" class="email-form">
+                        <input
+                            type="email"
+                            id="emailInput"
+                            placeholder="이메일 주소를 입력하세요"
+                            required
+                        />
+                        <button type="submit" class="email-btn"
+                            >이메일로 로그인 (매직링크)</button
+                        >
+                    </form>
+                    <p class="helper-text">
+                        입력한 이메일로 로그인 링크가 전송됩니다.
+                    </p>
+                </div>
+
+                <div class="divider">또는 SNS 계정으로 로그인</div>
+
+                <!-- SNS Buttons Wrapper -->
+                <div class="sns-buttons">
+                    <LoginButton
+                        provider="naver"
+                        label="네이버로 시작하기"
+                        color="#03C75A"
+                        textColor="white"
+                        icon="🇳"
+                    />
+                    <!-- ... other buttons ... -->
+                    <LoginButton
+                        provider="kakao"
+                        label="카카오로 시작하기"
+                        color="#FEE500"
+                        textColor="#000000"
+                        icon="🇰"
+                    />
+                    <LoginButton
+                        provider="google"
+                        label="Google로 계정으로 계속하기"
+                        color="#4285F4"
+                        textColor="white"
+                        icon="🇬"
+                    />
+                    <LoginButton
+                        provider="facebook"
+                        label="Facebook으로 계속하기"
+                        color="#1877F2"
+                        textColor="white"
+                        icon="🇫"
+                    />
+                    <LoginButton
+                        provider="apple"
+                        label="Apple로 계속하기"
+                        color="#000000"
+                        textColor="white"
+                        icon="🍎"
+                    />
+
+                    <div class="divider">또는</div>
+
+                    <div class="test-login">
+                        <p>테스트용 모의 로그인 (DB 연동 전)</p>
+                        <button id="mockLoginBtn"
+                            >관리자 승인 대기 계정으로 테스트 접속</button
+                        >
+                        <button
+                            id="mockLoginApprovedBtn"
+                            style="background:#059669; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer; margin-left:5px;"
+                            >승인 완료 계정으로 접속</button
+                        >
+                    </div>
+                </div>
+            </div>
+            <Footer />
+
+            <script>
+                import { userProfile } from "../store/user";
+                import { supabase } from "../lib/supabase";
+
+                // Mock Login Logic
+                const mockLogin = (isApproved) => {
+                    userProfile.set({
+                        id: "mock-user-123",
+                        email: isApproved
+                            ? "admin@radsafety.com"
+                            : "newuser@example.com",
+                        full_name: isApproved ? "김관리" : "홍길동",
+                        avatar_url: "",
+                        provider: "google",
+                        is_approved: isApproved ? "true" : "false", // 'false' needs admin approval
+                    });
+                    alert("로그인되었습니다. (Mock)");
+                    window.location.href = "/radsafety/mypage";
+                };
+
+                document
+                    .getElementById("mockLoginBtn")
+                    ?.addEventListener("click", () => mockLogin(false));
+                document
+                    .getElementById("mockLoginApprovedBtn")
+                    ?.addEventListener("click", () => mockLogin(true));
+
+                // Email Login Logic (Magic Link)
+                const emailForm = document.getElementById("emailLoginForm");
+                emailForm?.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById("emailInput").value;
+                    const btn = emailForm.querySelector("button");
+
+                    btn.disabled = true;
+                    btn.textContent = "전송 중...";
+
+                    try {
+                        const { error } = await supabase.auth.signInWithOtp({
+                            email: email,
+                            options: {
+                                emailRedirectTo: `${window.location.origin}/radsafety/mypage`,
+                            },
+                        });
+
+                        if (error) throw error;
+                        alert(
+                            "이메일로 로그인 링크를 보냈습니다!\n메일함을 확인해주세요.",
+                        );
+                    } catch (err) {
+                        alert("오류 발생: " + err.message);
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = "이메일로 로그인 (매직링크)";
+                    }
+                });
+
+                // Real Logic
+                const btns = document.querySelectorAll(".login-btn");
+                btns.forEach((btn) => {
+                    btn.addEventListener("click", async () => {
+                        const provider = btn.dataset.provider;
+                        const { data, error } =
+                            await supabase.auth.signInWithOAuth({
+                                provider: provider,
+                                options: {
+                                    redirectTo: `${window.location.origin}/radsafety/mypage`,
+                                },
+                            });
+                        if (error) alert("로그인 오류: " + error.message);
+                    });
+                });
+
+                // Mock Logic (Optional: Keep for admin testing if needed, or hide)
+                document.querySelector(".test-login").style.display = "none";
+            </script>
+        </main>
+    </body>
+</html>

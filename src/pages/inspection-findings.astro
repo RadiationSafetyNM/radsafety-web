@@ -1,0 +1,462 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { getCollection } from "astro:content";
+
+const findings = await getCollection("findings");
+// Pre-render content
+const findingsWithContent = await Promise.all(
+    findings.map(async (item) => {
+        const { Content } = await item.render();
+        return { ...item, Content };
+    }),
+);
+
+// Group by category
+const findingsByCategory = findingsWithContent.reduce((acc, finding) => {
+    const cat = finding.data.category;
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(finding);
+    return acc;
+}, {});
+
+// Map generic categories to Checklist Titles
+const categoryMapping = {
+    "인허가/서류": "[인허가 관련 문서 관리]",
+    "인력/조직": "[방사선안전관리 조직]",
+    "장비/선원": "[방사선원 현황 및 관리]",
+    "시설/보안": "[시설 기준 및 보안 관리]",
+    폐기물: "[방사성폐기물 관리]",
+    의료분야: "[의료방사선 안전관리]",
+};
+
+// Sort categories
+const categories = Object.keys(findingsByCategory).sort();
+const categoryOrder = [
+    "인허가/서류",
+    "인력/조직",
+    "장비/선원",
+    "시설/보안",
+    "폐기물",
+    "의료분야",
+];
+categories.sort((a, b) => {
+    return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+});
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            title={`지적권고사항 - ${SITE_TITLE}`}
+            description={SITE_DESCRIPTION}
+        />
+        <style>
+            .search-container {
+                position: relative;
+                max-width: 600px;
+                margin: 0 auto 2rem auto;
+            }
+            #searchInput {
+                width: 100%;
+                padding: 1rem 1rem 1rem 3rem;
+                font-size: 1rem;
+                border: 1px solid #d1d5db;
+                border-radius: 99px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                transition:
+                    border-color 0.2s,
+                    box-shadow 0.2s;
+            }
+            #searchInput:focus {
+                outline: none;
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+            .search-icon {
+                position: absolute;
+                left: 1.25rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #9ca3af;
+                pointer-events: none;
+            }
+            main {
+                width: 960px;
+                max-width: calc(100% - 2em);
+                margin: 0 auto;
+                padding: 3em 1em;
+            }
+
+            /* Category Accordion Styles */
+            .category-accordion {
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                background: white;
+                overflow: hidden;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+            .category-header {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.25rem 1.5rem;
+                background: white;
+                border: none;
+                cursor: pointer;
+                text-align: left;
+                font-size: 1.1rem;
+                font-weight: bold;
+                color: #1f2937;
+                transition: background-color 0.2s;
+            }
+            .category-header:hover {
+                background-color: #f9fafb;
+            }
+
+            /* Icon rotation */
+            .category-header .icon {
+                color: #9ca3af;
+                transition: transform 0.3s ease;
+                font-size: 0.9em;
+            }
+            .category-accordion.open .category-header .icon {
+                transform: rotate(180deg);
+            }
+            .category-accordion.open .category-header {
+                background-color: #f3f4f6;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            /* Content container */
+            .findings-list {
+                display: none;
+                padding: 1.5rem;
+                background: #fff;
+            }
+            .category-accordion.open .findings-list {
+                display: block;
+                animation: slideDown 0.2s ease-out;
+            }
+
+            /* Finding Card (Inside Accordion) */
+            .finding-card {
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                background: #f9fafb;
+                margin-bottom: 0.75rem;
+                overflow: hidden;
+            }
+            .finding-card:last-child {
+                margin-bottom: 0;
+            }
+
+            .finding-header {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.25rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                text-align: left;
+                font-family: inherit;
+                background-color: #f9fafb; /* Matches card bg */
+                transition: background-color 0.2s;
+            }
+            .finding-card.accordion .finding-header:hover {
+                background-color: #f3f4f6;
+            }
+
+            .finding-title {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #374151;
+            }
+            .finding-header .icon {
+                font-size: 0.75rem;
+                color: #9ca3af;
+                transition: transform 0.3s ease;
+            }
+            .finding-card.accordion.open .finding-header .icon {
+                transform: rotate(180deg);
+            }
+
+            .finding-content {
+                display: none;
+                padding: 1.25rem;
+                background-color: white; /* Content on white for contrast against grey header */
+                border-top: 1px solid #e5e7eb;
+            }
+            .finding-card.accordion.open .finding-content {
+                display: block;
+                animation: slideDown 0.2s ease-out;
+            }
+
+            .finding-desc {
+                margin: 0 0 1rem 0;
+                color: #374151;
+            }
+            .finding-body {
+                font-size: 0.95rem;
+                color: #4b5563;
+                line-height: 1.6;
+            }
+            .finding-meta {
+                font-size: 0.9em;
+                color: #6b7280;
+                margin-top: 1rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid #e5e7eb;
+            }
+            .solution {
+                margin-top: 1rem;
+                background: #f0fdf4;
+                padding: 1rem;
+                border-radius: 6px;
+                border: 1px solid #bbf7d0;
+                color: #166534;
+            }
+            .solution strong {
+                display: block;
+                margin-bottom: 0.25rem;
+                color: #15803d;
+            }
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <h1>지적권고사항</h1>
+            <p>
+                과거 정기검사에서 빈번하게 지적된 사례들을 체크리스트 분류별로
+                정리했습니다. 각 항목을 클릭하여 확인하세요.
+            </p>
+
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="검색어를 입력하세요 (예: 잠금장치, 기록)"
+                    aria-label="지적사항 검색"
+                />
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div id="findingsContainer">
+                {
+                    categories.map((category) => {
+                        const displayTitle =
+                            categoryMapping[category] || category;
+                        return (
+                            <div class="category-accordion">
+                                <button class="category-header">
+                                    <span>{displayTitle}</span>
+                                    <span class="icon">▼</span>
+                                </button>
+                                <div class="findings-list">
+                                    {findingsByCategory[category].map(
+                                        (item) => {
+                                            const FindingContent = item.Content;
+                                            // Combine searchable text into a data attribute for performance
+                                            const searchText =
+                                                `${item.data.title} ${item.data.description} ${item.data.violationClause || ""} ${item.data.solution || ""}`.toLowerCase();
+
+                                            return (
+                                                <div
+                                                    class="finding-card accordion"
+                                                    data-search={searchText}
+                                                >
+                                                    <button class="finding-header">
+                                                        <span class="finding-title">
+                                                            {item.data.title}
+                                                        </span>
+                                                        <span class="icon">
+                                                            ▼
+                                                        </span>
+                                                    </button>
+
+                                                    <div class="finding-content">
+                                                        <div class="finding-desc">
+                                                            {
+                                                                item.data
+                                                                    .description
+                                                            }
+                                                        </div>
+
+                                                        <div class="finding-body">
+                                                            <FindingContent />
+                                                        </div>
+
+                                                        {item.data
+                                                            .violationClause && (
+                                                            <div class="finding-meta">
+                                                                관련 법령:{" "}
+                                                                {
+                                                                    item.data
+                                                                        .violationClause
+                                                                }
+                                                            </div>
+                                                        )}
+
+                                                        {item.data.solution && (
+                                                            <div class="solution">
+                                                                <strong>
+                                                                    💡 조치 방안
+                                                                </strong>
+                                                                {
+                                                                    item.data
+                                                                        .solution
+                                                                }
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        },
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })
+                }
+            </div>
+
+            <div
+                id="noResults"
+                style="display: none; text-align: center; padding: 2rem; color: #6b7280;"
+            >
+                검색 결과가 없습니다.
+            </div>
+        </main>
+        <Footer />
+
+        <script>
+            document.addEventListener("astro:page-load", () => {
+                initPage();
+            });
+
+            // Fallback
+            if (document.readyState !== "loading") {
+                initPage();
+            }
+
+            function initPage() {
+                // 1. Accordion Logic
+                const catAccs = document.querySelectorAll(
+                    ".category-accordion",
+                );
+                catAccs.forEach((acc) => {
+                    // Avoid duplicate listeners
+                    if (acc.dataset.hasListener) return;
+                    acc.dataset.hasListener = "true";
+
+                    const header = acc.querySelector(".category-header");
+                    header.addEventListener("click", (e) => {
+                        acc.classList.toggle("open");
+                    });
+                });
+
+                const findAccs = document.querySelectorAll(
+                    ".finding-card.accordion",
+                );
+                findAccs.forEach((acc) => {
+                    if (acc.dataset.hasListener) return;
+                    acc.dataset.hasListener = "true";
+
+                    const header = acc.querySelector(".finding-header");
+                    header.addEventListener("click", (e) => {
+                        acc.classList.toggle("open");
+                        e.stopPropagation();
+                    });
+                });
+
+                // 2. Search Logic
+                const searchInput = document.getElementById("searchInput");
+                const noResults = document.getElementById("noResults");
+
+                if (searchInput) {
+                    // Remove old listener if any (simplest is to replace element or just be careful)
+                    // For now, we assume page reload clears listeners or we just add a fresh one.
+                    // To be safe against multiple inits, we can check a flag or just use a named function.
+
+                    searchInput.addEventListener("input", (e) => {
+                        const term = e.target.value.toLowerCase().trim();
+                        let hasOverallResults = false;
+
+                        catAccs.forEach((cat) => {
+                            const findings =
+                                cat.querySelectorAll(".finding-card");
+                            let hasVisibleChildren = false;
+
+                            findings.forEach((finding) => {
+                                const text = finding.dataset.search || "";
+                                if (text.includes(term)) {
+                                    finding.style.display = "";
+                                    hasVisibleChildren = true;
+                                    // Expand finding if matched? Optional.
+                                    // Let's keep findings collapsed unless user clicks, or expand them?
+                                    // User usually wants to see the content if they searched for it.
+                                    if (term !== "") {
+                                        finding.classList.add("open");
+                                    } else {
+                                        finding.classList.remove("open");
+                                    }
+                                } else {
+                                    finding.style.display = "none";
+                                    finding.classList.remove("open");
+                                }
+                            });
+
+                            if (hasVisibleChildren) {
+                                cat.style.display = "";
+                                // If searching, expand the category to show results
+                                if (term !== "") {
+                                    cat.classList.add("open");
+                                } else {
+                                    cat.classList.remove("open");
+                                    // Reset finding visibility when search is cleared
+                                    findings.forEach(
+                                        (f) => (f.style.display = ""),
+                                    );
+                                }
+                                hasOverallResults = true;
+                            } else {
+                                if (term !== "") {
+                                    cat.style.display = "none";
+                                    cat.classList.remove("open");
+                                } else {
+                                    cat.style.display = ""; // Show all if input cleared
+                                    cat.classList.remove("open");
+                                }
+                            }
+                        });
+
+                        if (term !== "" && !hasOverallResults) {
+                            noResults.style.display = "block";
+                        } else {
+                            noResults.style.display = "none";
+                        }
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>

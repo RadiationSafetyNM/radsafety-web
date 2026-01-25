@@ -1,0 +1,47 @@
+---
+const { provider, label, color, textColor = "white", icon } = Astro.props;
+---
+
+<button
+    class="login-btn"
+    data-provider={provider}
+    style={`background-color: ${color}; color: ${textColor};`}
+>
+    <span class="icon">{icon}</span>
+    <span class="label">{label}</span>
+</button>
+
+<style>
+    .login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+            opacity 0.2s,
+            transform 0.1s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin-bottom: 0.75rem;
+    }
+    .login-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+    .login-btn:active {
+        transform: translateY(0);
+    }
+    .icon {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    .label {
+        flex-grow: 1;
+        text-align: center;
+    }
+</style>

@@ -1,0 +1,129 @@
+<div id="pwa-install-prompt" class="pwa-prompt" style="display: none;">
+    <div class="pwa-content">
+        <span class="pwa-icon">📱</span>
+        <div class="pwa-text">
+            <strong>앱설치</strong>
+            <span>홈 화면에 앱을 추가하여 더 쉽게 이용하세요.</span>
+        </div>
+        <button id="pwa-install-btn" class="pwa-btn">설치</button>
+        <button id="pwa-close-btn" class="pwa-close">×</button>
+    </div>
+</div>
+
+<style>
+    .pwa-prompt {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        animation: slideUp 0.3s ease-out;
+        border: 1px solid #f3f4f6;
+    }
+    .pwa-content {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+    }
+    .pwa-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    .pwa-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-right: 0.5rem;
+    }
+    .pwa-text strong {
+        font-size: 0.95rem;
+        color: #111827;
+    }
+    .pwa-text span {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .pwa-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .pwa-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 0 0 0 0.5rem;
+        line-height: 1;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translate(-50%, 100%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    let deferredPrompt;
+    const pwaPrompt = document.getElementById("pwa-install-prompt");
+    const installBtn = document.getElementById("pwa-install-btn");
+    const closeBtn = document.getElementById("pwa-close-btn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        deferredPrompt = e;
+        // Update UI to notify the user they can add to home screen
+        if (pwaPrompt) pwaPrompt.style.display = "block";
+    });
+
+    installBtn?.addEventListener("click", async () => {
+        if (pwaPrompt) pwaPrompt.style.display = "none";
+        // Show the install prompt
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            deferredPrompt = null;
+        }
+    });
+
+    // Debug for development
+    if (import.meta.env.DEV) {
+        console.log("PWA Install Component Loaded (Dev Mode)");
+        // Create a debug trigger
+        const debugBtn = document.createElement("button");
+        debugBtn.textContent = "🔧 Test Install UI";
+        debugBtn.style.cssText =
+            "position:fixed; bottom:20px; right:20px; z-index:99999; font-size:14px; padding:10px; background:red; color:white; border-radius:5px;";
+        document.body.appendChild(debugBtn);
+
+        debugBtn.addEventListener("click", () => {
+            if (pwaPrompt) pwaPrompt.style.display = "block";
+        });
+    }
+
+    closeBtn?.addEventListener("click", () => {
+        if (pwaPrompt) pwaPrompt.style.display = "none";
+    });
+</script>

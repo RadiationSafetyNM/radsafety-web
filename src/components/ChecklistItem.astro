@@ -1,0 +1,320 @@
+---
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+
+<div class="checklist-item" data-id={item.id}>
+    <div class="header">
+        <label class="checkbox-container">
+            <input type="checkbox" class="status-checkbox" />
+            <span class="checkmark"></span>
+        </label>
+        <button class="accordion-btn">
+            <span class="title"
+                >[{item.data.category}] {item.data.title}
+                <span
+                    class="progress-text"
+                    style="font-size: 0.8em; color: var(--gray); font-weight: normal; margin-left: 0.5em;"
+                    >(0/0)</span
+                ></span
+            >
+            <span class="icon">▼</span>
+        </button>
+    </div>
+    <div class="panel">
+        <div class="content">
+            <Content />
+            {
+                (item.data.example || item.data.exampleImage) && (
+                    <div class="example-wrapper" style="margin-top: 1rem;">
+                        <button
+                            class="example-toggle-btn"
+                            type="button"
+                            style="background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; padding: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;"
+                        >
+                            <span class="icon">📄</span> 예시서류 보기
+                        </button>
+                        <div
+                            class="example-content"
+                            style="display: none; margin-top: 0.5rem; padding: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;"
+                        >
+                            {item.data.example && (
+                                <p style="margin: 0 0 0.5rem 0; font-size: 0.9em; white-space: pre-line; color: #475569;">
+                                    {item.data.example}
+                                </p>
+                            )}
+                            {item.data.exampleImage && (
+                                <div style="margin-top: 0.5rem;">
+                                    <img
+                                        src={item.data.exampleImage}
+                                        alt="Example Document"
+                                        style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .checklist-item {
+        border: 1px solid #e5e7eb;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        background: white;
+        overflow: hidden;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f9fafb;
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        margin-right: 1rem;
+        cursor: pointer;
+    }
+
+    /* Hide default checkbox */
+    .status-checkbox {
+        opacity: 0;
+        position: absolute;
+        cursor: pointer;
+    }
+
+    /* Custom Checkbox */
+    .checkmark {
+        height: 24px;
+        width: 24px;
+        background-color: #eee;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+    }
+
+    .checklist-item.checked .checkmark {
+        background-color: var(--accent);
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    .checklist-item.checked .checkmark:after {
+        display: block;
+    }
+
+    .checklist-item.checked .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        transform: rotate(45deg);
+    }
+
+    .accordion-btn {
+        background: none;
+        border: none;
+        text-align: left;
+        font-size: 1rem;
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .panel {
+        display: none;
+        padding: 0 1rem 1rem 1rem;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+    }
+
+    .panel.open {
+        display: block;
+    }
+
+    .icon {
+        transition: transform 0.3s ease;
+    }
+
+    .panel.open + .header .icon {
+        /* This selector is wrong logical order but will fix in script */
+    }
+
+    .checklist-item.open .icon {
+        transform: rotate(180deg);
+    }
+</style>
+
+<script>
+    // Interactive Logic
+    document.addEventListener("astro:page-load", () => {
+        initChecklist();
+    });
+
+    // Fallback for non-ViewTransitions pages
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initChecklist);
+    } else {
+        initChecklist();
+    }
+
+    function initChecklist() {
+        const items = document.querySelectorAll(".checklist-item");
+
+        // Fix: Enable markdown checkboxes
+        document
+            .querySelectorAll('.panel input[type="checkbox"]')
+            .forEach((cb) => {
+                cb.removeAttribute("disabled");
+                cb.style.cursor = "pointer";
+            });
+
+        items.forEach((item) => {
+            const id = item.dataset.id;
+            const mainCheckbox = item.querySelector(".status-checkbox");
+            const btn = item.querySelector(".accordion-btn");
+            const panel = item.querySelector(".panel");
+            const progressText = item.querySelector(".progress-text");
+
+            // Helper: Update main checkbox based on sub-checkboxes
+            const updateMainCheckbox = () => {
+                const subCheckboxes = panel.querySelectorAll(
+                    'input[type="checkbox"]',
+                );
+                const total = subCheckboxes.length;
+                if (total === 0) {
+                    if (progressText) progressText.textContent = "";
+                    return;
+                }
+
+                const checkedCount = Array.from(subCheckboxes).filter(
+                    (cb) => cb.checked,
+                ).length;
+                const allChecked = total > 0 && checkedCount === total;
+
+                // Update text: (x/n)
+                if (progressText)
+                    progressText.textContent = `(${checkedCount}/${total})`;
+
+                mainCheckbox.checked = allChecked;
+                if (allChecked) {
+                    item.classList.add("checked");
+                    localStorage.setItem(`inspection-${id}`, "checked");
+                } else {
+                    item.classList.remove("checked");
+                    localStorage.removeItem(`inspection-${id}`);
+                }
+            };
+
+            // 1. Load State (Main & Sub)
+            const mainState = localStorage.getItem(`inspection-${id}`);
+            if (mainState === "checked") {
+                item.classList.add("checked");
+                mainCheckbox.checked = true;
+            }
+
+            // Load Sub-checkbox states
+            const subCheckboxes = panel.querySelectorAll(
+                'input[type="checkbox"]',
+            );
+            subCheckboxes.forEach((cb, index) => {
+                const subKey = `inspection-${id}-sub-${index}`;
+                if (localStorage.getItem(subKey) === "checked") {
+                    cb.checked = true;
+                }
+
+                // Add listener for sub-checkboxes
+                // Note: 'change' event might not bubble from within some markdown renderers,
+                // but usually fine. If click, use click.
+                cb.addEventListener("change", (e) => {
+                    if (e.target.checked) {
+                        localStorage.setItem(subKey, "checked");
+                    } else {
+                        localStorage.removeItem(subKey);
+                    }
+                    updateMainCheckbox();
+                });
+            });
+
+            // Initial calculation
+            updateMainCheckbox();
+
+            // 2. Toggle Main Checkbox
+            mainCheckbox.addEventListener("change", (e) => {
+                const isChecked = e.target.checked;
+                if (isChecked) {
+                    item.classList.add("checked");
+                    localStorage.setItem(`inspection-${id}`, "checked");
+                    // Optional: Check all sub-items?
+                    // Let's decide: If main is checked, check all subs?
+                    // Or just treat main as independent?
+                    // User request implies Level 2 is the detail.
+                    // Let's make main checkbox auto-check all subs for convenience.
+                    subCheckboxes.forEach((cb, index) => {
+                        cb.checked = true;
+                        localStorage.setItem(
+                            `inspection-${id}-sub-${index}`,
+                            "checked",
+                        );
+                    });
+                } else {
+                    item.classList.remove("checked");
+                    localStorage.removeItem(`inspection-${id}`);
+                    // Uncheck all subs
+                    subCheckboxes.forEach((cb, index) => {
+                        cb.checked = false;
+                        localStorage.removeItem(
+                            `inspection-${id}-sub-${index}`,
+                        );
+                    });
+                }
+                updateMainCheckbox(); // Update text
+            });
+
+            // 3. Toggle Accordion
+            btn.addEventListener("click", () => {
+                const isOpen = panel.classList.contains("open");
+                if (!isOpen) {
+                    panel.classList.add("open");
+                    item.classList.add("open");
+                } else {
+                    panel.classList.remove("open");
+                    item.classList.remove("open");
+                }
+            });
+
+            // 4. Toggle Example Document
+            const exampleBtn = panel.querySelector(".example-toggle-btn");
+            const exampleContent = panel.querySelector(".example-content");
+
+            if (exampleBtn && exampleContent) {
+                exampleBtn.addEventListener("click", (e) => {
+                    e.stopPropagation(); // Prevent accordion toggle
+                    const isVisible = exampleContent.style.display === "block";
+                    exampleContent.style.display = isVisible ? "none" : "block";
+                    exampleBtn.innerHTML = isVisible
+                        ? '<span class="icon">📄</span> 예시서류 보기'
+                        : '<span class="icon">📂</span> 예시서류 접기';
+                });
+            }
+        });
+    }
+</script>

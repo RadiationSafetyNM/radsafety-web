@@ -1,0 +1,260 @@
+<div id="image-lightbox" class="lightbox" style="display: none;">
+    <div class="lightbox-header">
+        <span class="lightbox-title">문서 미리보기</span>
+        <div class="controls">
+            <button
+                id="view-toggle"
+                class="view-toggle-btn"
+                title="보기 방식 변경"
+            >
+                <span class="icon">📄</span> 1쪽 보기
+            </button>
+            <span class="close">&times;</span>
+        </div>
+    </div>
+    <div class="lightbox-scroll-container">
+        <div id="lightbox-pages" class="lightbox-pages">
+            <!-- Images will be injected here -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .lightbox {
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #525659; /* Standard PDF Viewer Background */
+        display: none;
+        flex-direction: column;
+        animation: fadeIn 0.15s ease-out;
+    }
+
+    .lightbox.show {
+        display: flex;
+    }
+
+    .lightbox-header {
+        height: 50px;
+        background-color: #323639;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        flex-shrink: 0;
+    }
+
+    .lightbox-title {
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .view-toggle-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: none; /* Hidden by default (mobile) */
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s;
+    }
+
+    .view-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    @media (min-width: 1024px) {
+        .view-toggle-btn {
+            display: flex;
+        }
+    }
+
+    .close {
+        color: #ddd;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .close:hover {
+        color: white;
+    }
+
+    .lightbox-scroll-container {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 2rem 1rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .lightbox-pages {
+        display: grid;
+        grid-template-columns: 1fr; /* Default to single page */
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 800px; /* Mobile/Tablet width */
+        margin: 0 auto;
+        transition: max-width 0.3s ease;
+    }
+
+    /* PC View: Two-page spread */
+    /* @media (min-width: 1024px) {
+        .lightbox-pages {
+            grid-template-columns: 1fr 1fr;
+            max-width: 1400px;
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+    } */
+
+    /* Spread View Class (Toggled via JS) */
+    .lightbox-pages.spread-view {
+        grid-template-columns: 1fr 1fr;
+        max-width: 1400px;
+        gap: 2rem;
+        padding: 0 2rem;
+    }
+
+    .lightbox-page {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        align-self: start; /* Prevent stretching if aspect ratios differ */
+        /* min-height: 1000px; */ /* Placeholder aspect ratio if needed */
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    function initLightbox() {
+        const lightbox = document.getElementById("image-lightbox");
+        const pagesContainer = document.getElementById("lightbox-pages");
+        const closeBtn = lightbox.querySelector(".close");
+        const viewToggleBtn = document.getElementById("view-toggle");
+
+        let isSpreadView = false;
+
+        // View Toggle Logic
+        const updateView = () => {
+            if (isSpreadView) {
+                pagesContainer.classList.add("spread-view");
+                viewToggleBtn.innerHTML =
+                    '<span class="icon">📖</span> 2쪽 보기'; // Active state indicator
+                viewToggleBtn.style.background = "rgba(255, 255, 255, 0.3)";
+            } else {
+                pagesContainer.classList.remove("spread-view");
+                viewToggleBtn.innerHTML =
+                    '<span class="icon">📄</span> 1쪽 보기';
+                viewToggleBtn.style.background = "rgba(255, 255, 255, 0.1)";
+            }
+        };
+
+        viewToggleBtn.onclick = () => {
+            // Only toggle if enough pages? Nah, let user control layout regardless.
+            isSpreadView = !isSpreadView;
+            updateView();
+        };
+
+        // Close functions
+        const closeLightbox = () => {
+            lightbox.classList.remove("show");
+            setTimeout(() => {
+                lightbox.style.display = "none";
+                pagesContainer.innerHTML = ""; // Clear content
+                // Reset view on close
+                isSpreadView = false;
+                updateView();
+            }, 160);
+        };
+
+        closeBtn.onclick = closeLightbox;
+
+        // Close on background click (area outside pages)
+        lightbox.querySelector(".lightbox-scroll-container").onclick =
+            function (e) {
+                if (e.target === this) {
+                    closeLightbox();
+                }
+            };
+
+        // Handle Escape key
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && lightbox.style.display === "flex") {
+                closeLightbox();
+            }
+        });
+
+        // Open function
+        window.openLightbox = (srcString) => {
+            // Support multiple images separated by comma
+            const srcs = srcString
+                .split(",")
+                .map((s) => s.trim())
+                .filter((s) => s);
+
+            pagesContainer.innerHTML = "";
+
+            srcs.forEach((src) => {
+                const img = document.createElement("img");
+                img.src = src;
+                img.className = "lightbox-page";
+                img.loading = "lazy";
+                pagesContainer.appendChild(img);
+            });
+
+            // Reset view state when opening (or maybe prefer to remember? User preference usually)
+            // Let's default to single view for safety, user can toggle.
+            isSpreadView = false;
+            updateView();
+
+            lightbox.style.display = "flex";
+            // force reflow
+            void lightbox.offsetWidth;
+            lightbox.classList.add("show");
+        };
+
+        // Event Delegation
+        document.body.addEventListener("click", (e) => {
+            if (e.target.matches(".inline-example-btn")) {
+                e.preventDefault();
+                e.stopPropagation();
+                const src = e.target.dataset.img;
+                if (src) {
+                    window.openLightbox(src);
+                }
+            }
+        });
+    }
+
+    document.addEventListener("astro:page-load", initLightbox);
+    if (document.readyState !== "loading") initLightbox();
+    else document.addEventListener("DOMContentLoaded", initLightbox);
+</script>
