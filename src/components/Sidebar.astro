@@ -1,0 +1,262 @@
+---
+import { SITE_TITLE } from "../consts";
+import HeaderLink from "./HeaderLink.astro";
+import Icon from "./Icon.astro";
+
+// Sidebar Link Component (Local helper or separate file)
+const { pathname } = Astro.url;
+const isActive = (href) => {
+    const subpath = href.match(/[^\/]+/g);
+    const mainpath = pathname.match(/[^\/]+/g);
+    return href === pathname || href === "/" + (subpath?.[0] || "");
+};
+---
+
+<aside class="sidebar">
+    <div class="logo-area">
+        <a href="/radsafety/" class="logo text-gradient">{SITE_TITLE}</a>
+    </div>
+
+    <div class="nav-group">
+        <span class="group-title">Menu</span>
+        <a
+            href="/radsafety/"
+            class={pathname === "/radsafety" || pathname === "/radsafety/"
+                ? "active"
+                : ""}
+            aria-label="Home"
+        >
+            <span class="icon"><Icon name="home" size="18" /></span>
+            <span class="link-text">홈</span>
+        </a>
+        <a
+            href="/radsafety/inspection-guide"
+            class={pathname.startsWith("/radsafety/inspection-guide")
+                ? "active"
+                : ""}
+            aria-label="Inspection Guide"
+        >
+            <span class="icon"><Icon name="clipboard" size="18" /></span>
+            <span class="link-text">정기검사 가이드</span>
+        </a>
+        <a
+            href="/radsafety/inspection-findings"
+            class={pathname.startsWith("/radsafety/inspection-findings")
+                ? "active"
+                : ""}
+            aria-label="Findings"
+        >
+            <span class="icon"><Icon name="search" size="18" /></span>
+            <span class="link-text">지적권고사항</span>
+        </a>
+    </div>
+
+    <div class="nav-group">
+        <span class="group-title">User</span>
+        <a
+            href="/radsafety/mypage"
+            class={pathname.startsWith("/radsafety/mypage") ? "active" : ""}
+            aria-label="My Page"
+        >
+            <span class="icon"><Icon name="user" size="18" /></span>
+            <span class="link-text">마이페이지</span>
+        </a>
+        <a
+            href="/radsafety/login"
+            class={pathname.startsWith("/radsafety/login") ? "active" : ""}
+            aria-label="Login"
+        >
+            <span class="icon"><Icon name="lock-closed" size="18" /></span>
+            <span class="link-text">로그인</span>
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <span class="version">v0.1.0 (Beta)</span>
+    </div>
+</aside>
+
+<style>
+    .sidebar {
+        width: 60px; /* Collapsed width */
+        height: 100vh;
+        background-color: #1c1c1c;
+        color: #ededed;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #2e2e2e;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 50;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    /* Expand on hover */
+    .sidebar:hover {
+        width: 260px;
+    }
+
+    .logo-area {
+        padding: 1.5rem 0; /* Adjusted padding */
+        border-bottom: 1px solid #2e2e2e;
+        display: flex;
+        justify-content: center; /* Center logo icon initially */
+        overflow: hidden;
+    }
+
+    .sidebar:hover .logo-area {
+        justify-content: flex-start;
+        padding-left: 1.5rem;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+        white-space: nowrap;
+        opacity: 0; /* Hide full text initially if strictly icon */
+        transition: opacity 0.2s;
+    }
+    /* Show logo text on hover? Or keep logo as icon? 
+       Let's assume text logo. If text logo, we might need a small icon variant.
+       For now, let's just fade in the text.
+    */
+    .sidebar:hover .logo {
+        opacity: 1;
+    }
+    /* Add a pseudo-icon for logo if needed, or user ok with empty top? 
+       Supabase usually has an icon at top. Let's ensure Site Title is visible only on hover, 
+       maybe show first char as logo? 
+       Let's try: Logo always visible but truncated? 
+       Actually, common pattern: Logo Icon (always) + Brand Name (fade in).
+       Current site just has text. Let's just make it fade in/out.
+    */
+
+    /* REVISION: Logo Text handling */
+    .logo-area {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        padding: 0 0 0 1.2rem; /* Align with icons */
+        transition: padding 0.3s;
+    }
+    .logo {
+        opacity: 0;
+        transition: opacity 0.2s 0.1s; /* Delay fade in */
+        pointer-events: none;
+    }
+    .sidebar:hover .logo {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .nav-links {
+        flex: 1;
+        padding: 1rem 0.5rem; /* Reduced vertical padding */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .nav-group {
+        margin-bottom: 1rem; /* Much tighter group spacing */
+        display: flex;
+        flex-direction: column;
+        gap: 2px; /* Very tight gap between items */
+    }
+
+    .group-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #6c6c6c;
+        margin-bottom: 0.25rem;
+        padding-left: 1rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .sidebar:hover .group-title {
+        opacity: 1;
+    }
+
+    a {
+        display: flex;
+        align-items: center;
+        padding: 0 0.75rem;
+        color: #9b9b9b;
+        text-decoration: none;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        height: 32px; /* Ultra Compact Height */
+        box-sizing: border-box;
+    }
+
+    a:hover {
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+
+    a.active {
+        background-color: rgba(255, 255, 255, 0.1); /* Antigravity Soft Gray */
+        color: white;
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .icon {
+        margin-right: 1rem;
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0; /* Don't shrink icon */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Link Text Label */
+    .link-text {
+        opacity: 0;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+    }
+    .sidebar:hover .link-text {
+        opacity: 1;
+    }
+
+    .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid #2e2e2e;
+        font-size: 0.75rem;
+        color: #555;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .sidebar:hover .sidebar-footer {
+        opacity: 1;
+    }
+
+    /* Mobile: Hidden by default, toggled via class */
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 260px; /* Mobile always full width when open */
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .logo,
+        .group-title,
+        .link-text,
+        .sidebar-footer {
+            opacity: 1; /* Always visible on mobile open */
+        }
+    }
+</style>

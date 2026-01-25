@@ -1,0 +1,142 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Sidebar from "../components/Sidebar.astro";
+import Icon from "../components/Icon.astro";
+import Footer from "../components/Footer.astro"; // Optional: We might simplify footer in dashboard
+import PWAInstall from "../components/PWAInstall.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+    <head>
+        <BaseHead
+            title={title ? `${title} - ${SITE_TITLE}` : SITE_TITLE}
+            description={description || SITE_DESCRIPTION}
+        />
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: var(--bg-body);
+                min-height: 100vh;
+            }
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: 60px 1fr;
+                min-height: 100vh;
+            }
+
+            .content-area {
+                padding: 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Mobile Header */
+            .mobile-header {
+                display: none;
+                background: #1c1c1c;
+                color: white;
+                padding: 1rem;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 40;
+            }
+            .hamburger {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0;
+                margin-right: 1rem;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard-grid {
+                    grid-template-columns: 1fr;
+                }
+                .mobile-header {
+                    display: flex;
+                }
+                .content-area {
+                    padding: 1rem;
+                }
+                /* Overlay for sidebar when open */
+                .sidebar-overlay {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 45;
+                }
+                .sidebar-overlay.active {
+                    display: block;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <button id="menuBtn" class="hamburger" aria-label="Menu">
+                <Icon name="menu" size="24" />
+            </button>
+            <span style="font-weight:bold;">{SITE_TITLE}</span>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <Sidebar />
+            <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+            <!-- Main Content -->
+            <main>
+                <div class="content-area">
+                    <slot />
+                </div>
+                <!-- Footer within content area or global? Let's put simplified footer here -->
+                <div
+                    style="margin-top: 4rem; text-align: center; color: #888; font-size: 0.8rem;"
+                >
+                    &copy; 2026 {SITE_TITLE}. All rights reserved.
+                </div>
+            </main>
+        </div>
+
+        <PWAInstall />
+
+        <script>
+            // Mobile Menu Toggle
+            const menuBtn = document.getElementById("menuBtn");
+            const sidebar = document.querySelector(".sidebar");
+            const overlay = document.getElementById("sidebarOverlay");
+
+            function toggleMenu() {
+                sidebar?.classList.toggle("open");
+                overlay?.classList.toggle("active");
+            }
+
+            menuBtn?.addEventListener("click", toggleMenu);
+            overlay?.addEventListener("click", toggleMenu);
+
+            // Close on link click (mobile)
+            sidebar?.querySelectorAll("a").forEach((link) => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMenu();
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

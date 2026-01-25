@@ -1,201 +1,188 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import DashboardLayout from "../layouts/DashboardLayout.astro";
 import ChecklistItem from "../components/ChecklistItem.astro";
 import Lightbox from "../components/Lightbox.astro";
+import Icon from "../components/Icon.astro";
 import { getCollection } from "astro:content";
 
 const items = await getCollection("inspection");
 const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 ---
 
-<!doctype html>
-<html lang="ko">
-	<head>
-		<BaseHead
-			title="방사선분야 정기검사 스마트 가이드"
-			description="대한핵의학회 방사선안전위원회 정기검사 체크리스트"
+<DashboardLayout title="정기검사 체크리스트">
+	<style>
+		/* main width is defined in global.css */
+		.intro {
+			margin-bottom: 2rem;
+			background-color: var(--bg-card);
+			padding: 1rem;
+			border-radius: 8px;
+			border: 1px solid var(--border-color);
+			color: var(--text-main);
+		}
+		.reset-btn {
+			background-color: #ef4444;
+			color: white;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 0.9rem;
+			margin-top: 1rem;
+		}
+		.download-section {
+			margin-top: 3rem;
+			text-align: center;
+			border-top: 1px solid var(--border-color);
+			padding-top: 2rem;
+		}
+		.download-link {
+			display: inline-block;
+			margin-top: 1rem;
+			padding: 0.75rem 1.5rem;
+			background-color: var(--bg-card);
+			border: 1px solid var(--border-color);
+			color: var(--text-main);
+			text-decoration: none;
+			border-radius: 8px;
+			transition: background-color 0.2s;
+		}
+		.download-link:hover {
+			background-color: var(--bg-sidebar);
+			border-color: var(--accent);
+		}
+		.search-container {
+			position: relative;
+			margin-bottom: 1.5rem;
+		}
+		#searchInput {
+			width: 100%;
+			padding: 0.75rem 1rem 0.75rem 2.5rem; /* Compact padding */
+			font-size: 0.9rem; /* Compact font */
+			border: 1px solid var(--border-color);
+			border-radius: 99px;
+			box-shadow: 0 1px 2px var(--shadow-color);
+			transition:
+				border-color 0.2s,
+				box-shadow 0.2s;
+			background-color: var(--bg-card);
+			color: var(--text-main);
+		}
+		#searchInput:focus {
+			outline: none;
+			border-color: var(--accent);
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+		}
+		.search-icon {
+			position: absolute;
+			left: 1.25rem;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #9ca3af;
+			pointer-events: none;
+		}
+	</style>
+
+	<h1>
+		<Icon name="clipboard" size="32" class="inline-icon" /> 정기검사 체크리스트
+	</h1>
+
+	<div class="intro">
+		<p>
+			이 페이지는 <strong>스마트폰에 최적화된</strong> 대화형 체크리스트입니다.<br
+			/>
+			항목을 터치하여 세부 내용을 확인하고, 점검을 완료하면 체크박스를 눌러
+			상태를 저장하세요. (저장된 상태는 브라우저에 남습니다.)
+		</p>
+		<button id="resetBtn" class="reset-btn">초기화 (선택 해제)</button>
+	</div>
+
+	<div class="search-container">
+		<input
+			type="text"
+			id="searchInput"
+			placeholder="검색어를 입력하세요 (예: 종사자, 기록)"
+			aria-label="체크리스트 검색"
 		/>
-		<style>
-			/* main width is defined in global.css */
-			.intro {
-				margin-bottom: 2rem;
-				background-color: #f3f4f6;
-				padding: 1rem;
-				border-radius: 8px;
-			}
-			.reset-btn {
-				background-color: #ef4444;
-				color: white;
-				border: none;
-				padding: 0.5rem 1rem;
-				border-radius: 4px;
-				cursor: pointer;
-				font-size: 0.9rem;
-				margin-top: 1rem;
-			}
-			.download-section {
-				margin-top: 3rem;
-				text-align: center;
-				border-top: 1px solid #eee;
-				padding-top: 2rem;
-			}
-			.download-link {
-				display: inline-block;
-				margin-top: 1rem;
-				padding: 0.75rem 1.5rem;
-				background-color: rgb(var(--gray));
-				color: white;
-				text-decoration: none;
-				border-radius: 8px;
-			}
-			.search-container {
-				position: relative;
-				margin-bottom: 1.5rem;
-			}
-			#searchInput {
-				width: 100%;
-				padding: 1rem 1rem 1rem 3rem;
-				font-size: 1rem;
-				border: 1px solid #d1d5db;
-				border-radius: 99px;
-				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-				transition:
-					border-color 0.2s,
-					box-shadow 0.2s;
-			}
-			#searchInput:focus {
-				outline: none;
-				border-color: #2563eb;
-				box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-			}
-			.search-icon {
-				position: absolute;
-				left: 1.25rem;
-				top: 50%;
-				transform: translateY(-50%);
-				color: #9ca3af;
-				pointer-events: none;
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>✅ 정기검사 체크리스트</h1>
+		<span class="search-icon"><Icon name="search" size="20" /></span>
+	</div>
 
-			<div class="intro">
-				<p>
-					이 페이지는 <strong>스마트폰에 최적화된</strong> 대화형 체크리스트입니다.<br
-					/>
-					항목을 터치하여 세부 내용을 확인하고, 점검을 완료하면 체크박스를
-					눌러 상태를 저장하세요. (저장된 상태는 브라우저에 남습니다.)
-				</p>
-				<button id="resetBtn" class="reset-btn"
-					>초기화 (선택 해제)</button
-				>
-			</div>
+	<div class="checklist-container" id="checklistContainer">
+		{sortedItems.map((item) => <ChecklistItem item={item} />)}
+	</div>
 
-			<div class="search-container">
-				<input
-					type="text"
-					id="searchInput"
-					placeholder="검색어를 입력하세요 (예: 종사자, 기록)"
-					aria-label="체크리스트 검색"
-				/>
-				<span class="search-icon">🔍</span>
-			</div>
+	<div
+		id="noResults"
+		style="display: none; text-align: center; padding: 2rem; color: #6b7280;"
+	>
+		검색 결과가 없습니다.
+	</div>
 
-			<div class="checklist-container" id="checklistContainer">
-				{sortedItems.map((item) => <ChecklistItem item={item} />)}
-			</div>
+	<div class="download-section">
+		<p>전체 내용을 원본으로 확인하시려면 PDF를 다운로드하세요.</p>
+		<a
+			href="/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf"
+			class="download-link"
+			download
+		>
+			📄 원본 PDF 다운로드
+		</a>
+	</div>
 
-			<div
-				id="noResults"
-				style="display: none; text-align: center; padding: 2rem; color: #6b7280;"
-			>
-				검색 결과가 없습니다.
-			</div>
+	<Lightbox />
 
-			<div class="download-section">
-				<p>전체 내용을 원본으로 확인하시려면 PDF를 다운로드하세요.</p>
-				<a
-					href="/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf"
-					class="download-link"
-					download
-				>
-					📄 원본 PDF 다운로드
-				</a>
-			</div>
+	<script>
+		document.addEventListener("astro:page-load", () => {
+			initChecklistSearch();
+		});
 
-			<Footer />
-			<Lightbox />
+		// Fallback
+		if (document.readyState !== "loading") {
+			initChecklistSearch();
+		}
 
-			<script>
-				document.addEventListener("astro:page-load", () => {
-					initChecklistSearch();
+		function initChecklistSearch() {
+			document
+				.getElementById("resetBtn")
+				?.addEventListener("click", () => {
+					if (confirm("모든 체크 상태를 초기화하시겠습니까?")) {
+						localStorage.clear();
+						window.location.reload();
+					}
 				});
 
-				// Fallback
-				if (document.readyState !== "loading") {
-					initChecklistSearch();
-				}
+			const searchInput = document.getElementById("searchInput");
+			const noResults = document.getElementById("noResults");
 
-				function initChecklistSearch() {
-					document
-						.getElementById("resetBtn")
-						?.addEventListener("click", () => {
-							if (
-								confirm("모든 체크 상태를 초기화하시겠습니까?")
-							) {
-								localStorage.clear();
-								window.location.reload();
-							}
-						});
+			if (searchInput) {
+				searchInput.addEventListener("input", (e) => {
+					const term = e.target.value.toLowerCase().trim();
+					const items = document.querySelectorAll(".checklist-item");
+					let hasResults = false;
 
-					const searchInput = document.getElementById("searchInput");
-					const noResults = document.getElementById("noResults");
+					items.forEach((item) => {
+						// Search within title and content
+						const title =
+							item.querySelector(".title")?.textContent || "";
+						const content =
+							item.querySelector(".content")?.textContent || "";
+						const text = (title + " " + content).toLowerCase();
 
-					if (searchInput) {
-						searchInput.addEventListener("input", (e) => {
-							const term = e.target.value.toLowerCase().trim();
-							const items =
-								document.querySelectorAll(".checklist-item");
-							let hasResults = false;
+						if (text.includes(term)) {
+							item.style.display = "";
+							hasResults = true;
+						} else {
+							item.style.display = "none";
+						}
+					});
 
-							items.forEach((item) => {
-								// Search within title and content
-								const title =
-									item.querySelector(".title")?.textContent ||
-									"";
-								const content =
-									item.querySelector(".content")
-										?.textContent || "";
-								const text = (
-									title +
-									" " +
-									content
-								).toLowerCase();
-
-								if (text.includes(term)) {
-									item.style.display = "";
-									hasResults = true;
-								} else {
-									item.style.display = "none";
-								}
-							});
-
-							if (!hasResults && term !== "") {
-								if (noResults)
-									noResults.style.display = "block";
-							} else {
-								if (noResults) noResults.style.display = "none";
-							}
-						});
+					if (!hasResults && term !== "") {
+						if (noResults) noResults.style.display = "block";
+					} else {
+						if (noResults) noResults.style.display = "none";
 					}
-				}
-			</script>
-		</main>
-	</body>
-</html>
+				});
+			}
+		}
+	</script>
+</DashboardLayout>

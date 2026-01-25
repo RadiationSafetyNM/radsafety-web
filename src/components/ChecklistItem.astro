@@ -1,6 +1,7 @@
 ---
 const { item } = Astro.props;
 const { Content } = await item.render();
+import Icon from "./Icon.astro";
 ---
 
 <div class="checklist-item" data-id={item.id}>
@@ -14,11 +15,11 @@ const { Content } = await item.render();
                 >[{item.data.category}] {item.data.title}
                 <span
                     class="progress-text"
-                    style="font-size: 0.8em; color: var(--gray); font-weight: normal; margin-left: 0.5em;"
+                    style="font-size: 0.8em; color: var(--text-muted); font-weight: normal; margin-left: 0.5em;"
                     >(0/0)</span
                 ></span
             >
-            <span class="icon">▼</span>
+            <span class="icon"><Icon name="chevron-down" size="18" /></span>
         </button>
     </div>
     <div class="panel">
@@ -32,14 +33,17 @@ const { Content } = await item.render();
                             type="button"
                             style="background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; padding: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;"
                         >
-                            <span class="icon">📄</span> 예시서류 보기
+                            <span class="icon">
+                                <Icon name="document" size="16" />
+                            </span>{" "}
+                            예시서류 보기
                         </button>
                         <div
                             class="example-content"
-                            style="display: none; margin-top: 0.5rem; padding: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;"
+                            style="display: none; margin-top: 0.5rem; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px;"
                         >
                             {item.data.example && (
-                                <p style="margin: 0 0 0.5rem 0; font-size: 0.9em; white-space: pre-line; color: #475569;">
+                                <p style="margin: 0 0 0.5rem 0; font-size: 0.9em; white-space: pre-line;">
                                     {item.data.example}
                                 </p>
                             )}
@@ -62,18 +66,24 @@ const { Content } = await item.render();
 
 <style>
     .checklist-item {
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border-color);
         margin-bottom: 0.5rem;
         border-radius: 8px;
-        background: white;
+        background: var(--bg-card);
         overflow: hidden;
+        box-shadow: 0 1px 2px var(--shadow-color);
     }
 
     .header {
         display: flex;
         align-items: center;
-        padding: 0.75rem;
-        background: #f9fafb;
+        padding: 0.5rem 0.75rem; /* Compact padding */
+        background: var(--bg-card); /* Keep header same as card bg */
+        transition: background-color 0.2s;
+    }
+    .checklist-item.open .header {
+        background: var(--bg-sidebar); /* Darker when open */
+        border-bottom: 1px solid var(--border-color);
     }
 
     .checkbox-container {
@@ -94,7 +104,8 @@ const { Content } = await item.render();
     .checkmark {
         height: 24px;
         width: 24px;
-        background-color: #eee;
+        background-color: var(--bg-body); /* Dark bg for checkbox */
+        border: 1px solid var(--border-color);
         border-radius: 50%;
         display: inline-block;
         position: relative;
@@ -102,6 +113,7 @@ const { Content } = await item.render();
 
     .checklist-item.checked .checkmark {
         background-color: var(--accent);
+        border-color: var(--accent);
     }
 
     .checkmark:after {
@@ -135,15 +147,14 @@ const { Content } = await item.render();
         align-items: center;
         cursor: pointer;
         padding: 0;
-        color: #333;
+        color: var(--text-main);
         font-weight: 500;
     }
 
     .panel {
         display: none;
         padding: 0 1rem 1rem 1rem;
-        border-top: 1px solid #e5e7eb;
-        background: white;
+        background: var(--bg-body); /* Content body distinct bg */
     }
 
     .panel.open {
@@ -152,14 +163,18 @@ const { Content } = await item.render();
 
     .icon {
         transition: transform 0.3s ease;
-    }
-
-    .panel.open + .header .icon {
-        /* This selector is wrong logical order but will fix in script */
+        color: var(--text-muted);
     }
 
     .checklist-item.open .icon {
         transform: rotate(180deg);
+    }
+
+    /* Example Content Styles */
+    .example-content {
+        background-color: #27272a !important; /* Force dark bg for example box */
+        border-color: var(--border-color) !important;
+        color: var(--text-muted) !important;
     }
 </style>
 
@@ -310,9 +325,12 @@ const { Content } = await item.render();
                     e.stopPropagation(); // Prevent accordion toggle
                     const isVisible = exampleContent.style.display === "block";
                     exampleContent.style.display = isVisible ? "none" : "block";
+                    // Just toggle text, keep icon
+                    const iconSvg =
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"></path></svg>';
                     exampleBtn.innerHTML = isVisible
-                        ? '<span class="icon">📄</span> 예시서류 보기'
-                        : '<span class="icon">📂</span> 예시서류 접기';
+                        ? `<span class="icon">${iconSvg}</span> 예시서류 보기`
+                        : `<span class="icon">${iconSvg}</span> 예시서류 접기`;
                 });
             }
         });
