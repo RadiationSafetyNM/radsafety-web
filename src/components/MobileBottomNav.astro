@@ -1,0 +1,99 @@
+---
+import Icon from "./Icon.astro";
+const { pathname } = Astro.url;
+
+// Navigation Items
+const navItems = [
+    { href: "/radsafety/", icon: "home", label: "홈" },
+    {
+        href: "/radsafety/inspection-guide",
+        icon: "check-square",
+        label: "체크리스트",
+    },
+    {
+        href: "/radsafety/inspection-findings",
+        icon: "search",
+        label: "지적사례",
+    },
+    { href: "/radsafety/resources", icon: "document-text", label: "자료실" },
+    { href: "/radsafety/mypage", icon: "user", label: "마이페이지" },
+];
+
+const isActive = (href) => {
+    if (href === "/radsafety/")
+        return pathname === "/radsafety" || pathname === "/radsafety/";
+    return pathname.startsWith(href);
+};
+---
+
+<nav class="mobile-bottom-nav">
+    {
+        navItems.map((item) => (
+            <a
+                href={item.href}
+                class={`nav-item ${isActive(item.href) ? "active" : ""}`}
+            >
+                <div class="icon-container">
+                    <Icon name={item.icon} size="24" />
+                </div>
+                <span class="label">{item.label}</span>
+            </a>
+        ))
+    }
+</nav>
+
+<style>
+    .mobile-bottom-nav {
+        display: none; /* Hidden on Desktop */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: rgba(28, 28, 28, 0.95); /* Dark Translucent */
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #333;
+        z-index: 100;
+        justify-content: space-around;
+        align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+        box-sizing: content-box;
+    }
+
+    .nav-item {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        color: #888;
+        transition: color 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-item.active {
+        color: #3b82f6; /* Accent Blue */
+    }
+
+    .nav-item.active .icon-container {
+        transform: translateY(-2px);
+    }
+
+    .icon-container {
+        margin-bottom: 2px;
+        transition: transform 0.2s;
+    }
+
+    .label {
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-bottom-nav {
+            display: flex;
+        }
+    }
+</style>

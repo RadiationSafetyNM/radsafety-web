@@ -1,12 +1,14 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Sidebar from "../components/Sidebar.astro";
+import MobileBottomNav from "../components/MobileBottomNav.astro";
 import Icon from "../components/Icon.astro";
 import Footer from "../components/Footer.astro"; // Optional: We might simplify footer in dashboard
 import PWAInstall from "../components/PWAInstall.astro";
+import { ViewTransitions } from "astro:transitions";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
-const { title, description } = Astro.props;
+const { title, description, scale } = Astro.props;
 ---
 
 <!doctype html>
@@ -15,7 +17,9 @@ const { title, description } = Astro.props;
         <BaseHead
             title={title ? `${title} - ${SITE_TITLE}` : SITE_TITLE}
             description={description || SITE_DESCRIPTION}
+            scale={scale}
         />
+        <ViewTransitions />
         <style>
             body {
                 margin: 0;
@@ -27,6 +31,11 @@ const { title, description } = Astro.props;
                 display: grid;
                 grid-template-columns: 60px 1fr;
                 min-height: 100vh;
+            }
+
+            main {
+                grid-column: 2; /* Force content to second column */
+                min-width: 0; /* Prevent grid blowout */
             }
 
             .content-area {
@@ -62,6 +71,9 @@ const { title, description } = Astro.props;
                 .dashboard-grid {
                     grid-template-columns: 1fr;
                 }
+                main {
+                    grid-column: 1; /* Reset for mobile */
+                }
                 .mobile-header {
                     display: flex;
                 }
@@ -86,57 +98,53 @@ const { title, description } = Astro.props;
         </style>
     </head>
     <body>
-        <!-- Mobile Header -->
+        <!-- Mobile Header (Simplified: Just Brand & Bell) -->
         <div class="mobile-header">
-            <button id="menuBtn" class="hamburger" aria-label="Menu">
-                <Icon name="menu" size="24" />
-            </button>
-            <span style="font-weight:bold;">{SITE_TITLE}</span>
+            <span style="font-weight:bold; font-size:1.1rem; flex:1;"
+                >{SITE_TITLE}</span
+            >
+            <a
+                href="/radsafety/notifications"
+                style="color:white; position:relative;"
+            >
+                <Icon name="bell" size="24" />
+                <span
+                    class="global-noti-dot"
+                    style="position:absolute; top:0; right:0; width:8px; height:8px; background:#ef4444; border-radius:50%;"
+                ></span>
+            </a>
         </div>
 
         <div class="dashboard-grid">
-            <!-- Sidebar -->
+            <!-- Sidebar (Desktop Only now) -->
             <Sidebar />
-            <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
             <!-- Main Content -->
-            <main>
+            <main transition:animate="slide">
                 <div class="content-area">
                     <slot />
                 </div>
-                <!-- Footer within content area or global? Let's put simplified footer here -->
-                <div
-                    style="margin-top: 4rem; text-align: center; color: #888; font-size: 0.8rem;"
-                >
-                    &copy; 2026 {SITE_TITLE}. All rights reserved.
-                </div>
+                <div style="height: 80px;"></div>
+                <!-- Spacer for Bottom Nav -->
             </main>
         </div>
 
+        <MobileBottomNav />
         <PWAInstall />
 
         <script>
-            // Mobile Menu Toggle
-            const menuBtn = document.getElementById("menuBtn");
-            const sidebar = document.querySelector(".sidebar");
-            const overlay = document.getElementById("sidebarOverlay");
+            // Mobile Menu Toggle - REMOVED (Replaced by Bottom Nav)
+            // const menuBtn = document.getElementById("menuBtn");
+            // const sidebar = document.querySelector(".sidebar");
+            // const overlay = document.getElementById("sidebarOverlay");
 
-            function toggleMenu() {
-                sidebar?.classList.toggle("open");
-                overlay?.classList.toggle("active");
-            }
+            // function toggleMenu() {
+            //     sidebar?.classList.toggle("open");
+            //     overlay?.classList.toggle("active");
+            // }
 
-            menuBtn?.addEventListener("click", toggleMenu);
-            overlay?.addEventListener("click", toggleMenu);
-
-            // Close on link click (mobile)
-            sidebar?.querySelectorAll("a").forEach((link) => {
-                link.addEventListener("click", () => {
-                    if (window.innerWidth <= 768) {
-                        toggleMenu();
-                    }
-                });
-            });
+            // menuBtn?.addEventListener("click", toggleMenu);
+            // overlay?.addEventListener("click", toggleMenu);
         </script>
     </body>
 </html>

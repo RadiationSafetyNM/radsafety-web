@@ -1,0 +1,447 @@
+---
+import DashboardLayout from "../layouts/DashboardLayout.astro";
+import Icon from "../components/Icon.astro";
+
+// Mock Data for Resources (Eventually from Supabase or Content Collection)
+// Mock Data for Resources (Eventually from Supabase or Content Collection)
+const resources = [
+    {
+        id: 1,
+        title: "방사선분야 정기검사 수검가이드 (2022년 개정)",
+        category: "가이드북",
+        date: "2022-12-01",
+        author: "KINS",
+        fileSize: "PDF",
+        isNew: false,
+        path: "/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf",
+        type: "pdf",
+    },
+    {
+        id: 2,
+        title: "2024년도 방사선안전관리 정기검사 수검 가이드 (예시)",
+        category: "가이드북",
+        date: "2024-01-15",
+        author: "관리자",
+        fileSize: "2.4MB",
+        isNew: true,
+        path: "#",
+        type: "file",
+    },
+    {
+        id: 3,
+        title: "방사선작업종사자 교육일지 양식 (HWP)",
+        category: "서식",
+        date: "2023-12-20",
+        author: "관리자",
+        fileSize: "45KB",
+        isNew: false,
+        path: "#",
+        type: "file",
+    },
+    {
+        id: 4,
+        title: "방사선기기 자체점검 체크리스트",
+        category: "서식",
+        date: "2023-11-05",
+        author: "관리자",
+        fileSize: "120KB",
+        isNew: false,
+        path: "#",
+        type: "file",
+    },
+    {
+        id: 5,
+        title: "원자력안전법 주요 개정사항 요약 (2023년 하반기)",
+        category: "법령정보",
+        date: "2023-10-10",
+        author: "관리자",
+        fileSize: "1.1MB",
+        isNew: false,
+        path: "#",
+        type: "file",
+    },
+    {
+        id: 6,
+        title: "건강진단 실시 주기 및 항목 안내",
+        category: "안내문",
+        date: "2023-09-01",
+        author: "관리자",
+        fileSize: "500KB",
+        isNew: false,
+        path: "#",
+        type: "file",
+    },
+];
+
+const categories = ["전체", "가이드북", "서식", "법령정보", "안내문"];
+---
+
+<DashboardLayout title="자료실">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Filter Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; /* Wrap tags like Inspection Findings */
+            /* overflow-x: auto; Remove scrolling */
+            /* padding-bottom: 0.5rem; Not needed if not scrolling */
+        }
+        .tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+        #resourceSearch {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: 99px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        #resourceSearch:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            display: flex;
+        }
+
+        /* List Styles */
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .card-left {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .file-icon-area {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-body);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .resource-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .resource-category {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.1rem;
+        }
+
+        .resource-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .resource-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .new-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background: var(--bg-body);
+            color: var(--accent);
+        }
+
+        @media (max-width: 640px) {
+            .resource-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .card-left {
+                width: 100%;
+            }
+            .download-btn {
+                width: 100%;
+                text-align: center;
+                background: var(--bg-body);
+                border-radius: 6px;
+                padding: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+
+    <div class="page-header">
+        <div class="page-title">
+            <Icon name="document-text" size="28" /> 자료실
+        </div>
+        <!-- Maybe Admin Upload Button later -->
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input
+            type="text"
+            id="resourceSearch"
+            placeholder="자료 검색 (예: 가이드, 서식, 2024)"
+            aria-label="자료 검색"
+        />
+        <span class="search-icon"><Icon name="search" size="18" /></span>
+    </div>
+
+    <div
+        id="noResults"
+        style="display: none; text-align: center; padding: 2rem; color: var(--text-muted);"
+    >
+        검색 결과가 없습니다.
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="tabs">
+        {
+            categories.map((cat, idx) => (
+                <button class={`tab-btn ${idx === 0 ? "active" : ""}`}>
+                    {cat}
+                </button>
+            ))
+        }
+    </div>
+
+    <div class="resource-list">
+        {
+            resources.map((item) =>
+                resources.map((item) => (
+                    <div
+                        class="resource-card"
+                        onclick={`if(event.target.closest('.download-btn')) return; 
+                             ${
+                                 item.path === "#"
+                                     ? "alert('준비 중인 자료입니다.');"
+                                     : item.type === "pdf"
+                                       ? `window.open('${item.path}', '_blank')`
+                                       : `window.location.href='${item.path}'`
+                             }`}
+                    >
+                        <div class="card-left">
+                            <div class="file-icon-area">
+                                <Icon name="document" size="20" />
+                            </div>
+                            <div class="resource-info">
+                                <div>
+                                    <span class="resource-category">
+                                        {item.category}
+                                    </span>
+                                    {item.isNew && (
+                                        <span class="new-badge">N</span>
+                                    )}
+                                </div>
+                                <div class="resource-title">{item.title}</div>
+                                <div class="resource-meta">
+                                    <span>{item.date}</span>
+                                    <span>•</span>
+                                    <span>{item.fileSize}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Explicit Download Action */}
+                        <a
+                            href={item.path}
+                            class="download-btn"
+                            download={item.path !== "#"}
+                            target={
+                                item.path !== "#" && item.type === "pdf"
+                                    ? "_blank"
+                                    : "_self"
+                            }
+                            onclick={
+                                item.path === "#"
+                                    ? "event.preventDefault(); event.stopPropagation(); alert('준비 중인 자료입니다.');"
+                                    : "event.stopPropagation();"
+                            }
+                            aria-label="Download"
+                        >
+                            <Icon name="download" size="20" />
+                        </a>
+                    </div>
+                )),
+            )
+        }
+    </div>
+
+    <script>
+        document.addEventListener("astro:page-load", () => {
+            initResources();
+        });
+
+        if (document.readyState !== "loading") {
+            initResources();
+        }
+
+        function initResources() {
+            const searchInput = document.getElementById("resourceSearch");
+            const tabBtns = document.querySelectorAll(".tab-btn");
+            const cards = document.querySelectorAll(".resource-card");
+            const noResults = document.getElementById("noResults");
+
+            let currentCategory = "전체";
+            let currentSearch = "";
+
+            function filterItems() {
+                let hasVisible = false;
+
+                cards.forEach((card) => {
+                    const title =
+                        card
+                            .querySelector(".resource-title")
+                            ?.textContent.toLowerCase() || "";
+                    const category =
+                        card.querySelector(".resource-category")?.textContent ||
+                        "";
+                    // Using text content searching is adequate for small lists
+                    const matchSearch =
+                        title.includes(currentSearch) ||
+                        category.toLowerCase().includes(currentSearch);
+                    const matchCategory =
+                        currentCategory === "전체" ||
+                        category === currentCategory;
+
+                    if (matchSearch && matchCategory) {
+                        card.style.display = "flex";
+                        hasVisible = true;
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+
+                if (noResults) {
+                    noResults.style.display = hasVisible ? "none" : "block";
+                }
+            }
+
+            // Tab Logic
+            tabBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    tabBtns.forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    currentCategory = btn.textContent.trim();
+                    filterItems();
+                });
+            });
+
+            // Search Logic
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    currentSearch = e.target.value.toLowerCase().trim();
+                    filterItems();
+                });
+            }
+
+            // Download Placeholder (Handled Inline)
+        }
+    </script>
+</DashboardLayout>

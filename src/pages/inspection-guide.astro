@@ -9,26 +9,40 @@ const items = await getCollection("inspection");
 const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 ---
 
-<DashboardLayout title="정기검사 체크리스트">
+<DashboardLayout title="정기검사 체크리스트" scale={0.85}>
 	<style>
 		/* main width is defined in global.css */
 		.intro {
-			margin-bottom: 2rem;
+			margin-bottom: 1.5rem; /* Reduced margin */
 			background-color: var(--bg-card);
-			padding: 1rem;
+			padding: 0.75rem 1rem; /* Compact padding */
 			border-radius: 8px;
 			border: 1px solid var(--border-color);
 			color: var(--text-main);
+			font-size: 0.85rem;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+		.intro p {
+			margin: 0;
+			line-height: 1.4;
 		}
 		.reset-btn {
-			background-color: #ef4444;
+			background-color: #475569; /* Slate 600 - Neutral/Professional */
 			color: white;
 			border: none;
-			padding: 0.5rem 1rem;
-			border-radius: 4px;
+			padding: 0.4rem 0.8rem; /* Smaller padding */
+			border-radius: 6px;
 			cursor: pointer;
-			font-size: 0.9rem;
-			margin-top: 1rem;
+			font-size: 0.8rem;
+			white-space: nowrap;
+			flex-shrink: 0;
+			transition: background-color 0.2s;
+		}
+		.reset-btn:hover {
+			background-color: #334155;
 		}
 		.download-section {
 			margin-top: 3rem;
@@ -37,19 +51,27 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 			padding-top: 2rem;
 		}
 		.download-link {
-			display: inline-block;
+			display: inline-flex;
+			align-items: center;
 			margin-top: 1rem;
-			padding: 0.75rem 1.5rem;
+			padding: 0.75rem 1.25rem;
 			background-color: var(--bg-card);
 			border: 1px solid var(--border-color);
 			color: var(--text-main);
 			text-decoration: none;
 			border-radius: 8px;
 			transition: background-color 0.2s;
+			font-size: 0.9rem;
+			gap: 0.5rem;
 		}
 		.download-link:hover {
 			background-color: var(--bg-sidebar);
 			border-color: var(--accent);
+		}
+		.download-link.secondary {
+			background-color: transparent;
+			border-style: dashed;
+			color: var(--text-muted);
 		}
 		.search-container {
 			position: relative;
@@ -57,6 +79,7 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 		}
 		#searchInput {
 			width: 100%;
+			box-sizing: border-box; /* Fix overflow issues */
 			padding: 0.75rem 1rem 0.75rem 2.5rem; /* Compact padding */
 			font-size: 0.9rem; /* Compact font */
 			border: 1px solid var(--border-color);
@@ -83,18 +106,24 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 		}
 	</style>
 
-	<h1>
-		<Icon name="clipboard" size="32" class="inline-icon" /> 정기검사 체크리스트
-	</h1>
+	<div
+		style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;"
+	>
+		<h1
+			style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;"
+		>
+			<Icon name="check-square" size="20" class="inline-icon" /> 정기검사 체크리스트
+		</h1>
+		<button id="resetBtn" class="reset-btn">초기화 (선택해제)</button>
+	</div>
 
 	<div class="intro">
 		<p>
-			이 페이지는 <strong>스마트폰에 최적화된</strong> 대화형 체크리스트입니다.<br
-			/>
-			항목을 터치하여 세부 내용을 확인하고, 점검을 완료하면 체크박스를 눌러
-			상태를 저장하세요. (저장된 상태는 브라우저에 남습니다.)
+			항목을 터치하여 세부 내용을 확인하고, 점검을 완료하면 체크박스를
+			<strong>눌러 상태를 저장할 수 있습니다.</strong><br />
+			<strong>우측 상단의 초기화</strong> 버튼으로 체크박스를 일괄 초기화 할
+			수 있습니다.
 		</p>
-		<button id="resetBtn" class="reset-btn">초기화 (선택 해제)</button>
 	</div>
 
 	<div class="search-container">
@@ -120,28 +149,117 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 
 	<div class="download-section">
 		<p>전체 내용을 원본으로 확인하시려면 PDF를 다운로드하세요.</p>
-		<a
-			href="/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf"
-			class="download-link"
-			download
+		<div
+			class="button-group"
+			style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap;"
 		>
-			📄 원본 PDF 다운로드
-		</a>
+			<a
+				href="/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf"
+				class="download-link"
+				target="_blank"
+			>
+				👁️ 원본 가이드 보기 (PDF)
+			</a>
+			<a
+				href="/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf"
+				class="download-link secondary"
+				download
+			>
+				💾 다운로드
+			</a>
+		</div>
 	</div>
 
 	<Lightbox />
 
 	<script>
 		document.addEventListener("astro:page-load", () => {
-			initChecklistSearch();
+			initChecklistLogic();
 		});
 
 		// Fallback
 		if (document.readyState !== "loading") {
-			initChecklistSearch();
+			initChecklistLogic();
 		}
 
-		function initChecklistSearch() {
+		function initChecklistLogic() {
+			// Restore state logic
+			const initializeState = () => {
+				document.querySelectorAll(".checklist-item").forEach((item) => {
+					const id = item.dataset.id;
+					const panel = item.querySelector(".panel");
+					const subCheckboxes = panel.querySelectorAll(
+						'input[type="checkbox"]',
+					);
+					const mainCheckbox = item.querySelector(".status-checkbox");
+					const progressText = item.querySelector(".progress-text");
+
+					// Restore Sub Checkboxes
+					subCheckboxes.forEach((cb, idx) => {
+						// Enable them
+						cb.removeAttribute("disabled");
+						cb.style.cursor = "pointer";
+
+						const subKey = `inspection-${id}-sub-${idx}`;
+						if (localStorage.getItem(subKey) === "checked") {
+							cb.checked = true;
+						}
+					});
+
+					// Restore Main Checkbox
+					const mainState = localStorage.getItem(`inspection-${id}`);
+					if (mainState === "checked") {
+						item.classList.add("checked");
+						mainCheckbox.checked = true;
+					}
+
+					updateMainCheckboxUI(item);
+				});
+			};
+
+			const updateMainCheckboxUI = (item) => {
+				const id = item.dataset.id;
+				const panel = item.querySelector(".panel");
+				const mainCheckbox = item.querySelector(".status-checkbox");
+				const progressText = item.querySelector(".progress-text");
+				const subCheckboxes = panel.querySelectorAll(
+					'input[type="checkbox"]',
+				);
+
+				const total = subCheckboxes.length;
+				if (total === 0) return;
+
+				const checkedCount = Array.from(subCheckboxes).filter(
+					(cb) => cb.checked,
+				).length;
+				const allChecked = checkedCount === total;
+
+				if (progressText)
+					progressText.textContent = `(${checkedCount}/${total})`;
+
+				// Sync Main state if needed (optional logic: auto-check main)
+				if (allChecked) {
+					item.classList.add("checked");
+					mainCheckbox.checked = true;
+					localStorage.setItem(`inspection-${id}`, "checked");
+				} else {
+					// Only uncheck main if it was auto-synced?
+					// Let's keep strict sync: if not all checked, main is unchecked?
+					// User logic: Main checkbox is master toggle.
+					const mainState = localStorage.getItem(`inspection-${id}`);
+					if (mainState === "checked" && checkedCount < total) {
+						// If user manually unchecked a sub, main should uncheck?
+						// Yes.
+						item.classList.remove("checked");
+						mainCheckbox.checked = false;
+						localStorage.removeItem(`inspection-${id}`);
+					}
+				}
+			};
+
+			initializeState();
+
+			// SEARCH LOGIC
 			document
 				.getElementById("resetBtn")
 				?.addEventListener("click", () => {
@@ -161,7 +279,6 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 					let hasResults = false;
 
 					items.forEach((item) => {
-						// Search within title and content
 						const title =
 							item.querySelector(".title")?.textContent || "";
 						const content =
@@ -182,6 +299,118 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 						if (noResults) noResults.style.display = "none";
 					}
 				});
+			}
+
+			// GLOBAL DELEGATION FOR CLICK EVENTS
+			const container = document.getElementById("checklistContainer");
+			if (container) {
+				container.onclick = (e) => {
+					const target = e.target;
+
+					// 1. Accordion Toggle (Click on Header or Button)
+					// Target any click within .header that is NOT a checkbox or label for checkbox
+					const header = target.closest(".header");
+					const isCheckbox =
+						target.closest(".checkbox-container") ||
+						target.matches("input[type='checkbox']");
+
+					if (header && !isCheckbox) {
+						const item = header.closest(".checklist-item");
+						const panel = item.querySelector(".panel");
+						const isOpen = panel.classList.contains("open");
+
+						if (!isOpen) {
+							panel.classList.add("open");
+							panel.style.display = "block";
+							item.classList.add("open");
+						} else {
+							panel.classList.remove("open");
+							panel.style.display = "none";
+							item.classList.remove("open");
+						}
+						return;
+					}
+
+					// 2. Main Checkbox Toggle
+					if (target.matches(".status-checkbox")) {
+						const item = target.closest(".checklist-item");
+						const isChecked = target.checked;
+						const id = item.dataset.id;
+						const panel = item.querySelector(".panel");
+						const subCheckboxes = panel.querySelectorAll(
+							'input[type="checkbox"]',
+						);
+
+						if (isChecked) {
+							item.classList.add("checked");
+							localStorage.setItem(`inspection-${id}`, "checked");
+							// Check all subs
+							subCheckboxes.forEach((cb, idx) => {
+								cb.checked = true;
+								localStorage.setItem(
+									`inspection-${id}-sub-${idx}`,
+									"checked",
+								);
+							});
+						} else {
+							item.classList.remove("checked");
+							localStorage.removeItem(`inspection-${id}`);
+							// Uncheck all subs
+							subCheckboxes.forEach((cb, idx) => {
+								cb.checked = false;
+								localStorage.removeItem(
+									`inspection-${id}-sub-${idx}`,
+								);
+							});
+						}
+						updateMainCheckboxUI(item);
+						return;
+					}
+
+					// 3. Sub Checkbox Toggle (inside panel)
+					if (target.matches('.panel input[type="checkbox"]')) {
+						const item = target.closest(".checklist-item");
+						const id = item.dataset.id;
+						// Find index?
+						const panel = item.querySelector(".panel");
+						const subCheckboxes = Array.from(
+							panel.querySelectorAll('input[type="checkbox"]'),
+						);
+						const idx = subCheckboxes.indexOf(target);
+
+						if (idx !== -1) {
+							if (target.checked) {
+								localStorage.setItem(
+									`inspection-${id}-sub-${idx}`,
+									"checked",
+								);
+							} else {
+								localStorage.removeItem(
+									`inspection-${id}-sub-${idx}`,
+								);
+							}
+							updateMainCheckboxUI(item);
+						}
+						return;
+					}
+
+					// 4. Example Toggle
+					const exBtn = target.closest(".example-toggle-btn");
+					if (exBtn) {
+						const wrapper = exBtn.closest(".example-wrapper");
+						const content =
+							wrapper.querySelector(".example-content");
+						const isVisible = content.style.display === "block";
+						content.style.display = isVisible ? "none" : "block";
+
+						const iconSvg =
+							'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"></path></svg>';
+						exBtn.innerHTML = isVisible
+							? `<span class="icon">${iconSvg}</span> 예시서류 보기`
+							: `<span class="icon">${iconSvg}</span> 예시서류 접기`;
+						return;
+					}
+				};
 			}
 		}
 	</script>

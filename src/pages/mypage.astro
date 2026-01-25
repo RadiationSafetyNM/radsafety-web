@@ -108,7 +108,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
         </div>
 
         <div id="guestContent" style="display:none; text-align:center;">
-            <p>로인된 사용자가 아닙니다.</p>
+            <p>로그인된 사용자가 아닙니다.</p>
             <a
                 href="/radsafety/login"
                 style="display:inline-block; margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white; border-radius:6px; text-decoration:none;"
@@ -121,54 +121,26 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
         import { userProfile, clearUser } from "../store/user";
         import { supabase } from "../lib/supabase";
 
-        // Check real Supabase session on load
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
-            if (session?.user) {
-                const { user } = session;
-
-                // Fetch profile from DB
-                const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("is_approved, full_name, avatar_url")
-                    .eq("id", user.id)
-                    .single();
-
-                const isApproved = profile?.is_approved ? "true" : "false";
-
-                userProfile.set({
-                    id: user.id,
-                    email: user.email,
-                    full_name:
-                        profile?.full_name ||
-                        user.user_metadata.full_name ||
-                        user.user_metadata.name ||
-                        "사용자",
-                    avatar_url:
-                        profile?.avatar_url || user.user_metadata.avatar_url,
-                    provider: user.app_metadata.provider || "sns",
-                    is_approved: isApproved,
-                });
-            } else {
-                clearUser();
-            }
-        });
-
-        userProfile.subscribe((user) => {
+        function updateUI(user) {
             const loading = document.getElementById("loading");
             const profile = document.getElementById("profileContent");
             const guest = document.getElementById("guestContent");
 
+            // Hide Loading
             if (loading) loading.style.display = "none";
 
             if (user && user.email) {
+                // Logged In
                 if (profile) profile.style.display = "flex";
                 if (guest) guest.style.display = "none";
 
-                document.getElementById("userName").textContent =
-                    user.full_name || "사용자";
-                document.getElementById("userEmail").textContent = user.email;
-                document.getElementById("provider").textContent =
-                    user.provider || "SNS";
+                const nameEl = document.getElementById("userName");
+                const emailEl = document.getElementById("userEmail");
+                const provEl = document.getElementById("provider");
+
+                if (nameEl) nameEl.textContent = user.full_name || "사용자";
+                if (emailEl) emailEl.textContent = user.email;
+                if (provEl) provEl.textContent = user.provider || "SNS";
 
                 const badge = document.getElementById("statusBadge");
                 if (badge) {
@@ -182,19 +154,94 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                     }
                 }
             } else {
+                // Guest
                 if (profile) profile.style.display = "none";
                 if (guest) guest.style.display = "block";
             }
-        });
+        }
 
-        document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-                if (confirm("로그아웃 하시겠습니까?")) {
-                    await supabase.auth.signOut();
-                    clearUser();
-                    window.location.href = "/radsafety";
-                }
+        function initMyPage() {
+            // Subscribe to store updates
+            userProfile.subscribe((user) => {
+                updateUI(user);
             });
+
+            // Check real session
+            supabase.auth
+                .getSession()
+                .then(async ({ data: { session } }) => {
+                    if (session?.user) {
+                        const { user } = session;
+
+                        // Optimistic UI update first
+                        userProfile.set({
+                            ...userProfile.get(),
+                            id: user.id,
+                            email: user.email,
+                        });
+
+                        // Fetch additional profile data
+                        const { data: profile } = await supabase
+                            .from("profiles")
+                            .select("is_approved, full_name, avatar_url")
+                            .eq("id", user.id)
+                            .single();
+
+                        const isApproved = profile?.is_approved
+                            ? "true"
+                            : "false";
+
+                        userProfile.set({
+                            id: user.id,
+                            email: user.email,
+                            full_name:
+                                profile?.full_name ||
+                                user.user_metadata.full_name ||
+                                "사용자",
+                            avatar_url:
+                                profile?.avatar_url ||
+                                user.user_metadata.avatar_url,
+                            provider: user.app_metadata.provider || "sns",
+                            is_approved: isApproved,
+                        });
+                    } else {
+                        clearUser(); // Only clear if strictly no session
+                        updateUI(null); // Force guest UI
+                    }
+                })
+                .catch((err) => {
+                    console.error("Auth Error:", err);
+                    updateUI(null); // Fallback to guest
+                });
+
+            // Fallback: If loading takes > 2s, force guest view
+            setTimeout(() => {
+                const loading = document.getElementById("loading");
+                if (loading && loading.style.display !== "none") {
+                    updateUI(null);
+                }
+            }, 2000);
+
+            // Logout Handler
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                // Remove old listeners to prevent duplicates if any
+                const newBtn = logoutBtn.cloneNode(true);
+                logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+
+                newBtn.addEventListener("click", async () => {
+                    if (confirm("로그아웃 하시겠습니까?")) {
+                        await supabase.auth.signOut();
+                        clearUser();
+                        window.location.href = "/radsafety";
+                    }
+                });
+            }
+        }
+
+        // Run on page load (support ViewTransitions)
+        document.addEventListener("astro:page-load", initMyPage);
+        // Initial load check
+        // Astro ViewTransitions typically handles this with astro:page-load
     </script>
 </DashboardLayout>

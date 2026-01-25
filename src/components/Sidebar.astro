@@ -36,8 +36,8 @@ const isActive = (href) => {
                 : ""}
             aria-label="Inspection Guide"
         >
-            <span class="icon"><Icon name="clipboard" size="18" /></span>
-            <span class="link-text">정기검사 가이드</span>
+            <span class="icon"><Icon name="check-square" size="18" /></span>
+            <span class="link-text">정기검사 체크리스트</span>
         </a>
         <a
             href="/radsafety/inspection-findings"
@@ -48,6 +48,14 @@ const isActive = (href) => {
         >
             <span class="icon"><Icon name="search" size="18" /></span>
             <span class="link-text">지적권고사항</span>
+        </a>
+        <a
+            href="/radsafety/resources"
+            class={pathname.startsWith("/radsafety/resources") ? "active" : ""}
+            aria-label="Resources"
+        >
+            <span class="icon"><Icon name="document-text" size="18" /></span>
+            <span class="link-text">자료실</span>
         </a>
     </div>
 
@@ -62,6 +70,20 @@ const isActive = (href) => {
             <span class="link-text">마이페이지</span>
         </a>
         <a
+            href="/radsafety/notifications"
+            class={pathname.startsWith("/radsafety/notifications")
+                ? "active"
+                : ""}
+            aria-label="Notifications"
+            style="position: relative;"
+        >
+            <span class="icon">
+                <Icon name="bell" size="18" />
+                <span class="notification-dot"></span>
+            </span>
+            <span class="link-text">알림함</span>
+        </a>
+        <a
             href="/radsafety/login"
             class={pathname.startsWith("/radsafety/login") ? "active" : ""}
             aria-label="Login"
@@ -70,6 +92,20 @@ const isActive = (href) => {
             <span class="link-text">로그인</span>
         </a>
     </div>
+
+    <style>
+        /* Add notification dot style here locally if not global */
+        .notification-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 1px solid #1c1c1c;
+        }
+    </style>
 
     <div class="sidebar-footer">
         <span class="version">v0.1.0 (Beta)</span>

@@ -2,12 +2,12 @@
     <div class="pwa-content">
         <span class="pwa-icon">📱</span>
         <div class="pwa-text">
-            <strong>앱 설치하기</strong>
+            <strong>스마트폰 바탕화면 아이콘 만들기</strong>
             <span
                 >버튼을 누르면 스마트폰 홈 화면에 바로가기 아이콘이 생성됩니다.</span
             >
         </div>
-        <button id="pwa-install-btn" class="pwa-btn">설치</button>
+        <button id="pwa-install-btn" class="pwa-btn">만들기</button>
         <button id="pwa-close-btn" class="pwa-close">×</button>
     </div>
 </div>
@@ -115,7 +115,7 @@
         console.log("PWA Install Component Loaded (Dev Mode)");
         // Create a debug trigger
         const debugBtn = document.createElement("button");
-        debugBtn.textContent = "🔧 앱 설치 테스트";
+        debugBtn.textContent = "🔧 스마트폰 바탕화면 아이콘 만들기 테스트";
         debugBtn.style.cssText =
             "position:fixed; bottom:20px; right:20px; z-index:99999; font-size:14px; padding:10px; background:red; color:white; border-radius:5px;";
         document.body.appendChild(debugBtn);

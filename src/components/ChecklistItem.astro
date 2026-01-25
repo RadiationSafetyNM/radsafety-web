@@ -8,7 +8,12 @@ import Icon from "./Icon.astro";
     <div class="header">
         <label class="checkbox-container">
             <input type="checkbox" class="status-checkbox" />
-            <span class="checkmark"></span>
+            <span class="checkmark-icon unchecked"
+                ><Icon name="square" size="20" /></span
+            >
+            <span class="checkmark-icon checked"
+                ><Icon name="check-square" size="20" /></span
+            >
         </label>
         <button class="accordion-btn">
             <span class="title"
@@ -19,7 +24,7 @@ import Icon from "./Icon.astro";
                     >(0/0)</span
                 ></span
             >
-            <span class="icon"><Icon name="chevron-down" size="18" /></span>
+            <span class="icon"><Icon name="chevron-down" size="16" /></span>
         </button>
     </div>
     <div class="panel">
@@ -72,24 +77,25 @@ import Icon from "./Icon.astro";
         background: var(--bg-card);
         overflow: hidden;
         box-shadow: 0 1px 2px var(--shadow-color);
+        /* Updated to use SVG Icons */
     }
 
     .header {
         display: flex;
         align-items: center;
-        padding: 0.5rem 0.75rem; /* Compact padding */
-        background: var(--bg-card); /* Keep header same as card bg */
+        padding: 0.5rem; /* Ultra Compact padding */
+        background: var(--bg-card);
         transition: background-color 0.2s;
     }
     .checklist-item.open .header {
-        background: var(--bg-sidebar); /* Darker when open */
+        background: var(--bg-sidebar);
         border-bottom: 1px solid var(--border-color);
     }
 
     .checkbox-container {
         display: flex;
         align-items: center;
-        margin-right: 1rem;
+        margin-right: 0.75rem; /* Reduced margin */
         cursor: pointer;
     }
 
@@ -100,65 +106,73 @@ import Icon from "./Icon.astro";
         cursor: pointer;
     }
 
-    /* Custom Checkbox */
-    .checkmark {
-        height: 24px;
-        width: 24px;
-        background-color: var(--bg-body); /* Dark bg for checkbox */
-        border: 1px solid var(--border-color);
-        border-radius: 50%;
-        display: inline-block;
-        position: relative;
+    /* SVG Icon Checkbox */
+    .checkmark-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted); /* Unchecked color: Grey */
+        transition: color 0.2s;
     }
 
-    .checklist-item.checked .checkmark {
-        background-color: var(--accent);
-        border-color: var(--accent);
+    .checkmark-icon.checked {
+        display: none; /* Hide checked icon by default */
+        color: var(--text-main); /* Checked color: White/Bright */
     }
 
-    .checkmark:after {
-        content: "";
-        position: absolute;
-        display: none;
+    .checklist-item.checked .checkmark-icon.unchecked {
+        display: none; /* Hide unchecked icon when item is checked */
     }
 
-    .checklist-item.checked .checkmark:after {
-        display: block;
+    .checklist-item.checked .checkmark-icon.checked {
+        display: flex; /* Show checked icon when item is checked */
     }
 
-    .checklist-item.checked .checkmark:after {
-        left: 9px;
-        top: 5px;
-        width: 5px;
-        height: 10px;
-        border: solid white;
-        border-width: 0 3px 3px 0;
-        transform: rotate(45deg);
+    /* Hover effect */
+    .checkbox-container:hover .checkmark-icon {
+        color: var(--text-main);
     }
 
     .accordion-btn {
         background: none;
         border: none;
         text-align: left;
-        font-size: 1rem;
+        font-size: 1rem; /* Increased from 0.85rem */
+        line-height: 1.3;
         flex-grow: 1;
         display: flex;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
         padding: 0;
-        color: var(--text-main);
+        color: var(--text-main); /* Ensure visible color */
         font-weight: 500;
+        gap: 0.5rem;
+    }
+
+    .accordion-btn .title {
+        display: block;
+        width: 100%;
+    }
+
+    /* Sub-text size override */
+    .progress-text {
+        font-size: 0.75em !important;
+        opacity: 0.8;
+        color: #9ca3af;
     }
 
     .panel {
-        display: none;
-        padding: 0 1rem 1rem 1rem;
-        background: var(--bg-body); /* Content body distinct bg */
+        display: none !important; /* Force hidden by default */
+        padding: 0 0.5rem 0.5rem 0.5rem;
+        background: var(--bg-body);
+        font-size: 0.85rem;
+        color: #d1d5db;
+        line-height: 1.5;
     }
 
     .panel.open {
-        display: block;
+        display: block !important;
     }
 
     .icon {
@@ -309,9 +323,11 @@ import Icon from "./Icon.astro";
                 const isOpen = panel.classList.contains("open");
                 if (!isOpen) {
                     panel.classList.add("open");
+                    panel.style.display = "block"; // Force show
                     item.classList.add("open");
                 } else {
                     panel.classList.remove("open");
+                    panel.style.display = "none"; // Force hide
                     item.classList.remove("open");
                 }
             });

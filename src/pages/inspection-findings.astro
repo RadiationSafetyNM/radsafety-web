@@ -43,40 +43,108 @@ const categoryOrder = [
 categories.sort((a, b) => {
     return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
 });
+
+// Popular Tags for Quick Filtering
+const POPULAR_TAGS = [
+    { label: "전체", value: "all" },
+    { label: "🚨 주요지적", value: "highlight" },
+    { label: "교육/훈련", value: "교육" },
+    { label: "건강진단", value: "건강" },
+    { label: "기록관리", value: "기록" },
+    { label: "방사선원", value: "선원" },
+    { label: "시설/잠금", value: "시설" },
+    { label: "폐기물", value: "폐기물" },
+];
 ---
 
 <DashboardLayout title="지적권고사항">
     <style>
-        .search-container {
-            position: relative;
-            max-width: 600px;
+        .page-header-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Search & Tag Area */
+        .controls-container {
+            max-width: 800px;
             margin: 0 auto 2rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Search Input */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
         }
         #searchInput {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            font-size: 1rem;
-            border: 1px solid #d1d5db;
+            box-sizing: border-box; /* Fix overflow */
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
             border-radius: 99px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            transition:
-                border-color 0.2s,
-                box-shadow 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            color: var(--text-main);
         }
         #searchInput:focus {
             outline: none;
-            border-color: #2563eb;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         .search-icon {
             position: absolute;
-            left: 1.25rem;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
+            color: var(--text-muted);
             pointer-events: none;
+            display: flex;
         }
-        /* DashboardLayout handles main width, but we can center content max-width if needed */
+
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .tag-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .tag-btn:hover {
+            background: var(--bg-body);
+            color: var(--text-main);
+            border-color: var(--text-muted);
+        }
+        .tag-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        /* Highlight Tag Special Style */
+        .tag-btn[data-value="highlight"] {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .tag-btn[data-value="highlight"].active {
+            background: #ef4444;
+            color: white;
+        }
 
         /* Category Accordion Styles */
         .category-accordion {
@@ -228,20 +296,41 @@ categories.sort((a, b) => {
         }
     </style>
 
-    <h1>지적권고사항</h1>
-    <p style="margin-bottom:2rem; color:#6b7280;">
-        과거 정기검사에서 빈번하게 지적된 사례들을 체크리스트 분류별로
-        정리했습니다. 각 항목을 클릭하여 확인하세요.
-    </p>
+    <div class="page-header-area">
+        <h1>지적권고사항</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+            주요 지적 사례를 키워드로 쉽게 찾아보세요.<br />
+            <span style="font-size:0.85rem; opacity:0.8;"
+                >※ 각 항목을 클릭하면 상세 내용과 조치 방안을 볼 수 있습니다.</span
+            >
+        </p>
+    </div>
 
-    <div class="search-container">
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="검색어를 입력하세요 (예: 잠금장치, 기록)"
-            aria-label="지적사항 검색"
-        />
-        <span class="search-icon"><Icon name="search" size="20" /></span>
+    <div class="controls-container">
+        <!-- Tag Cloud -->
+        <div class="tag-cloud">
+            {
+                POPULAR_TAGS.map((tag) => (
+                    <button
+                        class={`tag-btn ${tag.value === "all" ? "active" : ""}`}
+                        data-value={tag.value}
+                    >
+                        {tag.label}
+                    </button>
+                ))
+            }
+        </div>
+
+        <!-- Search Input -->
+        <div class="search-wrapper">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="검색어를 입력하세요 (예: 잠금장치, 기록)"
+                aria-label="지적사항 검색"
+            />
+            <span class="search-icon"><Icon name="search" size="18" /></span>
+        </div>
     </div>
 
     <div id="findingsContainer">
@@ -360,62 +449,105 @@ categories.sort((a, b) => {
                 });
             });
 
-            // 2. Search Logic
+            // 2. Search & Tag Logic
             const searchInput = document.getElementById("searchInput");
+            const tagBtns = document.querySelectorAll(".tag-btn");
             const noResults = document.getElementById("noResults");
 
-            if (searchInput) {
-                searchInput.addEventListener("input", (e) => {
-                    const term = e.target.value.toLowerCase().trim();
-                    let hasOverallResults = false;
+            let currentTag = "all";
+            let currentSearch = "";
 
-                    catAccs.forEach((cat) => {
-                        const findings = cat.querySelectorAll(".finding-card");
-                        let hasVisibleChildren = false;
+            function applyFilters() {
+                let hasOverallResults = false;
+                const isHighlightMode = currentTag === "highlight"; // Special logic for highlight? Or just string matching?
+                // For 'highlight', we might match a specific flag if we had one.
+                // For now, let's treat it as a keyword search for "중요" or "위반"?
+                // Or maybe just filter by specific IDs?
+                // Simpler: Just search categories or specific keywords.
+                // Let's assume 'highlight' searches for terms like "과태료", "행정처분", "중요" or we just treat it as a broad search.
+                // Actually, let's treat 'highlight' as searching for "위반" or "지적".
+                // But better: Let's assume the user wants to filter by the value.
 
-                        findings.forEach((finding) => {
-                            const text = finding.dataset.search || "";
-                            if (text.includes(term)) {
-                                finding.style.display = "";
-                                hasVisibleChildren = true;
-                                if (term !== "") {
-                                    finding.classList.add("open");
-                                } else {
-                                    finding.classList.remove("open");
-                                }
+                catAccs.forEach((cat) => {
+                    const findings = cat.querySelectorAll(".finding-card");
+                    let hasVisibleChildren = false;
+
+                    findings.forEach((finding) => {
+                        const text = finding.dataset.search || "";
+
+                        // Tag Match
+                        let tagMatch = true;
+                        if (currentTag !== "all") {
+                            if (currentTag === "highlight") {
+                                // Smart logic: "Highlight" matches warnings/violations?
+                                // Let's match text "위반" or "부적합"
+                                tagMatch =
+                                    text.includes("위반") ||
+                                    text.includes("부적합") ||
+                                    text.includes("과태료");
                             } else {
-                                finding.style.display = "none";
+                                tagMatch = text.includes(currentTag);
+                            }
+                        }
+
+                        // Search Match
+                        const searchMatch = text.includes(currentSearch);
+
+                        if (tagMatch && searchMatch) {
+                            finding.style.display = "";
+                            hasVisibleChildren = true;
+                            // Auto-open if filtering is active (either tag or search)
+                            if (currentTag !== "all" || currentSearch !== "") {
+                                finding.classList.add("open");
+                            } else {
                                 finding.classList.remove("open");
                             }
-                        });
-
-                        if (hasVisibleChildren) {
-                            cat.style.display = "";
-                            if (term !== "") {
-                                cat.classList.add("open");
-                            } else {
-                                cat.classList.remove("open");
-                                findings.forEach((f) => (f.style.display = ""));
-                            }
-                            hasOverallResults = true;
                         } else {
-                            if (term !== "") {
-                                cat.style.display = "none";
-                                cat.classList.remove("open");
-                            } else {
-                                cat.style.display = "";
-                                cat.classList.remove("open");
-                            }
+                            finding.style.display = "none";
+                            finding.classList.remove("open");
                         }
                     });
 
-                    if (term !== "" && !hasOverallResults) {
-                        noResults.style.display = "block";
+                    if (hasVisibleChildren) {
+                        cat.style.display = "";
+                        if (currentTag !== "all" || currentSearch !== "") {
+                            cat.classList.add("open");
+                        } else {
+                            cat.classList.remove("open");
+                        }
+                        hasOverallResults = true;
                     } else {
-                        noResults.style.display = "none";
+                        cat.style.display = "none";
+                        cat.classList.remove("open");
                     }
                 });
+
+                if (noResults) {
+                    noResults.style.display = hasOverallResults
+                        ? "none"
+                        : "block";
+                }
             }
+
+            // Event Listeners
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    currentSearch = e.target.value.toLowerCase().trim();
+                    applyFilters();
+                });
+            }
+
+            tagBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    // UI Update
+                    tagBtns.forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
+
+                    // Logic Update
+                    currentTag = btn.dataset.value;
+                    applyFilters();
+                });
+            });
         }
     </script>
 </DashboardLayout>

@@ -1,0 +1,245 @@
+---
+import DashboardLayout from "../layouts/DashboardLayout.astro";
+import Icon from "../components/Icon.astro";
+
+// Mock Notifications
+const notifications = [
+    {
+        id: 1,
+        title: "2024년 정기검사 가이드가 업데이트되었습니다.",
+        timestamp: "5분 전",
+        isRead: false,
+        type: "notice",
+    },
+    // Item removed as per request
+    {
+        id: 3,
+        title: "새로운 지적사례가 등록되었습니다: #방사선원 관리",
+        timestamp: "1일 전",
+        isRead: true,
+        type: "info",
+    },
+    {
+        id: 4,
+        title: "서비스 점검 안내 (1월 30일 02:00 ~ 04:00)",
+        timestamp: "3일 전",
+        isRead: true,
+        type: "notice",
+    },
+];
+---
+
+<DashboardLayout title="알림함">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .mark-read-btn {
+            font-size: 0.85rem;
+            color: var(--accent);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .mark-read-btn:hover {
+            text-decoration: underline;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-item:hover {
+            background: var(--bg-card);
+        }
+        .notification-item.unread {
+            background: rgba(37, 99, 235, 0.05); /* Soft Blue Tint */
+        }
+        .notification-item.unread:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .noti-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* Icon Colors per type */
+        .notification-item.type-alert .noti-icon {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .notification-item.type-notice .noti-icon {
+            color: #2563eb;
+            border-color: rgba(37, 99, 235, 0.3);
+            background: rgba(37, 99, 235, 0.1);
+        }
+        .notification-item.type-info .noti-icon {
+            color: #10b981;
+        }
+
+        .noti-content {
+            flex: 1;
+        }
+        .noti-title {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }
+        .notification-item.unread .noti-title {
+            font-weight: 600;
+        }
+        .noti-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .unread-dot {
+            position: absolute;
+            top: 1.5rem;
+            right: 1rem;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-muted);
+        }
+    </style>
+
+    <div class="page-header">
+        <div class="page-title">
+            <Icon name="bell" size="28" /> 알림함
+        </div>
+        <button class="mark-read-btn">모두 읽음으로 표시</button>
+    </div>
+
+    <div class="notification-list">
+        {
+            notifications.map((noti) => (
+                <div
+                    class={`notification-item ${noti.isRead ? "" : "unread"} type-${noti.type}`}
+                >
+                    <div class="noti-icon">
+                        <Icon
+                            name={
+                                noti.type === "alert"
+                                    ? "bell"
+                                    : noti.type === "notice"
+                                      ? "document-text"
+                                      : "clipboard"
+                            }
+                            size="20"
+                        />
+                    </div>
+                    <div class="noti-content">
+                        <div class="noti-title">{noti.title}</div>
+                        <div class="noti-time">{noti.timestamp}</div>
+                    </div>
+                    {!noti.isRead && <div class="unread-dot" />}
+                </div>
+            ))
+        }
+    </div>
+    <script>
+        document.addEventListener("astro:page-load", () => {
+            initNotifications();
+        });
+
+        if (document.readyState !== "loading") {
+            initNotifications();
+        }
+
+        function initNotifications() {
+            const markReadBtn = document.querySelector(".mark-read-btn");
+            const items = document.querySelectorAll(
+                ".notification-item.unread",
+            );
+            const dots = document.querySelectorAll(".unread-dot");
+
+            markReadBtn?.addEventListener("click", () => {
+                const unreadCount = document.querySelectorAll(
+                    ".notification-item.unread",
+                ).length;
+
+                if (unreadCount === 0) {
+                    alert("읽지 않은 알림이 없습니다.");
+                    return;
+                }
+
+                if (confirm("모든 알림을 읽음으로 표시하시겠습니까?")) {
+                    items.forEach((item) => item.classList.remove("unread"));
+                    dots.forEach((dot) => (dot.style.display = "none"));
+
+                    // Update Global Header Badge
+                    const globalDots =
+                        document.querySelectorAll(".global-noti-dot");
+                    globalDots.forEach((d) => (d.style.display = "none"));
+                }
+            });
+
+            // Handle Individual Item Click
+            const allItems = document.querySelectorAll(
+                ".notification-item.unread",
+            );
+            allItems.forEach((item) => {
+                item.addEventListener("click", () => {
+                    if (item.classList.contains("unread")) {
+                        item.classList.remove("unread");
+                        const dot = item.querySelector(".unread-dot");
+                        if (dot) dot.style.display = "none";
+
+                        // Check if ANY unread remain
+                        const remaining = document.querySelectorAll(
+                            ".notification-item.unread",
+                        ).length;
+                        if (remaining === 0) {
+                            const globalDots =
+                                document.querySelectorAll(".global-noti-dot");
+                            globalDots.forEach(
+                                (d) => (d.style.display = "none"),
+                            );
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+</DashboardLayout>
