@@ -110,8 +110,10 @@ const { title, description, scale } = Astro.props;
         </style>
     </head>
     <body>
-        <!-- Mobile Header (Simplified: Just Brand & Bell) -->
         <div class="mobile-header">
+            <button id="menuBtn" class="hamburger" aria-label="Menu">
+                <Icon name="menu" size="24" />
+            </button>
             <span style="font-weight:bold; font-size:1.1rem; flex:1;"
                 >{SITE_TITLE}</span
             >
@@ -127,8 +129,11 @@ const { title, description, scale } = Astro.props;
             </a>
         </div>
 
+        <!-- Sidebar Overlay -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
         <div class="dashboard-grid">
-            <!-- Sidebar (Desktop Only now) -->
+            <!-- Sidebar (Desktop & Mobile Drawer) -->
             <Sidebar />
 
             <!-- Main Content -->
@@ -136,8 +141,8 @@ const { title, description, scale } = Astro.props;
                 <div class="content-area">
                     <slot />
                 </div>
+                <!-- Spacer for Bottom Nav (only if bottom nav exists) -->
                 <div style="height: 80px;"></div>
-                <!-- Spacer for Bottom Nav -->
             </main>
         </div>
 
@@ -145,18 +150,44 @@ const { title, description, scale } = Astro.props;
         <!-- <PWAInstall /> -->
 
         <script>
-            // Mobile Menu Toggle - REMOVED (Replaced by Bottom Nav)
-            // const menuBtn = document.getElementById("menuBtn");
-            // const sidebar = document.querySelector(".sidebar");
-            // const overlay = document.getElementById("sidebarOverlay");
+            // Mobile Menu Toggle
+            const menuBtn = document.getElementById("menuBtn");
+            const sidebar = document.querySelector(".sidebar");
+            const overlay = document.getElementById("sidebarOverlay");
 
-            // function toggleMenu() {
-            //     sidebar?.classList.toggle("open");
-            //     overlay?.classList.toggle("active");
-            // }
+            function toggleMenu() {
+                sidebar?.classList.toggle("open");
+                overlay?.classList.toggle("active");
+            }
 
-            // menuBtn?.addEventListener("click", toggleMenu);
-            // overlay?.addEventListener("click", toggleMenu);
+            function closeMenu() {
+                sidebar?.classList.remove("open");
+                overlay?.classList.remove("active");
+            }
+
+            // Toggle on click
+            menuBtn?.addEventListener("click", toggleMenu);
+            // Close on overlay click
+            overlay?.addEventListener("click", closeMenu);
+
+            // Close on navigation (ViewTransitions might handle page reload, but for SPA feel)
+            document.addEventListener("astro:after-swap", closeMenu);
+
+            // Re-attach listeners after swap
+            document.addEventListener("astro:page-load", () => {
+                const btn = document.getElementById("menuBtn");
+                const sb = document.querySelector(".sidebar");
+                const ol = document.getElementById("sidebarOverlay");
+
+                btn?.addEventListener("click", () => {
+                    sb?.classList.toggle("open");
+                    ol?.classList.toggle("active");
+                });
+                ol?.addEventListener("click", () => {
+                    sb?.classList.remove("open");
+                    ol?.classList.remove("active");
+                });
+            });
         </script>
     </body>
 </html>
