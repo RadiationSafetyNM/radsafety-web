@@ -1,5 +1,5 @@
 ---
-const { item } = Astro.props;
+const { item, open = false } = Astro.props;
 let Content = null;
 if (typeof item.render === "function") {
     const rendered = await item.render();
@@ -8,7 +8,7 @@ if (typeof item.render === "function") {
 import Icon from "./Icon.astro";
 ---
 
-<div class="checklist-item" data-id={item.id}>
+<div class={`checklist-item ${open ? "open" : ""}`} data-id={item.id}>
     <div class="header">
         <label class="checkbox-container">
             <input type="checkbox" class="status-checkbox" />

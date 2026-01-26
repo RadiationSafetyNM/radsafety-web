@@ -173,50 +173,44 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 
 	<!-- Section 1: Cooperation Request -->
 	<div class="section-container">
+        <!-- Title removed from here as it becomes the accordion title? No, User said "1. 수검협조사항" is the item title? 
+             User said: "수검협조사항(cooperation)에서 번호가 아니라 체크박스가 필요하다" 
+             This usually means the Header itself has the checkbox (which ChecklistItem has).
+             "1단계는 필쳐저 보이도록 한다" -> Default Open.
+             
+             Let's use "수검협조사항 (Cooperation)" as the Category or Title.
+             Let's use a Generic Title or Empty?
+             
+             User Spec:
+             Level 1: Accordion (Open)
+             Content:
+               [ ] 검사원...공간
+               [ ] 노트북...가능
+               [ ] 수검 매뉴얼...비치
+               [ ] 전산자료...준비
+        -->
 		<h2 class="section-title">1. 수검협조사항 (Cooperation)</h2>
-		<div class="intro mb-4">
-			<p>검사 진행을 위해 사전에 준비해주셔야 할 필수 사항입니다.</p>
-		</div>
 
 		<div class="checklist-container" id="cooperationContainer">
 			{
 				[
 					{
-						id: "coop-1",
-						slug: "coop-1", // required prop
+						id: "coop-merged",
+						slug: "coop-merged",
 						data: {
 							order: 1,
-							title: "🏢 수검장소 준비",
-							category: "수검협조",
-							content: `
-                                <p>
-                                    검사원 및 수검자가 활용할 수 있는 회의테이블이 마련된 별도 공간<br/>
-                                    (* 노트북 사용(전원)이 가능한 공간)
-                                </p>
-                            `,
-							check: ["수검장소 확보 완료", "전원 연결 확인"],
-						},
-					},
-					{
-						id: "coop-2",
-						slug: "coop-2",
-						data: {
-							order: 2,
-							title: "📑 수검자료 비치",
-							category: "수검협조",
-							content: `
-                                <p>
-                                    수검 매뉴얼에 제시된 수검에 필요한 각종 서류를 수검장소에 비치<br/>
-                                    (* 전산자료의 경우 직접 확인 가능한 PC 준비)
-                                </p>
-                            `,
+							title: "수검 준비 필수 확인사항", // Generic Title
+							category: "필수",
+							content: `<p style="color:var(--text-muted); font-size:0.9rem;">원활한 수검을 위해 아래 사항을 반드시 확인해 주시기 바랍니다.</p>`,
 							check: [
-								"필수 서류 비치 완료",
-								"전산 자료 확인용 PC 준비",
-							],
+                                "검사원 및 수검자가 활용할 수 있는 회의테이블이 마련된 별도 공간",
+                                "노트북 사용(전원)이 가능한 공간",
+                                "수검 매뉴얼에 제시된 수검에 필요한 각종 서류를 수검장소에 비치",
+                                "전산자료(PC 저장 파일)의 경우 직접 확인 가능한 PC 준비"
+                            ],
 						},
-					},
-				].map((item) => <ChecklistItem item={item} />)
+					}
+				].map((item) => <ChecklistItem item={item} open={true} />)
 			}
 		</div>
 	</div>
