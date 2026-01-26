@@ -38,8 +38,29 @@
 	font-display: swap;
 }
 
+:root {
+	/* ... existing vars ... */
+    
+    /* Font Size Settings (Default Medium) */
+    --base-font-size: 16px;
+}
+
+:root[data-font-size="small"] {
+    --base-font-size: 14px;
+}
+:root[data-font-size="medium"] {
+    --base-font-size: 16px;
+}
+:root[data-font-size="large"] {
+    --base-font-size: 18px;
+}
+:root[data-font-size="xlarge"] {
+    --base-font-size: 20px;
+}
+
 html {
 	background-color: var(--bg-body);
+    font-size: var(--base-font-size); /* This drives rem units */
 }
 
 body {
@@ -49,7 +70,7 @@ body {
 	text-align: left;
 	background-color: var(--bg-body);
 	color: var(--text-main);
-	font-size: 14px;
+	font-size: 1rem; /* Adapts to root size */
 	/* Ultra Compact */
 	line-height: 1.4;
 	/* Tighter */

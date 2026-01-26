@@ -13,6 +13,18 @@ export default defineConfig({
 	integrations: [
 		mdx(),
 		sitemap(),
+		{
+			name: "disable-dev-toolbar",
+			hooks: {
+				"astro:config:setup": ({ updateConfig }) => {
+					updateConfig({
+						devToolbar: {
+							enabled: false
+						}
+					});
+				}
+			}
+		},
 		vitePwa({
 			registerType: 'autoUpdate',
 			manifest: {

@@ -20,6 +20,11 @@ const { title, description, scale } = Astro.props;
             scale={scale}
         />
         <ViewTransitions />
+        <script is:inline>
+            // Immediate Font Restoration to prevent FOUC
+            const savedSize = localStorage.getItem("fontSize") || "medium";
+            document.documentElement.setAttribute("data-font-size", savedSize);
+        </script>
         <style>
             body {
                 margin: 0;
