@@ -1,6 +1,9 @@
----
 const { item } = Astro.props;
-const { Content } = await item.render();
+let Content = null;
+if (typeof item.render === "function") {
+    const rendered = await item.render();
+    Content = rendered.Content;
+}
 import Icon from "./Icon.astro";
 ---
 
@@ -29,7 +32,7 @@ import Icon from "./Icon.astro";
     </div>
     <div class="panel">
         <div class="content">
-            <Content />
+            {Content ? <Content /> : <div set:html={item.data.content} />}
             {
                 (item.data.example || item.data.exampleImage) && (
                     <div class="example-wrapper" style="margin-top: 1rem;">
