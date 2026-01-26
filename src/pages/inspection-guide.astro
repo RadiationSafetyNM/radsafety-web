@@ -189,7 +189,7 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
                [ ] 수검 매뉴얼...비치
                [ ] 전산자료...준비
         -->
-		<h2 class="section-title">1. 수검협조사항 (Cooperation)</h2>
+		<h2 class="section-title">1. 수검협조요청사항</h2>
 
 		<div class="checklist-container" id="cooperationContainer">
 			{
@@ -199,7 +199,7 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 						slug: "coop-merged",
 						data: {
 							order: 1,
-							title: "수검 준비 필수 확인사항", // Generic Title
+							title: "수검 장소와 자료 준비", 
 							category: "필수",
 							content: `<p style="color:var(--text-muted); font-size:0.9rem;">원활한 수검을 위해 아래 사항을 반드시 확인해 주시기 바랍니다.</p>`,
 							check: [
