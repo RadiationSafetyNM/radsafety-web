@@ -14,7 +14,8 @@ interface Props {
         | "download"
         | "bell"
         | "square"
-        | "check-square";
+        | "check-square"
+        | "help";
     size?: string;
     class?: string;
 }
@@ -48,6 +49,7 @@ const paths = {
     "check-square":
         "M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /* Feather check-square */,
     square: "M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z",
+    help: "M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z M12 17H12.01 M12 13C12 13 15 13 15 10C15 7 12 7 12 7" /* Simple Circle Question */,
 };
 
 // Lucide / Feather style paths (mostly fill="none" stroke="currentColor")

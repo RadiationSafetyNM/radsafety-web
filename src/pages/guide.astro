@@ -1,0 +1,127 @@
+---
+import DashboardLayout from "../layouts/DashboardLayout.astro";
+import Icon from "../components/Icon.astro";
+---
+
+<DashboardLayout title="이용안내">
+    <div class="guide-container">
+        <h1><Icon name="help" size="32" class="title-icon" /> 이용안내</h1>
+        <p class="subtitle">
+            RadSafety 앱을 100% 활용하는 방법을 알려드립니다.
+        </p>
+
+        <section class="guide-section">
+            <h2>1. 정기검사 체크리스트</h2>
+            <p>
+                정기검사 수검 시 필요한 항목들을 <strong
+                    >카테고리별로 점검</strong
+                >할 수 있습니다. 각 항목을 클릭하면 <strong>확인 방법</strong>과 <strong
+                    >예시 서류</strong
+                >를 볼 수 있습니다.
+            </p>
+            <div class="tip-box">
+                <span class="badge">Tip</span> 체크박스를 누르면 진행률이 자동 저장되어
+                나중에 이어할 수 있습니다.
+            </div>
+        </section>
+
+        <section class="guide-section">
+            <h2>2. 지적권고사항</h2>
+            <p>
+                최근 정기검사에서 자주 지적되거나 권고되는 사항들을
+                모아두었습니다. 검사 준비 시 미리 확인하여 대비하세요.
+            </p>
+        </section>
+
+        <section class="guide-section">
+            <h2>3. 자료실</h2>
+            <p>
+                최신 가이드북, 작성지침, 필수 서식 등을 다운로드할 수 있습니다.
+            </p>
+            <ul class="feature-list">
+                <li>
+                    <strong>미리보기(카드 클릭)</strong>: PDF 문서를
+                    브라우저에서 바로 확인합니다.
+                </li>
+                <li>
+                    <strong>다운로드(버튼 클릭)</strong>: 편집 가능한 원본(HWP
+                    등)을 저장합니다.
+                </li>
+            </ul>
+        </section>
+
+        <section class="guide-section">
+            <h2>4. 스마트폰 홈 화면 추가</h2>
+            <p>
+                브라우저 메뉴에서 <strong>'홈 화면에 추가'</strong>를 선택하시면
+                앱처럼 아이콘이 생성되어, 주소를 입력할 필요 없이 한 번에 접속할
+                수 있습니다.
+            </p>
+        </section>
+    </div>
+
+    <style>
+        .guide-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .guide-section {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        .guide-section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            color: var(--accent);
+        }
+
+        .guide-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .tip-box {
+            background: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid #2563eb;
+            padding: 1rem;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95rem;
+        }
+        .badge {
+            background: #2563eb;
+            color: white;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .feature-list {
+            padding-left: 1.5rem;
+            color: var(--text-main);
+        }
+        .feature-list li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</DashboardLayout>
