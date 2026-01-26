@@ -190,6 +190,57 @@ import Icon from "./Icon.astro";
         border-color: var(--border-color) !important;
         color: var(--text-muted) !important;
     }
+
+    /* Content Styling for Markdown */
+    :global(.checklist-item .content) {
+        font-size: 1rem; /* Match header size */
+    }
+
+    /* Make headers inside content look like normal text but bold */
+    :global(.checklist-item .content h3),
+    :global(.checklist-item .content h4),
+    :global(.checklist-item .content h5) {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1rem 0 0.5rem 0;
+        color: var(--text-main);
+    }
+
+    /* List items and paragraphs */
+    :global(.checklist-item .content ul) {
+        list-style-type: none; /* Remove bullets for unordered lists (checkboxes) */
+        padding-left: 0.5rem;
+    }
+
+    :global(.checklist-item .content ol) {
+        padding-left: 1.5rem; /* Indent ordered lists */
+    }
+
+    :global(.checklist-item .content p),
+    :global(.checklist-item .content li) {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Specific overrides for li inside lists */
+    :global(.checklist-item .content ul li) {
+        list-style-type: none;
+    }
+    :global(.checklist-item .content ol li) {
+        list-style-type: decimal;
+    }
+
+    /* Monochrome Emojis - Removed to fix link readability */
+    /* :global(.checklist-item .content) {
+        filter: grayscale(100%); 
+    } */
+
+    /* Adjust checkbox label size if they are in markdown */
+    :global(.checklist-item .content li label) {
+        font-size: 1rem;
+        cursor: pointer;
+    }
 </style>
 
 <script>
