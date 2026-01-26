@@ -18,7 +18,10 @@ const resources = [
         tags: ["#정기검사", "#KINS", "#가이드"],
         fileSize: "PDF",
         isNew: false,
-        path: "/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf",
+        previewUrl:
+            "/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf",
+        downloadUrl:
+            "/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf",
         type: "pdf",
     },
     {
@@ -34,7 +37,8 @@ const resources = [
         tags: ["#안전관리규정", "#규정작성", "#인허가"],
         fileSize: "PDF",
         isNew: true,
-        path: "/radsafety/archive/안전관리규정_작성지침.pdf",
+        previewUrl: "/radsafety/archive/안전관리규정_작성지침.pdf",
+        downloadUrl: "/radsafety/archive/안전관리규정_작성지침.pdf",
         type: "pdf",
     },
     {
@@ -50,40 +54,27 @@ const resources = [
         tags: ["#의료기관", "#규정예시", "#서식"],
         fileSize: "PDF",
         isNew: false,
-        path: "/radsafety/archive/안전관리규정_예시.pdf",
+        previewUrl: "/radsafety/archive/안전관리규정_예시.pdf",
+        downloadUrl: "/radsafety/archive/안전관리규정_예시.pdf", // Assuming source is same or similar for now
         type: "pdf",
     },
     {
-        id: 2,
-        title: "2024년도 방사선안전관리 정기검사 수검 가이드 (예시)",
-        version: "예시본",
-        category: "가이드북",
-        date: "2024-01-15",
-        author: "관리자",
-        authority: "Society",
-        description:
-            "2024년도 정기검사 준비를 위해 학회 차원에서 제공하는 참고용 가이드 예시입니다.",
-        tags: ["#정기검사", "#예시"],
-        fileSize: "2.4MB",
-        isNew: true,
-        path: "#",
-        type: "file",
-    },
-    {
         id: 3,
-        title: "방사선작업종사자 교육일지 양식 (HWP)",
+        title: "방사선작업종사자 교육일지 양식",
         version: "표준양식",
         category: "서식",
         date: "2023-12-20",
         author: "관리자",
         authority: "Society",
         description:
-            "법정 의무 교육 이수 내용을 기록하기 위한 표준 양식(HWP)입니다.",
+            "법정 의무 교육 이수 내용을 기록하기 위한 표준 양식입니다. (미리보기는 PDF, 다운로드는 HWP)",
         tags: ["#교육", "#일지", "#HWP"],
         fileSize: "45KB",
         isNew: false,
-        path: "#",
+        previewUrl: "#", // Needs PDF version
+        downloadUrl: "#", // Needs HWP version
         type: "file",
+        fileType: "HWP",
     },
     {
         id: 5,
@@ -98,8 +89,10 @@ const resources = [
         tags: ["#법령", "#개정사항", "#요약"],
         fileSize: "1.1MB",
         isNew: false,
-        path: "#",
+        previewUrl: "#",
+        downloadUrl: "#",
         type: "file",
+        fileType: "PDF",
     },
 ];
 
@@ -318,6 +311,15 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             font-size: 0.75rem;
         }
 
+        .file-type-badge {
+            font-size: 0.7rem;
+            color: #2563eb;
+            font-weight: 700;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            padding: 0 0.3rem;
+            border-radius: 4px;
+        }
+
         .new-badge {
             background: #ef4444;
             color: white;
@@ -411,11 +413,9 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                         class="resource-card"
                         onclick={`if(event.target.closest('.download-btn')) return; 
                              ${
-                                 item.path === "#"
-                                     ? "alert('준비 중인 자료입니다.');"
-                                     : item.type === "pdf"
-                                       ? `window.open('${item.path}', '_blank')`
-                                       : `window.location.href='${item.path}'`
+                                 item.previewUrl && item.previewUrl !== "#"
+                                     ? `window.open('${item.previewUrl}', '_blank')`
+                                     : `alert('미리보기가 준비되지 않았습니다.\\n오른쪽 다운로드 버튼을 이용해 주세요.');`
                              }`}
                     >
                         <div class="card-left">
@@ -470,6 +470,11 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                                         <span>📅 {item.date}</span>
                                         <span>•</span>
                                         <span>💾 {item.fileSize}</span>
+                                        {item.fileType && (
+                                            <span class="file-type-badge">
+                                                {item.fileType}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -477,17 +482,15 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
                         {/* Explicit Download Action */}
                         <a
-                            href={item.path}
+                            href={item.downloadUrl}
                             class="download-btn"
-                            download={item.path !== "#"}
+                            download={item.downloadUrl !== "#"}
                             target={
-                                item.path !== "#" && item.type === "pdf"
-                                    ? "_blank"
-                                    : "_self"
+                                item.downloadUrl !== "#" ? "_blank" : "_self"
                             }
                             onclick={
-                                item.path === "#"
-                                    ? "event.preventDefault(); event.stopPropagation(); alert('준비 중인 자료입니다.');"
+                                item.downloadUrl === "#"
+                                    ? "event.preventDefault(); event.stopPropagation(); alert('다운로드 파일이 준비되지 않았습니다.');"
                                     : "event.stopPropagation();"
                             }
                             aria-label="Download"
