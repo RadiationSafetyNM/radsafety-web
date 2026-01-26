@@ -104,6 +104,48 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 			color: #9ca3af;
 			pointer-events: none;
 		}
+		}
+        
+        /* New Layout Styles */
+        .section-container {
+            margin-bottom: 2.5rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 0.75rem;
+            font-weight: 700;
+        }
+        .info-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+        .info-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-desc {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin: 0;
+        }
+        .accent-text {
+            color: #ef4444; /* Red accent for warnings/notes */
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .mb-4 { margin-bottom: 1rem; }
 	</style>
 
 	<div
@@ -117,14 +159,7 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 		<button id="resetBtn" class="reset-btn">초기화 (선택해제)</button>
 	</div>
 
-	<div class="intro">
-		<p>
-			항목을 터치하여 세부 내용을 확인하고, 점검을 완료하면 체크박스를
-			<strong>눌러 상태를 저장할 수 있습니다.</strong><br />
-			<strong>우측 상단의 초기화</strong> 버튼으로 체크박스를 일괄 초기화 할
-			수 있습니다.
-		</p>
-	</div>
+
 
 	<div class="search-container">
 		<input
@@ -136,8 +171,59 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 		<span class="search-icon"><Icon name="search" size="20" /></span>
 	</div>
 
-	<div class="checklist-container" id="checklistContainer">
-		{sortedItems.map((item) => <ChecklistItem item={item} />)}
+	<!-- Section 1: Cooperation Request -->
+	<div class="section-container">
+		<h2 class="section-title">1. 수검협조사항</h2>
+
+		<div class="info-card mb-4">
+			<h3 class="info-title">🏢 수검장소</h3>
+			<p class="info-desc">
+				검사원 및 수검자가 활용할 수 있는 회의테이블이 마련된 별도 공간<br
+				/>
+				<span class="accent-text"
+					>* 노트북 사용(전원)이 가능한 공간</span
+				>
+			</p>
+		</div>
+
+		<div class="info-card">
+			<h3 class="info-title">📑 수검자료준비</h3>
+			<p class="info-desc">
+				수검 매뉴얼에 제시된 수검에 필요한 각종 서류를 수검장소에 비치<br
+				/>
+				<span class="accent-text"
+					>* 전산자료의 경우 직접 확인 가능한 PC 준비</span
+				>
+			</p>
+		</div>
+	</div>
+
+	<!-- Section 2: Common Preparation -->
+	<div class="section-container">
+		<h2 class="section-title">2. 공통준비사항</h2>
+		<div class="intro mb-4">
+			<p>
+				아래 항목들은 모든 기관에 공통적으로 적용되는 필수 점검
+				사항입니다.
+			</p>
+		</div>
+
+		<div class="checklist-container" id="checklistContainer">
+			{sortedItems.map((item) => <ChecklistItem item={item} />)}
+		</div>
+	</div>
+
+	<!-- Section 3: Field Specific -->
+	<div class="section-container">
+		<h2 class="section-title">3. 분야별 준비사항</h2>
+		<div class="info-card">
+			<p
+				class="info-desc"
+				style="color: var(--text-muted); text-align: center;"
+			>
+				(기관별 특성에 따른 추가 점검 항목이 여기에 표시됩니다.)
+			</p>
+		</div>
 	</div>
 
 	<div
