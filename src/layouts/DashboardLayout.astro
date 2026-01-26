@@ -20,10 +20,17 @@ const { title, description, scale } = Astro.props;
             scale={scale}
         />
         <ViewTransitions />
+        <ViewTransitions />
         <script is:inline>
-            // Immediate Font Restoration to prevent FOUC
-            const savedSize = localStorage.getItem("fontSize") || "medium";
-            document.documentElement.setAttribute("data-font-size", savedSize);
+            function applyFontSize() {
+                const savedSize = localStorage.getItem("fontSize") || "medium";
+                document.documentElement.setAttribute(
+                    "data-font-size",
+                    savedSize,
+                );
+            }
+            applyFontSize();
+            document.addEventListener("astro:after-swap", applyFontSize);
         </script>
         <style>
             body {
