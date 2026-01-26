@@ -7,10 +7,15 @@ import Icon from "../components/Icon.astro";
 const resources = [
     {
         id: 1,
-        title: "방사선분야 정기검사 수검가이드 (2022년 개정)",
+        title: "방사선분야 정기검사 수검가이드",
+        version: "2022년 개정 최종본",
         category: "가이드북",
         date: "2022-12-01",
-        author: "KINS",
+        author: "한국원자력안전기술원(KINS)",
+        authority: "KINS",
+        description:
+            "방사선안전관리 정기검사 수검을 위한 공식 가이드라인입니다. 주요 점검 항목과 절차를 안내합니다.",
+        tags: ["#정기검사", "#KINS", "#가이드"],
         fileSize: "PDF",
         isNew: false,
         path: "/radsafety/archive/방사선분야 정기검사수검가이드(2022년 개정)_최종본.pdf",
@@ -19,20 +24,30 @@ const resources = [
     {
         id: 101,
         title: "안전관리규정 작성지침",
+        version: "2024.12.31 고시 반영",
         category: "가이드북",
-        date: "2023-01-01",
-        author: "KINS",
+        date: "2024-12-31",
+        author: "원자력안전위원회",
+        authority: "NSSC",
+        description:
+            "원자력안전법 시행규칙 및 관련 고시에 따른 안전관리규정 작성 기준 및 필수 포함 사항을 기술한 지침입니다.",
+        tags: ["#안전관리규정", "#규정작성", "#인허가"],
         fileSize: "PDF",
-        isNew: false,
+        isNew: true,
         path: "/radsafety/archive/안전관리규정_작성지침.pdf",
         type: "pdf",
     },
     {
         id: 102,
         title: "안전관리규정 예시 (의료기관)",
+        version: "v1.0",
         category: "서식",
-        date: "2023-01-01",
+        date: "2024-01-01",
         author: "KINS",
+        authority: "KINS",
+        description:
+            "의료기관을 위한 안전관리규정 작성 예시입니다. 병원 특성에 맞게 내용을 수정하여 사용하십시오.",
+        tags: ["#의료기관", "#규정예시", "#서식"],
         fileSize: "PDF",
         isNew: false,
         path: "/radsafety/archive/안전관리규정_예시.pdf",
@@ -41,9 +56,14 @@ const resources = [
     {
         id: 2,
         title: "2024년도 방사선안전관리 정기검사 수검 가이드 (예시)",
+        version: "예시본",
         category: "가이드북",
         date: "2024-01-15",
         author: "관리자",
+        authority: "Society",
+        description:
+            "2024년도 정기검사 준비를 위해 학회 차원에서 제공하는 참고용 가이드 예시입니다.",
+        tags: ["#정기검사", "#예시"],
         fileSize: "2.4MB",
         isNew: true,
         path: "#",
@@ -52,43 +72,31 @@ const resources = [
     {
         id: 3,
         title: "방사선작업종사자 교육일지 양식 (HWP)",
+        version: "표준양식",
         category: "서식",
         date: "2023-12-20",
         author: "관리자",
+        authority: "Society",
+        description:
+            "법정 의무 교육 이수 내용을 기록하기 위한 표준 양식(HWP)입니다.",
+        tags: ["#교육", "#일지", "#HWP"],
         fileSize: "45KB",
         isNew: false,
         path: "#",
         type: "file",
     },
     {
-        id: 4,
-        title: "방사선기기 자체점검 체크리스트",
-        category: "서식",
-        date: "2023-11-05",
-        author: "관리자",
-        fileSize: "120KB",
-        isNew: false,
-        path: "#",
-        type: "file",
-    },
-    {
         id: 5,
-        title: "원자력안전법 주요 개정사항 요약 (2023년 하반기)",
+        title: "원자력안전법 주요 개정사항 요약",
+        version: "2023 하반기",
         category: "법령정보",
         date: "2023-10-10",
         author: "관리자",
+        authority: "Society",
+        description:
+            "2023년 하반기에 개정된 원자력안전법의 주요 내용을 요약하였습니다.",
+        tags: ["#법령", "#개정사항", "#요약"],
         fileSize: "1.1MB",
-        isNew: false,
-        path: "#",
-        type: "file",
-    },
-    {
-        id: 6,
-        title: "건강진단 실시 주기 및 항목 안내",
-        category: "안내문",
-        date: "2023-09-01",
-        author: "관리자",
-        fileSize: "500KB",
         isNew: false,
         path: "#",
         type: "file",
@@ -243,9 +251,71 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             font-size: 0.8rem;
             color: var(--text-muted);
             display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .meta-details {
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.25rem;
+            gap: 0.75rem;
+        }
+
+        .authority-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            color: white;
+            background: #9ca3af;
+        }
+        .authority-badge.kins {
+            background: #0ea5e9;
+        } /* Sky Blue */
+        .authority-badge.nssc {
+            background: #2563eb;
+        } /* Blue */
+        .authority-badge.society {
+            background: #10b981;
+        } /* Green */
+
+        .version-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: normal;
+            margin-left: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .resource-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0.25rem 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.2rem;
+        }
+        .meta-tag {
+            background: var(--bg-body);
+            color: var(--text-muted);
+            padding: 0.1rem 0.4rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
         }
 
         .new-badge {
@@ -354,6 +424,15 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                             </div>
                             <div class="resource-info">
                                 <div>
+                                    <span
+                                        class={`authority-badge ${item.authority?.toLowerCase() || "society"}`}
+                                    >
+                                        {item.authority === "KINS"
+                                            ? "KINS"
+                                            : item.authority === "NSSC"
+                                              ? "원안위"
+                                              : "학회"}
+                                    </span>
                                     <span class="resource-category">
                                         {item.category}
                                     </span>
@@ -361,11 +440,37 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                                         <span class="new-badge">N</span>
                                     )}
                                 </div>
-                                <div class="resource-title">{item.title}</div>
+
+                                <div class="resource-title">
+                                    {item.title}
+                                    {item.version && (
+                                        <span class="version-tag">
+                                            ver: {item.version}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {item.description && (
+                                    <div class="resource-desc">
+                                        {item.description}
+                                    </div>
+                                )}
+
                                 <div class="resource-meta">
-                                    <span>{item.date}</span>
-                                    <span>•</span>
-                                    <span>{item.fileSize}</span>
+                                    {item.tags && item.tags.length > 0 && (
+                                        <div class="tag-row">
+                                            {item.tags.map((tag) => (
+                                                <span class="meta-tag">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div class="meta-details">
+                                        <span>📅 {item.date}</span>
+                                        <span>•</span>
+                                        <span>💾 {item.fileSize}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
