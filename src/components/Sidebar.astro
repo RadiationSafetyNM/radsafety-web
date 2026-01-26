@@ -65,6 +65,14 @@ const isActive = (href) => {
             <span class="icon"><Icon name="help" size="18" /></span>
             <span class="link-text">이용안내</span>
         </a>
+        <a
+            href="/radsafety/settings"
+            class={pathname.startsWith("/radsafety/settings") ? "active" : ""}
+            aria-label="Settings"
+        >
+            <span class="icon"><Icon name="settings" size="18" /></span>
+            <span class="link-text">설정</span>
+        </a>
     </div>
 
     <div class="nav-group">

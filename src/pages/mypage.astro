@@ -82,43 +82,6 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
             cursor: pointer;
             cursor: pointer;
         }
-
-        .font-control-group {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .font-btn {
-            background: var(--bg-body);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .font-btn:hover {
-            border-color: var(--accent);
-            color: var(--text-main);
-        }
-        .font-btn.active {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-        }
-        .font-btn.small {
-            font-size: 0.8rem;
-        }
-        .font-btn.medium {
-            font-size: 1rem;
-        }
-        .font-btn.large {
-            font-size: 1.2rem;
-        }
-        .font-btn.xlarge {
-            font-size: 1.4rem;
-        }
     </style>
 
     <div class="profile-container">
@@ -143,40 +106,6 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
             </div>
 
             <button id="logoutBtn">로그아웃</button>
-        </div>
-
-        <!-- Settings Section -->
-        <div
-            id="settingsSection"
-            class="profile-card"
-            style="margin-top: 1.5rem; display: none;"
-        >
-            <h2>⚙️ 앱 설정</h2>
-            <div
-                class="info-grid"
-                style="border: none; margin-top: 1rem; padding-top: 0;"
-            >
-                <div class="info-item">
-                    <div class="label" style="margin-bottom: 0.5rem;">
-                        글자 크기 (Font Size)
-                    </div>
-                    <div class="font-control-group">
-                        <button class="font-btn small" data-size="small"
-                            >작게</button
-                        >
-                        <button
-                            class="font-btn medium active"
-                            data-size="medium">보통</button
-                        >
-                        <button class="font-btn large" data-size="large"
-                            >크게</button
-                        >
-                        <button class="font-btn xlarge" data-size="xlarge"
-                            >아주 크게</button
-                        >
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div id="guestContent" style="display:none; text-align:center;">
