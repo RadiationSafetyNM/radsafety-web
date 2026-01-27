@@ -204,23 +204,27 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 							content: `
                                 <ul style="padding-left: 0.5rem; margin: 0;">
                                     <li style="list-style: none; margin-bottom: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" /> 회의테이블 공간
+                                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" style="margin-top: 0.3rem;" /> 
+                                            <span>검사원 및 수검자가 활용할 수 있는 회의테이블이 마련된 별도 공간</span>
                                         </label>
                                     </li>
                                     <li style="list-style: none; margin-bottom: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" /> 노트북 전원
+                                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" style="margin-top: 0.3rem;" /> 
+                                            <span>노트북 사용(전원)이 가능한 공간</span>
                                         </label>
                                     </li>
                                     <li style="list-style: none; margin-bottom: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" /> 서류 비치
+                                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" style="margin-top: 0.3rem;" /> 
+                                            <span>수검 매뉴얼에 제시된 수검에 필요한 각종 서류를 수검장소에 비치</span>
                                         </label>
                                     </li>
                                     <li style="list-style: none; margin-bottom: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" /> 확인용 PC
+                                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" style="margin-top: 0.3rem;" /> 
+                                            <span>전산자료의 경우 직접 확인 가능한 PC 준비</span>
                                         </label>
                                     </li>
                                 </ul>
