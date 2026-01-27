@@ -245,12 +245,6 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 	<!-- Section 2: Common Preparation -->
 	<div class="section-container">
 		<h2 class="section-title">2. 공통준비사항</h2>
-		<div class="intro mb-4">
-			<p>
-				아래 항목들은 모든 기관에 공통적으로 적용되는 필수 점검
-				사항입니다.
-			</p>
-		</div>
 
 		<div class="checklist-container" id="checklistContainer">
 			{sortedItems.map((item) => <ChecklistItem item={item} />)}
