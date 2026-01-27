@@ -266,7 +266,9 @@ import Icon from "./Icon.astro";
         position: relative;
         cursor: pointer;
         margin-right: 0.5rem;
-        vertical-align: text-bottom;
+        /* Align with text top/baseline */
+        vertical-align: top;
+        margin-top: 0.25rem; /* (Line-height 1.5rem - 1rem checkbox) / 2 = 0.25rem */
         transition: background-color 0.2s;
         outline: none;
         flex-shrink: 0;
