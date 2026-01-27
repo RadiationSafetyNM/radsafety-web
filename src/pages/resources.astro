@@ -6,6 +6,25 @@ import Icon from "../components/Icon.astro";
 // Mock Data for Resources (Eventually from Supabase or Content Collection)
 const resources = [
     {
+        id: 103,
+        title: "질병관리청 방사선안전관리규정(제161호)",
+        version: "2025.03.19",
+        category: "가이드북",
+        date: "2025-03-19",
+        author: "질병관리청",
+        authority: "KDCA",
+        description:
+            "질병관리청 예규 제161호에 따른 방사선안전관리규정 표준안입니다.",
+        tags: ["#질병관리청", "#안전관리규정", "#표준안"],
+        fileSize: "PDF",
+        isNew: true,
+        previewUrl:
+            "/radsafety/archive/질병관리청 방사선안전관리규정(질병관리청예규)(제161호)(20250319).pdf",
+        downloadUrl:
+            "/radsafety/archive/질병관리청 방사선안전관리규정(질병관리청예규)(제161호)(20250319).pdf",
+        type: "pdf",
+    },
+    {
         id: 1,
         title: "방사선분야 정기검사 수검가이드",
         version: "2022년 개정 최종본",
@@ -274,6 +293,9 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         .authority-badge.society {
             background: #10b981;
         } /* Green */
+        .authority-badge.kdca {
+            background: #7c3aed;
+        } /* Purple */
 
         .version-tag {
             font-size: 0.75rem;
@@ -431,7 +453,9 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                                             ? "KINS"
                                             : item.authority === "NSSC"
                                               ? "원안위"
-                                              : "학회"}
+                                              : item.authority === "KDCA"
+                                                ? "질병청"
+                                                : "학회"}
                                     </span>
                                     <span class="resource-category">
                                         {item.category}

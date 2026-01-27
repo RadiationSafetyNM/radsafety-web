@@ -189,7 +189,7 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
                [ ] 수검 매뉴얼...비치
                [ ] 전산자료...준비
         -->
-		<h2 class="section-title">1. 수검협조요청사항</h2>
+		<h2 class="section-title">1. 수검협조 요청사항</h2>
 
 		<div class="checklist-container" id="cooperationContainer">
 			{
@@ -244,24 +244,52 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 
 	<!-- Section 2: Common Preparation -->
 	<div class="section-container">
-		<h2 class="section-title">2. 공통준비사항</h2>
+		<h2 class="section-title">2. 공통 준비자료</h2>
 
 		<div class="checklist-container" id="checklistContainer">
-			{sortedItems.map((item) => <ChecklistItem item={item} />)}
+			{
+				sortedItems
+					.filter((item) => item.data.category !== "의료분야" && item.data.category !== "판매분야" && item.data.category !== "생산분야")
+					.map((item) => <ChecklistItem item={item} />)
+			}
 		</div>
 	</div>
 
-	<!-- Section 3: Field Specific -->
+	<!-- Section 3: Medical Field -->
 	<div class="section-container">
-		<h2 class="section-title">3. 분야별 준비사항</h2>
-		<div class="info-card">
-			<p
-				class="info-desc"
-				style="color: var(--text-muted); text-align: center;"
-			>
-				(기관별 특성에 따른 추가 점검 항목이 여기에 표시됩니다.)
-			</p>
+		<h2 class="section-title">3. 의료분야 준비자료</h2>
+		<div class="checklist-container">
+			{
+				sortedItems
+					.filter((item) => item.data.category === "의료분야")
+					.map((item) => <ChecklistItem item={item} />)
+			}
 		</div>
+	</div>
+
+	<!-- Section 4: Sales Field -->
+	<div class="section-container">
+		<h2 class="section-title">4. 판매분야 준비서류</h2>
+		<div class="checklist-container">
+			{
+				sortedItems
+					.filter((item) => item.data.category === "판매분야")
+					.map((item) => <ChecklistItem item={item} />)
+			}
+		</div>
+	</div>
+
+	<!-- Section 5: Production Field -->
+	<div class="section-container">
+		<h2 class="section-title">5. 생산분야 준비자료</h2>
+		<div class="checklist-container">
+			{
+				sortedItems
+					.filter((item) => item.data.category === "생산분야")
+					.map((item) => <ChecklistItem item={item} />)
+			}
+		</div>
+		
 	</div>
 
 	<div

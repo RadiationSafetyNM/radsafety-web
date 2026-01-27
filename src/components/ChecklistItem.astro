@@ -28,7 +28,15 @@ import Icon from "./Icon.astro";
                     >(0/0)</span
                 ></span
             >
-            <span class="icon"><Icon name="chevron-down" size="16" /></span>
+            {
+                ((item.body && item.body.trim().length > 0) ||
+                    item.data.example ||
+                    item.data.exampleImage) && (
+                    <span class="icon">
+                        <Icon name="chevron-down" size="16" />
+                    </span>
+                )
+            }
         </button>
     </div>
     <div class="panel">
