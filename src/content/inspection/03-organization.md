@@ -8,7 +8,6 @@ example: |
 exampleImage: '/radsafety/images/examples/organization_chart_mockup.png'
 ---
 
-### ✅ 점검 항목
 - [ ] 방사선안전관리 조직도 게시
 - [ ] 안전관리자 및 업무대행자 지정 현황
 ### 💡 확인 방법
