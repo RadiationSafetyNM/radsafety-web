@@ -247,6 +247,42 @@ import Icon from "./Icon.astro";
         font-size: 1rem;
         cursor: pointer;
     }
+
+    /* Custom Checkbox Styling for Markdown/Raw Content */
+    :global(.checklist-item .content input[type="checkbox"]) {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 2px solid var(--text-muted); /* Fallback / Border style */
+        border-radius: 4px;
+        background-color: transparent;
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        margin-right: 0.5rem;
+        vertical-align: text-bottom;
+        transition: all 0.2s;
+        /* Remove default blue outline */
+        outline: none;
+    }
+
+    /* Checked State */
+    :global(.checklist-item .content input[type="checkbox"]:checked) {
+        border-color: var(--text-main);
+        background-color: var(--text-main);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+        background-size: 80%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    /* Focus State */
+    :global(.checklist-item .content input[type="checkbox"]:focus-visible) {
+        box-shadow:
+            0 0 0 2px var(--bg-card),
+            0 0 0 4px var(--accent);
+    }
 </style>
 
 <script>
