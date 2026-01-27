@@ -200,13 +200,36 @@ const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 						data: {
 							order: 1,
 							title: "수검 장소와 자료 준비", 
-							category: "필수",
-							content: `<p style="color:var(--text-muted); font-size:0.9rem;">원활한 수검을 위해 아래 사항을 반드시 확인해 주시기 바랍니다.</p>`,
+							category: "",
+							content: `
+                                <ul style="padding-left: 0.5rem; margin: 0;">
+                                    <li style="list-style: none; margin-bottom: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" /> 회의테이블 공간
+                                        </label>
+                                    </li>
+                                    <li style="list-style: none; margin-bottom: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" /> 노트북 전원
+                                        </label>
+                                    </li>
+                                    <li style="list-style: none; margin-bottom: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" /> 서류 비치
+                                        </label>
+                                    </li>
+                                    <li style="list-style: none; margin-bottom: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" /> 확인용 PC
+                                        </label>
+                                    </li>
+                                </ul>
+                            `,
 							check: [
-                                "검사원 및 수검자가 활용할 수 있는 회의테이블이 마련된 별도 공간",
-                                "노트북 사용(전원)이 가능한 공간",
-                                "수검 매뉴얼에 제시된 수검에 필요한 각종 서류를 수검장소에 비치",
-                                "전산자료(PC 저장 파일)의 경우 직접 확인 가능한 PC 준비"
+                                "회의테이블 공간",
+                                "노트북 전원",
+                                "서류 비치",
+                                "확인용 PC"
                             ],
 						},
 					}
