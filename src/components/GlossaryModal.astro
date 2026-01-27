@@ -288,9 +288,25 @@ import { glossaryTerms } from "../data/glossary";
         };
 
         if (searchInput) {
+            // Real-time search
             searchInput.addEventListener("input", (e) => {
                 const target = e.target as HTMLInputElement;
                 filterTerms(target.value.toLowerCase().trim());
+            });
+
+            // Handle Enter key
+            searchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault(); // Prevent form submission if any
+                    filterTerms(searchInput.value.toLowerCase().trim());
+                    // Optional: Blur to hide keyboard on mobile or indicate completion
+                    // searchInput.blur();
+                }
+            });
+
+            // Handle Korean IME composition end
+            searchInput.addEventListener("compositionend", (e) => {
+                filterTerms(searchInput.value.toLowerCase().trim());
             });
         }
     }
