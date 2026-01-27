@@ -6,6 +6,7 @@ import Icon from "../components/Icon.astro";
 import Footer from "../components/Footer.astro"; // Optional: We might simplify footer in dashboard
 import PWAInstall from "../components/PWAInstall.astro";
 import { ViewTransitions } from "astro:transitions";
+import GlossaryModal from "../components/GlossaryModal.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
 const { title, description, scale } = Astro.props;
@@ -19,7 +20,6 @@ const { title, description, scale } = Astro.props;
             description={description || SITE_DESCRIPTION}
             scale={scale}
         />
-        <ViewTransitions />
         <ViewTransitions />
         <script is:inline>
             function applyFontSize() {
@@ -79,6 +79,12 @@ const { title, description, scale } = Astro.props;
                 margin-right: 1rem;
             }
 
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
             @media (max-width: 768px) {
                 .dashboard-grid {
                     grid-template-columns: 1fr;
@@ -88,6 +94,7 @@ const { title, description, scale } = Astro.props;
                 }
                 .mobile-header {
                     display: flex;
+                    justify-content: space-between;
                 }
                 .content-area {
                     padding: 1rem;
@@ -111,22 +118,34 @@ const { title, description, scale } = Astro.props;
     </head>
     <body>
         <div class="mobile-header">
-            <button id="menuBtn" class="hamburger" aria-label="Menu">
-                <Icon name="menu" size="24" />
-            </button>
-            <span style="font-weight:bold; font-size:1.1rem; flex:1;"
-                >{SITE_TITLE}</span
-            >
-            <a
-                href="/radsafety/notifications"
-                style="color:white; position:relative;"
-            >
-                <Icon name="bell" size="24" />
-                <span
-                    class="global-noti-dot"
-                    style="position:absolute; top:0; right:0; width:8px; height:8px; background:#ef4444; border-radius:50%;"
-                ></span>
-            </a>
+            <div style="display:flex; align-items:center;">
+                <button id="menuBtn" class="hamburger" aria-label="Menu">
+                    <Icon name="menu" size="24" />
+                </button>
+                <span style="font-weight:bold; font-size:1.1rem;"
+                    >{SITE_TITLE}</span
+                >
+            </div>
+
+            <div class="header-actions">
+                <button
+                    id="headerGlossaryBtn"
+                    style="background:none; border:none; color:white; cursor:pointer;"
+                    aria-label="용어 사전"
+                >
+                    <Icon name="document-text" size="24" />
+                </button>
+                <a
+                    href="/radsafety/notifications"
+                    style="color:white; position:relative;"
+                >
+                    <Icon name="bell" size="24" />
+                    <span
+                        class="global-noti-dot"
+                        style="position:absolute; top:0; right:0; width:8px; height:8px; background:#ef4444; border-radius:50%;"
+                    ></span>
+                </a>
+            </div>
         </div>
 
         <!-- Sidebar Overlay -->
@@ -146,6 +165,7 @@ const { title, description, scale } = Astro.props;
             </main>
         </div>
 
+        <GlossaryModal />
         <MobileBottomNav />
         <!-- <PWAInstall /> -->
 
@@ -186,6 +206,13 @@ const { title, description, scale } = Astro.props;
                 ol?.addEventListener("click", () => {
                     sb?.classList.remove("open");
                     ol?.classList.remove("active");
+                });
+
+                // Glossary Trigger
+                const glossaryBtn =
+                    document.getElementById("headerGlossaryBtn");
+                glossaryBtn?.addEventListener("click", () => {
+                    document.dispatchEvent(new CustomEvent("open-glossary"));
                 });
             });
         </script>
