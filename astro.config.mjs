@@ -9,7 +9,7 @@ import vitePwa from '@vite-pwa/astro';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://ai4radmed.com',
-	base: '/radsafety',
+	base: '/',
 	integrations: [
 		mdx(),
 		sitemap(),

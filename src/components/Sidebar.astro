@@ -23,44 +23,34 @@ const isActive = (href) => {
 
 <aside class="sidebar">
     <div class="logo-area">
-        <a href="/radsafety/" class="logo text-gradient">{SITE_TITLE}</a>
+        <a href="/" class="logo text-gradient">{SITE_TITLE}</a>
     </div>
 
     <div class="nav-group">
         <span class="group-title">Menu</span>
-        <a
-            href="/radsafety/"
-            class={pathname === "/radsafety" || pathname === "/radsafety/"
-                ? "active"
-                : ""}
-            aria-label="Home"
-        >
+        <a href="/" class={pathname === "/" ? "active" : ""} aria-label="Home">
             <span class="icon"><Icon name="home" size="18" /></span>
             <span class="link-text">홈</span>
         </a>
         <a
-            href="/radsafety/inspection-guide"
-            class={pathname.startsWith("/radsafety/inspection-guide")
-                ? "active"
-                : ""}
+            href="/inspection-guide"
+            class={pathname.startsWith("/inspection-guide") ? "active" : ""}
             aria-label="Inspection Guide"
         >
             <span class="icon"><Icon name="check-square" size="18" /></span>
             <span class="link-text">정기검사 체크리스트</span>
         </a>
         <a
-            href="/radsafety/inspection-findings"
-            class={pathname.startsWith("/radsafety/inspection-findings")
-                ? "active"
-                : ""}
+            href="/inspection-findings"
+            class={pathname.startsWith("/inspection-findings") ? "active" : ""}
             aria-label="Findings"
         >
             <span class="icon"><Icon name="search" size="18" /></span>
             <span class="link-text">지적권고사항</span>
         </a>
         <a
-            href="/radsafety/resources"
-            class={pathname.startsWith("/radsafety/resources") ? "active" : ""}
+            href="/resources"
+            class={pathname.startsWith("/resources") ? "active" : ""}
             aria-label="Resources"
         >
             <span class="icon"><Icon name="document-text" size="18" /></span>
@@ -76,16 +66,16 @@ const isActive = (href) => {
             <span class="link-text">법령용어사전</span>
         </button>
         <a
-            href="/radsafety/guide"
-            class={pathname.startsWith("/radsafety/guide") ? "active" : ""}
+            href="/guide"
+            class={pathname.startsWith("/guide") ? "active" : ""}
             aria-label="Usage Guide"
         >
             <span class="icon"><Icon name="help" size="18" /></span>
             <span class="link-text">이용안내</span>
         </a>
         <a
-            href="/radsafety/settings"
-            class={pathname.startsWith("/radsafety/settings") ? "active" : ""}
+            href="/settings"
+            class={pathname.startsWith("/settings") ? "active" : ""}
             aria-label="Settings"
         >
             <span class="icon"><Icon name="settings" size="18" /></span>
@@ -96,18 +86,16 @@ const isActive = (href) => {
     <div class="nav-group">
         <span class="group-title">User</span>
         <a
-            href="/radsafety/mypage"
-            class={pathname.startsWith("/radsafety/mypage") ? "active" : ""}
+            href="/mypage"
+            class={pathname.startsWith("/mypage") ? "active" : ""}
             aria-label="My Page"
         >
             <span class="icon"><Icon name="user" size="18" /></span>
             <span class="link-text">마이페이지</span>
         </a>
         <a
-            href="/radsafety/notifications"
-            class={pathname.startsWith("/radsafety/notifications")
-                ? "active"
-                : ""}
+            href="/notifications"
+            class={pathname.startsWith("/notifications") ? "active" : ""}
             aria-label="Notifications"
             style="position: relative;"
         >
@@ -118,8 +106,8 @@ const isActive = (href) => {
             <span class="link-text">알림함</span>
         </a>
         <a
-            href="/radsafety/login"
-            class={pathname.startsWith("/radsafety/login") ? "active" : ""}
+            href="/login"
+            class={pathname.startsWith("/login") ? "active" : ""}
             aria-label="Login"
         >
             <span class="icon"><Icon name="lock-closed" size="18" /></span>

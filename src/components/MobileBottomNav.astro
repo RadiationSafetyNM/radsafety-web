@@ -4,23 +4,22 @@ const { pathname } = Astro.url;
 
 // Navigation Items
 const navItems = [
-    { href: "/radsafety/", icon: "home", label: "홈" },
+    { href: "/", icon: "home", label: "홈" },
     {
-        href: "/radsafety/inspection-guide",
+        href: "/inspection-guide",
         icon: "check-square",
         label: "체크리스트",
     },
     {
-        href: "/radsafety/inspection-findings",
+        href: "/inspection-findings",
         icon: "search",
         label: "지적사례",
     },
-    { href: "/radsafety/resources", icon: "document-text", label: "자료실" },
+    { href: "/resources", icon: "document-text", label: "자료실" },
 ];
 
 const isActive = (href) => {
-    if (href === "/radsafety/")
-        return pathname === "/radsafety" || pathname === "/radsafety/";
+    if (href === "/") return pathname === "/" || pathname === "";
     return pathname.startsWith(href);
 };
 ---
