@@ -114,8 +114,6 @@ const resources = [
         fileType: "PDF",
     },
 ];
-
-const categories = ["전체", "가이드북", "서식", "법령정보", "안내문"];
 ---
 
 <DashboardLayout title="자료실">
@@ -132,33 +130,6 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             display: flex;
             align-items: center;
             gap: 0.75rem;
-        }
-
-        /* Filter Tabs */
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap; /* Wrap tags like Inspection Findings */
-            /* overflow-x: auto; Remove scrolling */
-            /* padding-bottom: 0.5rem; Not needed if not scrolling */
-        }
-        .tab-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1.25rem;
-            border-radius: 99px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .tab-btn.active,
-        .tab-btn:hover {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
         }
 
         /* Search Bar */
@@ -400,17 +371,6 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         검색 결과가 없습니다.
     </div>
 
-    <!-- Category Tabs -->
-    <div class="tabs">
-        {
-            categories.map((cat, idx) => (
-                <button class={`tab-btn ${idx === 0 ? "active" : ""}`}>
-                    {cat}
-                </button>
-            ))
-        }
-    </div>
-
     <!-- Sort Header -->
     <div class="sort-header">
         <button class="sort-btn active" data-sort="date" data-order="desc">
@@ -421,6 +381,9 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         </button>
         <button class="sort-btn" data-sort="author" data-order="asc">
             작성자 <Icon name="chevron-down" size="14" class="sort-icon" />
+        </button>
+        <button class="sort-btn" data-sort="category" data-order="asc">
+            태그(분류) <Icon name="chevron-down" size="14" class="sort-icon" />
         </button>
     </div>
 
@@ -510,12 +473,10 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         function initResources() {
             const searchInput = document.getElementById("resourceSearch");
-            const tabBtns = document.querySelectorAll(".tab-btn");
             const sortBtns = document.querySelectorAll(".sort-btn");
             const resourceList = document.getElementById("resourceList");
             const noResults = document.getElementById("noResults");
 
-            let currentCategory = "전체";
             let currentSearch = "";
 
             function filterItems() {
@@ -530,11 +491,8 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                     const matchSearch =
                         title.includes(currentSearch) ||
                         category.toLowerCase().includes(currentSearch);
-                    const matchCategory =
-                        currentCategory === "전체" ||
-                        category === currentCategory;
 
-                    if (matchSearch && matchCategory) {
+                    if (matchSearch) {
                         card.style.display = "flex";
                         hasVisible = true;
                     } else {
@@ -569,16 +527,6 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
                 visibleCards.forEach((card) => resourceList.appendChild(card));
             }
-
-            // Tab Logic
-            tabBtns.forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    tabBtns.forEach((b) => b.classList.remove("active"));
-                    btn.classList.add("active");
-                    currentCategory = btn.textContent.trim();
-                    filterItems();
-                });
-            });
 
             // Search Logic
             if (searchInput) {
