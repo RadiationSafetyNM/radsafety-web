@@ -136,13 +136,12 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         /* Search Bar */
         .search-container {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             position: relative;
             width: 100%;
             max-width: 500px;
             display: flex;
             gap: 0.5rem;
-            z-index: 10; /* Ensure dropdown is on top */
         }
         #resourceSearch {
             width: 100%;
@@ -159,78 +158,6 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         #resourceSearch:focus {
             outline: none;
             border-color: var(--accent);
-        }
-        .filter-toggle-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            width: 42px; /* Set width/height for circle */
-            height: 42px; /* Match input height roughly */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .filter-toggle-btn:hover,
-        .filter-toggle-btn.active {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--bg-body);
-        }
-
-        /* Dropdown Menu */
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 0.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow:
-                0 4px 6px -1px var(--shadow-color),
-                0 2px 4px -1px var(--shadow-color);
-            min-width: 150px;
-            z-index: 20;
-            overflow: hidden;
-            flex-direction: column;
-            animation: fadeIn 0.15s ease-out;
-        }
-
-        .dropdown-item {
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            color: var(--text-main);
-            background: transparent;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.1s;
-        }
-
-        .dropdown-item:hover {
-            background: var(--bg-hover);
-        }
-
-        .dropdown-item.active {
-            font-weight: 600;
-            color: var(--accent);
-            background: rgba(var(--accent-rgb), 0.05);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .search-icon {
@@ -412,6 +339,46 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         }
     </style>
 
+    <style>
+        /* Sort Header - Global/Desktop */
+        .sort-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+            align-items: center;
+        }
+        .sort-btn {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+        }
+        .sort-btn:hover {
+            color: var(--text-main);
+        }
+        .sort-btn.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sort-icon {
+            transition: transform 0.2s;
+            opacity: 0;
+        }
+        .sort-btn.active .sort-icon {
+            opacity: 1;
+        }
+        .sort-btn.asc .sort-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+
     <div class="page-header">
         <div class="page-title">
             <Icon name="document-text" size="28" /> 자료실
@@ -428,24 +395,6 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             aria-label="자료 검색"
         />
         <span class="search-icon"><Icon name="search" size="18" /></span>
-        <button
-            id="filterToggleBtn"
-            class="filter-toggle-btn"
-            aria-label="필터 펼치기"
-        >
-            <Icon name="adjustments-horizontal" size="20" />
-        </button>
-    </div>
-
-    <!-- Dropdown Menu (Hidden by default) -->
-    <div class="dropdown-menu" id="filterDropdown" style="display: none;">
-        {
-            categories.map((cat, idx) => (
-                <button class={`dropdown-item ${idx === 0 ? "active" : ""}`}>
-                    {cat}
-                </button>
-            ))
-        }
     </div>
 
     <div
@@ -460,13 +409,13 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         <button class="sort-btn active" data-sort="date" data-order="desc">
             날짜 <Icon name="chevron-down" size="14" class="sort-icon" />
         </button>
-        <button class="sort-btn" data-sort="title" data-order="asc">
+        <button class="sort-btn" data-sort="title" data-order="none">
             제목 <Icon name="chevron-down" size="14" class="sort-icon" />
         </button>
-        <button class="sort-btn" data-sort="author" data-order="asc">
+        <button class="sort-btn" data-sort="author" data-order="none">
             작성자 <Icon name="chevron-down" size="14" class="sort-icon" />
         </button>
-        <button class="sort-btn" data-sort="category" data-order="asc">
+        <button class="sort-btn" data-sort="category" data-order="none">
             태그(분류) <Icon name="chevron-down" size="14" class="sort-icon" />
         </button>
     </div>
@@ -554,52 +503,11 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         function initResources() {
             const searchInput = document.getElementById("resourceSearch");
-            const filterToggleBtn = document.getElementById("filterToggleBtn");
-            const filterDropdown = document.getElementById("filterDropdown");
-            const dropdownItems = document.querySelectorAll(".dropdown-item");
             const sortBtns = document.querySelectorAll(".sort-btn");
             const resourceList = document.getElementById("resourceList");
             const noResults = document.getElementById("noResults");
 
-            let currentCategory = "전체";
             let currentSearch = "";
-
-            // Toggle Filter Section
-            // Toggle Filter Section
-            if (filterToggleBtn && filterDropdown) {
-                // Prevent duplicate listeners using a data attribute
-                if (!filterToggleBtn.dataset.listenerAttached) {
-                    filterToggleBtn.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        console.log("Filter toggled"); // Debug log for confirmation
-                        const isHidden =
-                            filterDropdown.style.display === "none";
-                        filterDropdown.style.display = isHidden
-                            ? "flex"
-                            : "none";
-                        filterToggleBtn.classList.toggle("active", isHidden);
-                    });
-                    filterToggleBtn.dataset.listenerAttached = "true";
-                }
-
-                // Close dropdown when clicking outside
-                // Note: document listener is cheap, but we should ensure we don't stack them too much.
-                // A named function would be better, but for now, simple check.
-                if (!document.body.dataset.dropdownListenerAttached) {
-                    document.addEventListener("click", (e) => {
-                        if (
-                            filterToggleBtn &&
-                            filterDropdown &&
-                            !filterToggleBtn.contains(e.target) &&
-                            !filterDropdown.contains(e.target)
-                        ) {
-                            filterDropdown.style.display = "none";
-                            filterToggleBtn.classList.remove("active");
-                        }
-                    });
-                    document.body.dataset.dropdownListenerAttached = "true";
-                }
-            }
 
             function filterItems() {
                 const cards = Array.from(resourceList.children);
@@ -610,14 +518,12 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                         card.getAttribute("data-title")?.toLowerCase() || "";
                     const category = card.getAttribute("data-category") || "";
 
+                    // Simple search filtering (includes category name in search)
                     const matchSearch =
                         title.includes(currentSearch) ||
                         category.toLowerCase().includes(currentSearch);
-                    const matchCategory =
-                        currentCategory === "전체" ||
-                        category === currentCategory;
 
-                    if (matchSearch && matchCategory) {
+                    if (matchSearch) {
                         card.style.display = "flex";
                         hasVisible = true;
                     } else {
@@ -633,43 +539,37 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             function sortItems(key, order) {
                 const visibleCards = Array.from(resourceList.children);
 
-                visibleCards.sort((a, b) => {
-                    let valA = a.getAttribute(`data-${key}`) || "";
-                    let valB = b.getAttribute(`data-${key}`) || "";
+                // If order is 'none' or null, revert to default (Date Descending)
+                if (!order || order === "none") {
+                    visibleCards.sort((a, b) => {
+                        const dateA = a.getAttribute("data-date") || "";
+                        const dateB = b.getAttribute("data-date") || "";
+                        return (
+                            new Date(dateB).getTime() -
+                            new Date(dateA).getTime()
+                        );
+                    });
+                } else {
+                    visibleCards.sort((a, b) => {
+                        let valA = a.getAttribute(`data-${key}`) || "";
+                        let valB = b.getAttribute(`data-${key}`) || "";
 
-                    if (key === "date") {
+                        if (key === "date") {
+                            return order === "asc"
+                                ? new Date(valA).getTime() -
+                                      new Date(valB).getTime()
+                                : new Date(valB).getTime() -
+                                      new Date(valA).getTime();
+                        }
+
                         return order === "asc"
-                            ? new Date(valA).getTime() -
-                                  new Date(valB).getTime()
-                            : new Date(valB).getTime() -
-                                  new Date(valA).getTime();
-                    }
-
-                    return order === "asc"
-                        ? valA.localeCompare(valB)
-                        : valB.localeCompare(valA);
-                });
+                            ? valA.localeCompare(valB)
+                            : valB.localeCompare(valA);
+                    });
+                }
 
                 visibleCards.forEach((card) => resourceList.appendChild(card));
             }
-
-            // Dropdown Item Logic
-            dropdownItems.forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    dropdownItems.forEach((b) => b.classList.remove("active"));
-                    btn.classList.add("active");
-                    currentCategory = btn.textContent.trim();
-                    filterItems();
-
-                    // Close dropdown after selection
-                    if (filterDropdown) {
-                        filterDropdown.style.display = "none";
-                        const toggleBtn =
-                            document.getElementById("filterToggleBtn");
-                        if (toggleBtn) toggleBtn.classList.remove("active");
-                    }
-                });
-            });
 
             // Search Logic
             if (searchInput) {
@@ -679,32 +579,48 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                 });
             }
 
-            // Sort Logic
+            // Sort Logic (3-State: Desc -> Asc -> None)
             sortBtns.forEach((btn) => {
                 btn.addEventListener("click", () => {
                     const key = btn.getAttribute("data-sort");
-                    const currentBtnOrder = btn.getAttribute("data-order");
+                    const currentOrder = btn.getAttribute("data-order"); // 'desc', 'asc', or null/'none'
 
-                    let newOrder = "asc";
-                    if (btn.classList.contains("active")) {
-                        newOrder = currentBtnOrder === "asc" ? "desc" : "asc";
-                    } else {
+                    // Cycle: Desc -> Asc -> None -> Desc ...
+                    // If currently 'desc' -> go 'asc'
+                    // If currently 'asc' -> go 'none'
+                    // If currently 'none' (or other) -> go 'desc'
+
+                    let newOrder = "desc";
+                    if (currentOrder === "desc") {
                         newOrder = "asc";
-                        if (key === "date") newOrder = "desc";
+                    } else if (currentOrder === "asc") {
+                        newOrder = "none";
+                    } else {
+                        newOrder = "desc";
                     }
 
+                    // Reset all buttons first
                     sortBtns.forEach((b) => {
                         b.classList.remove("active", "asc", "desc");
+                        b.setAttribute("data-order", "none");
                     });
 
-                    btn.classList.add("active", newOrder);
-                    btn.setAttribute("data-order", newOrder);
+                    // Update current button if not 'none'
+                    if (newOrder !== "none") {
+                        btn.classList.add("active", newOrder);
+                        btn.setAttribute("data-order", newOrder);
+                    } else {
+                        // If 'none', no button is active (or maybe Date default?
+                        // UX Choice: Visual reset implies "Default".
+                        // Let's keep Date button active if it matches default?
+                        // For simplicity/clarity, 'none' means no *explicit* sort highlight, just default list.
+                        // But user might want to know it's back to default.
+                        // Let's just remove highlight for true 'none'.
+                    }
 
                     sortItems(key, newOrder);
                 });
             });
-
-            // Download Placeholder (Handled Inline)
         }
     </script>
 </DashboardLayout>
