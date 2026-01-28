@@ -136,7 +136,8 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         /* Search Bar */
         .search-container {
-            margin-bottom: 1rem;
+        .search-container {
+            margin-bottom: 0.5rem; /* Reduced from 1rem */
             position: relative;
             width: 100%;
             max-width: 500px;
@@ -410,6 +411,46 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                 transform: rotate(180deg);
             }
         }
+
+        /* Sort Header - Desktop/General */
+        .sort-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+            align-items: center;
+        }
+        .sort-btn {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+        }
+        .sort-btn:hover {
+            color: var(--text-main);
+        }
+        .sort-btn.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .sort-icon {
+            transition: transform 0.2s;
+            opacity: 0;
+            /* In desktop, maybe we always show icon? Or same behavior? Let's keep consistent */
+        }
+        .sort-btn.active .sort-icon {
+            opacity: 1;
+        }
+        .sort-btn.asc .sort-icon {
+            transform: rotate(180deg);
+        }
+
     </style>
 
     <div class="page-header">
@@ -435,17 +476,19 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         >
             <Icon name="adjustments-horizontal" size="20" />
         </button>
-    </div>
 
-    <!-- Dropdown Menu (Hidden by default) -->
-    <div class="dropdown-menu" id="filterDropdown" style="display: none;">
-        {
-            categories.map((cat, idx) => (
-                <button class={`dropdown-item ${idx === 0 ? "active" : ""}`}>
-                    {cat}
-                </button>
-            ))
-        }
+        <!-- Dropdown Menu (Hidden by default) -->
+        <div class="dropdown-menu" id="filterDropdown" style="display: none;">
+            {
+                categories.map((cat, idx) => (
+                    <button
+                        class={`dropdown-item ${idx === 0 ? "active" : ""}`}
+                    >
+                        {cat}
+                    </button>
+                ))
+            }
+        </div>
     </div>
 </DashboardLayout>
 
