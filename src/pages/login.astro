@@ -206,7 +206,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                 is_approved: isApproved ? "true" : "false", // 'false' needs admin approval
             });
             alert("로그인되었습니다. (Mock)");
-            window.location.href = "/radsafety/mypage";
+            window.location.href = "/mypage";
         };
 
         document
@@ -230,7 +230,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                 const { error } = await supabase.auth.signInWithOtp({
                     email: email,
                     options: {
-                        emailRedirectTo: `${window.location.origin}/radsafety/mypage`,
+                        emailRedirectTo: `${window.location.origin}/mypage`,
                     },
                 });
 
@@ -254,7 +254,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                 const { data, error } = await supabase.auth.signInWithOAuth({
                     provider: provider,
                     options: {
-                        redirectTo: `${window.location.origin}/radsafety/mypage`,
+                        redirectTo: `${window.location.origin}/mypage`,
                     },
                 });
                 if (error) alert("로그인 오류: " + error.message);

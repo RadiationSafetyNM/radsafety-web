@@ -5,7 +5,7 @@ importance: '필수'
 order: 2
 ---
 
-- [ ] 안전관리규정 (<a href="/radsafety/archive/안전관리규정_작성지침.pdf" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">작성지침</a>, <a href="/radsafety/archive/질병관리청 방사선안전관리규정(질병관리청예규)(제161호)(20250319).pdf" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">예시</a>)
+- [ ] 안전관리규정 (<a href="/archive/안전관리규정_작성지침.pdf" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">작성지침</a>, <a href="/archive/질병관리청 방사선안전관리규정(질병관리청예규)(제161호)(20250319).pdf" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: bold;">예시</a>)
 - [ ] 방사선안전보고서 (시설, 배기 및 배수계통 도면 포함) 비치
 
 ### 💡 체크포인트
