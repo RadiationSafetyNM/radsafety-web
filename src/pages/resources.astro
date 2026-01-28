@@ -471,11 +471,15 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             .info-meta {
                 font-size: 0.75rem;
             }
-            /* Hide less important meta on small screens */
-            .meta-item:nth-child(n + 4),
-            .meta-divider:nth-child(n + 4) {
+            /* Mobile Meta: Show Category and Date, Hide Author */
+            /* Hide Author (3rd item) and its preceding divider (2nd item) */
+            .meta-item:nth-child(3),
+            .meta-divider:nth-child(2) {
                 display: none;
             }
+
+            /* Ensure Date (5th item) is visible - Override any previous hidden rules if any */
+            /* We removed the generic n+4 hidden rule so 5th item (Date) should be visible by default now */
             /* Sort Header */
             .sort-header {
                 display: flex;
@@ -543,10 +547,10 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             font-weight: 600;
         }
         .sort-icon {
-            transition: transform 0.2s;
+            transition: transform 0.2s ease-in-out;
             opacity: 0;
-            display: inline-block; /* Ensure transform works */
-            transform-origin: center; /* Rotate around center */
+            display: inline-block;
+            transform-origin: center center;
         }
         .sort-btn.active .sort-icon {
             opacity: 1;
