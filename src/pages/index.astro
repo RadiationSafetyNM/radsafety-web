@@ -26,21 +26,10 @@ import Icon from "../components/Icon.astro";
 		</p>
 
 		<!-- Disclaimer Notice -->
-		<div class="notice-box">
-			<div class="notice-icon">📢</div>
-			<div class="notice-content">
-				<p>
-					<strong>[안내 말씀]</strong><br />
-					• <strong>정기검사 체크리스트</strong>는 <strong
-						>한국원자력안전기술원(KINS)</strong
-					>의 감수를 거쳐 제공될 예정입니다.<br />
-					• <strong>지적권고사항</strong>은 한국원자력안전기술원과
-					사전 협의 후, <strong
-						>해당 병원의 동의를 얻어 익명으로 처리</strong
-					>하여 게시될 예정입니다.
-				</p>
-			</div>
-		</div>
+		<p class="intro">
+			• <strong>정기검사 체크리스트</strong>는 <strong>한국원자력안전기술원(KINS)</strong>의 감수를 거쳐 제공될 예정입니다.<br />
+			• <strong>지적권고사항</strong>은 한국원자력안전기술원과 사전 협의 후, <strong>해당 병원의 동의를 얻어 익명으로 처리</strong>하여 게시될 예정입니다.
+		</p>
 
 		<div style="margin-bottom: 2rem;">
 			<a
@@ -186,32 +175,5 @@ import Icon from "../components/Icon.astro";
 			}
 		}
 
-		.notice-box {
-			background-color: var(--bg-card); /* or a subtle info color */
-			border: 1px solid var(--border-color);
-			border-left: 4px solid var(--accent);
-			border-radius: 8px;
-			padding: 1rem;
-			margin-bottom: 2rem;
-			display: flex;
-			gap: 1rem;
-			align-items: flex-start;
-			font-size: 0.9rem;
-			line-height: 1.5;
-			color: var(--text-main);
-		}
-		.notice-icon {
-			font-size: 1.2rem;
-			flex-shrink: 0;
-			padding-top: 0.1rem;
-		}
-		.notice-content p {
-			margin: 0;
-			color: var(--text-muted);
-		}
-		.notice-content strong {
-			color: var(--text-main);
-			font-weight: 600;
-		}
 	</style>
 </DashboardLayout>
