@@ -562,27 +562,37 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         let currentSearch = "";
 
         // Toggle Filter Section
+        // Toggle Filter Section
         if (filterToggleBtn && filterDropdown) {
-            const newBtn = filterToggleBtn.cloneNode(true);
-            filterToggleBtn.parentNode.replaceChild(newBtn, filterToggleBtn);
-
-            newBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const isHidden = filterDropdown.style.display === "none";
-                filterDropdown.style.display = isHidden ? "flex" : "none";
-                newBtn.classList.toggle("active", isHidden);
-            });
+            // Prevent duplicate listeners using a data attribute
+            if (!filterToggleBtn.dataset.listenerAttached) {
+                filterToggleBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    console.log("Filter toggled"); // Debug log for confirmation
+                    const isHidden = filterDropdown.style.display === "none";
+                    filterDropdown.style.display = isHidden ? "flex" : "none";
+                    filterToggleBtn.classList.toggle("active", isHidden);
+                });
+                filterToggleBtn.dataset.listenerAttached = "true";
+            }
 
             // Close dropdown when clicking outside
-            document.addEventListener("click", (e) => {
-                if (
-                    !newBtn.contains(e.target) &&
-                    !filterDropdown.contains(e.target)
-                ) {
-                    filterDropdown.style.display = "none";
-                    newBtn.classList.remove("active");
-                }
-            });
+            // Note: document listener is cheap, but we should ensure we don't stack them too much.
+            // A named function would be better, but for now, simple check.
+            if (!document.body.dataset.dropdownListenerAttached) {
+                document.addEventListener("click", (e) => {
+                    if (
+                        filterToggleBtn &&
+                        filterDropdown &&
+                        !filterToggleBtn.contains(e.target) &&
+                        !filterDropdown.contains(e.target)
+                    ) {
+                        filterDropdown.style.display = "none";
+                        filterToggleBtn.classList.remove("active");
+                    }
+                });
+                document.body.dataset.dropdownListenerAttached = "true";
+            }
         }
 
         function filterItems() {
