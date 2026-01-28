@@ -370,6 +370,8 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         .sort-icon {
             transition: transform 0.2s;
             opacity: 0;
+            display: inline-block; /* Ensure transform works */
+            transform-origin: center; /* Rotate around center */
         }
         .sort-btn.active .sort-icon {
             opacity: 1;
@@ -609,6 +611,7 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                     if (newOrder !== "none") {
                         btn.classList.add("active", newOrder);
                         btn.setAttribute("data-order", newOrder);
+                        console.log(`Sort updated: ${key} -> ${newOrder}`); // Debug Log
                     } else {
                         // If 'none', no button is active (or maybe Date default?
                         // UX Choice: Visual reset implies "Default".
