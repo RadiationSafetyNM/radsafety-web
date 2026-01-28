@@ -337,44 +337,43 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             .meta-divider:nth-child(n + 4) {
                 display: none;
             }
+            /* Sort Header */
+            .sort-header {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                padding: 0 0.5rem;
+            }
+            .sort-btn {
+                background: none;
+                border: none;
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                padding: 0.2rem 0;
+            }
+            .sort-btn:hover {
+                color: var(--text-main);
+            }
+            .sort-btn.active {
+                color: var(--accent);
+                font-weight: 600;
+            }
+            .sort-icon {
+                transition: transform 0.2s;
+                opacity: 0;
+            }
+            .sort-btn.active .sort-icon {
+                opacity: 1;
+            }
+            .sort-btn.asc .sort-icon {
+                transform: rotate(180deg);
+            }
         }
     </style>
-
-        /* Sort Header */
-        .sort-header {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 0 0.5rem;
-        }
-        .sort-btn {
-            background: none;
-            border: none;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.2rem 0;
-        }
-        .sort-btn:hover {
-            color: var(--text-main);
-        }
-        .sort-btn.active {
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .sort-icon {
-            transition: transform 0.2s;
-            opacity: 0;
-        }
-        .sort-btn.active .sort-icon {
-            opacity: 1;
-        }
-        .sort-btn.asc .sort-icon {
-            transform: rotate(180deg);
-        }
 
     <div class="page-header">
         <div class="page-title">
@@ -427,59 +426,76 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
     <div class="resource-list" id="resourceList">
         {
-            resources.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((item) => (
-                <div
-                    class="resource-card"
-                    data-title={item.title}
-                    data-date={item.date}
-                    data-author={item.author}
-                    data-category={item.category}
-                    onclick={`if(event.target.closest('.download-btn')) return; 
+            resources
+                .sort(
+                    (a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )
+                .map((item) => (
+                    <div
+                        class="resource-card"
+                        data-title={item.title}
+                        data-date={item.date}
+                        data-author={item.author}
+                        data-category={item.category}
+                        onclick={`if(event.target.closest('.download-btn')) return; 
                             ${
                                 item.previewUrl && item.previewUrl !== "#"
                                     ? `window.open('${item.previewUrl}', '_blank')`
                                     : `alert('미리보기가 준비되지 않았습니다.\\n오른쪽 다운로드 버튼을 이용해 주세요.');`
                             }`}
-                >
-                    <div class="card-left">
-                        <div class="file-icon-area">
-                            <Icon name="document" size="18" />
-                        </div>
-                        <div class="resource-info">
-                            <div class="info-top">
-                                <span class="resource-title">{item.title}</span>
-                                {item.isNew && <span class="new-dot"></span>}
+                    >
+                        <div class="card-left">
+                            <div class="file-icon-area">
+                                <Icon name="document" size="18" />
                             </div>
-                            
-                            <div class="info-meta">
-                                <span class="meta-item category">{item.category}</span>
-                                <span class="meta-divider">|</span>
-                                <span class="meta-item">{item.author}</span>
-                                <span class="meta-divider">|</span>
-                                <span class="meta-item">{item.date}</span>
-                                {item.version && <span class="version-badge">{item.version}</span>}
-                            </div>
-                        </div>
-                    </div>
+                            <div class="resource-info">
+                                <div class="info-top">
+                                    <span class="resource-title">
+                                        {item.title}
+                                    </span>
+                                    {item.isNew && <span class="new-dot" />}
+                                </div>
 
-                    <div class="card-right">
-                        <a
-                            href={item.downloadUrl}
-                            class="download-btn"
-                            download={item.downloadUrl !== "#"}
-                            target={item.downloadUrl !== "#" ? "_blank" : "_self"}
-                            onclick={
-                                item.downloadUrl === "#"
-                                    ? "event.preventDefault(); event.stopPropagation(); alert('다운로드 파일이 준비되지 않았습니다.');"
-                                    : "event.stopPropagation();"
-                            }
-                            aria-label="Download"
-                        >
-                            <Icon name="download" size="20" />
-                        </a>
+                                <div class="info-meta">
+                                    <span class="meta-item category">
+                                        {item.category}
+                                    </span>
+                                    <span class="meta-divider">|</span>
+                                    <span class="meta-item">{item.author}</span>
+                                    <span class="meta-divider">|</span>
+                                    <span class="meta-item">{item.date}</span>
+                                    {item.version && (
+                                        <span class="version-badge">
+                                            {item.version}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-right">
+                            <a
+                                href={item.downloadUrl}
+                                class="download-btn"
+                                download={item.downloadUrl !== "#"}
+                                target={
+                                    item.downloadUrl !== "#"
+                                        ? "_blank"
+                                        : "_self"
+                                }
+                                onclick={
+                                    item.downloadUrl === "#"
+                                        ? "event.preventDefault(); event.stopPropagation(); alert('다운로드 파일이 준비되지 않았습니다.');"
+                                        : "event.stopPropagation();"
+                                }
+                                aria-label="Download"
+                            >
+                                <Icon name="download" size="20" />
+                            </a>
+                        </div>
                     </div>
-                </div>
-            ))
+                ))
         }
     </div>
 
@@ -498,7 +514,7 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             const sortBtns = document.querySelectorAll(".sort-btn");
             const resourceList = document.getElementById("resourceList");
             const noResults = document.getElementById("noResults");
-            
+
             let currentCategory = "전체";
             let currentSearch = "";
 
@@ -507,9 +523,10 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                 let hasVisible = false;
 
                 cards.forEach((card) => {
-                    const title = card.getAttribute("data-title")?.toLowerCase() || "";
+                    const title =
+                        card.getAttribute("data-title")?.toLowerCase() || "";
                     const category = card.getAttribute("data-category") || "";
-                    
+
                     const matchSearch =
                         title.includes(currentSearch) ||
                         category.toLowerCase().includes(currentSearch);
@@ -532,23 +549,25 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
             function sortItems(key, order) {
                 const visibleCards = Array.from(resourceList.children);
-                
+
                 visibleCards.sort((a, b) => {
                     let valA = a.getAttribute(`data-${key}`) || "";
                     let valB = b.getAttribute(`data-${key}`) || "";
-                    
-                    if (key === 'date') {
-                        return order === 'asc' 
-                            ? new Date(valA).getTime() - new Date(valB).getTime()
-                            : new Date(valB).getTime() - new Date(valA).getTime();
+
+                    if (key === "date") {
+                        return order === "asc"
+                            ? new Date(valA).getTime() -
+                                  new Date(valB).getTime()
+                            : new Date(valB).getTime() -
+                                  new Date(valA).getTime();
                     }
 
-                    return order === 'asc' 
+                    return order === "asc"
                         ? valA.localeCompare(valB)
                         : valB.localeCompare(valA);
                 });
 
-                visibleCards.forEach(card => resourceList.appendChild(card));
+                visibleCards.forEach((card) => resourceList.appendChild(card));
             }
 
             // Tab Logic
@@ -570,26 +589,26 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             }
 
             // Sort Logic
-            sortBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const key = btn.getAttribute('data-sort');
-                    const currentBtnOrder = btn.getAttribute('data-order');
-                    
-                    let newOrder = 'asc';
-                    if (btn.classList.contains('active')) {
-                        newOrder = currentBtnOrder === 'asc' ? 'desc' : 'asc';
+            sortBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const key = btn.getAttribute("data-sort");
+                    const currentBtnOrder = btn.getAttribute("data-order");
+
+                    let newOrder = "asc";
+                    if (btn.classList.contains("active")) {
+                        newOrder = currentBtnOrder === "asc" ? "desc" : "asc";
                     } else {
-                        newOrder = 'asc'; 
-                        if(key === 'date') newOrder = 'desc'; 
+                        newOrder = "asc";
+                        if (key === "date") newOrder = "desc";
                     }
 
-                    sortBtns.forEach(b => {
-                        b.classList.remove('active', 'asc', 'desc');
+                    sortBtns.forEach((b) => {
+                        b.classList.remove("active", "asc", "desc");
                     });
 
-                    btn.classList.add('active', newOrder);
-                    btn.setAttribute('data-order', newOrder);
-                    
+                    btn.classList.add("active", newOrder);
+                    btn.setAttribute("data-order", newOrder);
+
                     sortItems(key, newOrder);
                 });
             });
