@@ -114,6 +114,8 @@ const resources = [
         fileType: "PDF",
     },
 ];
+
+const categories = ["전체", "가이드북", "서식", "법령정보", "안내문"];
 ---
 
 <DashboardLayout title="자료실">
@@ -134,10 +136,12 @@ const resources = [
 
         /* Search Bar */
         .search-container {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             position: relative;
             width: 100%;
             max-width: 500px;
+            display: flex;
+            gap: 0.5rem;
         }
         #resourceSearch {
             width: 100%;
@@ -155,6 +159,66 @@ const resources = [
             outline: none;
             border-color: var(--accent);
         }
+        .filter-toggle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            width: 42px; /* Set width/height for circle */
+            height: 42px; /* Match input height roughly */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .filter-toggle-btn:hover,
+        .filter-toggle-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--bg-body);
+        }
+
+        /* Filter Tabs */
+        .tabs-container {
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.2s ease-out;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .search-icon {
             position: absolute;
             left: 1rem;
@@ -350,6 +414,26 @@ const resources = [
             aria-label="자료 검색"
         />
         <span class="search-icon"><Icon name="search" size="18" /></span>
+        <button
+            id="filterToggleBtn"
+            class="filter-toggle-btn"
+            aria-label="필터 펼치기"
+        >
+            <Icon name="adjustments-horizontal" size="20" />
+        </button>
+    </div>
+
+    <!-- Category Tabs (Hidden by default) -->
+    <div class="tabs-container" id="tabsContainer" style="display: none;">
+        <div class="tabs">
+            {
+                categories.map((cat, idx) => (
+                    <button class={`tab-btn ${idx === 0 ? "active" : ""}`}>
+                        {cat}
+                    </button>
+                ))
+            }
+        </div>
     </div>
 
     <div
@@ -458,11 +542,24 @@ const resources = [
 
         function initResources() {
             const searchInput = document.getElementById("resourceSearch");
+            const filterToggleBtn = document.getElementById("filterToggleBtn");
+            const tabsContainer = document.getElementById("tabsContainer");
+            const tabBtns = document.querySelectorAll(".tab-btn");
             const sortBtns = document.querySelectorAll(".sort-btn");
             const resourceList = document.getElementById("resourceList");
             const noResults = document.getElementById("noResults");
 
+            let currentCategory = "전체";
             let currentSearch = "";
+
+            // Toggle Filter Section
+            if (filterToggleBtn && tabsContainer) {
+                filterToggleBtn.addEventListener("click", () => {
+                    const isHidden = tabsContainer.style.display === "none";
+                    tabsContainer.style.display = isHidden ? "block" : "none";
+                    filterToggleBtn.classList.toggle("active", isHidden);
+                });
+            }
 
             function filterItems() {
                 const cards = Array.from(resourceList.children);
@@ -476,8 +573,11 @@ const resources = [
                     const matchSearch =
                         title.includes(currentSearch) ||
                         category.toLowerCase().includes(currentSearch);
+                    const matchCategory =
+                        currentCategory === "전체" ||
+                        category === currentCategory;
 
-                    if (matchSearch) {
+                    if (matchSearch && matchCategory) {
                         card.style.display = "flex";
                         hasVisible = true;
                     } else {
@@ -512,6 +612,16 @@ const resources = [
 
                 visibleCards.forEach((card) => resourceList.appendChild(card));
             }
+
+            // Tab Logic
+            tabBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    tabBtns.forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    currentCategory = btn.textContent.trim();
+                    filterItems();
+                });
+            });
 
             // Search Logic
             if (searchInput) {
