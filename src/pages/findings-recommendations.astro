@@ -9,7 +9,7 @@ const staticFindings = await getCollection("findings_recommendations");
 
 // Normalize Data: Ensure tags exist
 const normalizedFindings = await Promise.all(
-    findings.map(async (item) => {
+    staticFindings.map(async (item) => {
         const { Content } = await item.render();
         let tags = item.data.tags || [];
         // Fallback: Use category as a tag if tags are empty
