@@ -5,7 +5,7 @@ import Lightbox from "../components/Lightbox.astro";
 import Icon from "../components/Icon.astro";
 import { getCollection } from "astro:content";
 
-const items = await getCollection("inspection_checklist");
+const items = await getCollection("inspection_prep");
 const sortedItems = items.sort((a, b) => a.data.order - b.data.order);
 ---
 

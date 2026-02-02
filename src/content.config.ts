@@ -2,8 +2,8 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 // Blog collection removed
-const inspection_checklist = defineCollection({
-	type: 'content',
+const inspection_prep = defineCollection({
+	loader: glob({ pattern: "**/*.md", base: "./src/content/inspection_prep" }),
 	schema: z.object({
 		title: z.string(),
 		category: z.string().optional(),
@@ -30,4 +30,4 @@ const findings_recommendations = defineCollection({
 	}),
 });
 
-export const collections = { inspection_checklist, findings_recommendations };
+export const collections = { inspection_prep, findings_recommendations };
