@@ -13,10 +13,39 @@ const isActive = (href) => {
 ---
 
 <script>
+    import { userProfile } from "../store/user";
+    import { supabase } from "../lib/supabase";
+
     document.addEventListener("astro:page-load", () => {
-        const btn = document.getElementById("sidebarGlossaryBtn");
-        btn?.addEventListener("click", () => {
+        const glossaryBtn = document.getElementById("sidebarGlossaryBtn");
+        glossaryBtn?.addEventListener("click", () => {
             document.dispatchEvent(new CustomEvent("open-glossary"));
+        });
+
+        // Auth State Handling
+        const apiLoginLink = document.getElementById("navLoginLink");
+        const apiLogoutBtn = document.getElementById("navLogoutBtn");
+
+        function updateAuthUI(user) {
+            if (user) {
+                if (apiLoginLink) apiLoginLink.style.display = "none";
+                if (apiLogoutBtn) apiLogoutBtn.style.display = "flex";
+            } else {
+                if (apiLoginLink) apiLoginLink.style.display = "flex";
+                if (apiLogoutBtn) apiLogoutBtn.style.display = "none";
+            }
+        }
+
+        // Subscribe to store changes
+        userProfile.subscribe(updateAuthUI);
+
+        // Logout Handler
+        apiLogoutBtn?.addEventListener("click", async () => {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                await supabase.auth.signOut();
+                userProfile.set(null); // Clear store
+                window.location.href = "/";
+            }
         });
     });
 </script>
@@ -27,33 +56,35 @@ const isActive = (href) => {
     </div>
 
     <div class="nav-group">
-        <span class="group-title">Menu</span>
+        <span class="group-title">메뉴</span>
         <a href="/" class={pathname === "/" ? "active" : ""} aria-label="Home">
             <span class="icon"><Icon name="home" size="18" /></span>
             <span class="link-text">홈</span>
         </a>
         <a
-            href="/inspection-guide"
-            class={pathname.startsWith("/inspection-guide") ? "active" : ""}
+            href="/inspection-prep"
+            class={pathname.startsWith("/inspection-prep") ? "active" : ""}
             aria-label="Inspection Guide"
         >
             <span class="icon"><Icon name="check-square" size="18" /></span>
-            <span class="link-text">정기검사 체크리스트</span>
+            <span class="link-text">정기검사 수검준비</span>
         </a>
         <a
-            href="/inspection-findings"
-            class={pathname.startsWith("/inspection-findings") ? "active" : ""}
+            href="/findings-recommendations"
+            class={pathname.startsWith("/findings-recommendations")
+                ? "active"
+                : ""}
             aria-label="Findings"
         >
-            <span class="icon"><Icon name="search" size="18" /></span>
-            <span class="link-text">지적권고사항</span>
+            <span class="icon"><Icon name="alert-circle" size="18" /></span>
+            <span class="link-text">지적권고사례</span>
         </a>
         <a
             href="/resources"
             class={pathname.startsWith("/resources") ? "active" : ""}
             aria-label="Resources"
         >
-            <span class="icon"><Icon name="document-text" size="18" /></span>
+            <span class="icon"><Icon name="folder" size="18" /></span>
             <span class="link-text">자료실</span>
         </a>
         <button
@@ -62,8 +93,8 @@ const isActive = (href) => {
             class="nav-btn"
             aria-label="Glossary"
         >
-            <span class="icon"><Icon name="document-text" size="18" /></span>
-            <span class="link-text">법령용어사전</span>
+            <span class="icon"><Icon name="search" size="18" /></span>
+            <span class="link-text">용어검색</span>
         </button>
         <a
             href="/guide"
@@ -84,7 +115,7 @@ const isActive = (href) => {
     </div>
 
     <div class="nav-group">
-        <span class="group-title">User</span>
+        <span class="group-title">사용자</span>
         <a
             href="/mypage"
             class={pathname.startsWith("/mypage") ? "active" : ""}
@@ -107,12 +138,23 @@ const isActive = (href) => {
         </a>
         <a
             href="/login"
+            id="navLoginLink"
             class={pathname.startsWith("/login") ? "active" : ""}
             aria-label="Login"
         >
             <span class="icon"><Icon name="lock-closed" size="18" /></span>
             <span class="link-text">로그인</span>
         </a>
+        <button
+            type="button"
+            id="navLogoutBtn"
+            class="nav-btn"
+            aria-label="Logout"
+            style="display: none;"
+        >
+            <span class="icon"><Icon name="lock-closed" size="18" /></span>
+            <span class="link-text">로그아웃</span>
+        </button>
     </div>
 
     <style>

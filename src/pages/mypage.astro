@@ -5,244 +5,409 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
 <DashboardLayout title="마이페이지">
     <style>
-        .profile-container {
-            max-width: 720px;
+        .mypage-container {
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 4rem;
         }
+
+        /* 1. Profile Section */
         .profile-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 2rem;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            text-align: center;
-            box-shadow: 0 1px 3px var(--shadow-color);
+            gap: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Soft shadow */
         }
-        .avatar {
+        .profile-avatar {
             width: 80px;
             height: 80px;
-            background: var(--bg-body);
             border-radius: 50%;
-            margin-bottom: 1rem;
+            background: #f3f4f6;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            border: 1px solid var(--border-color);
+            font-size: 2.5rem;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--border-color);
         }
-        .status-badge {
-            display: inline-block;
+        .profile-info {
+            flex: 1;
+        }
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .profile-email {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
             padding: 0.25rem 0.75rem;
             border-radius: 99px;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-top: 0.5rem;
+            gap: 0.25rem;
         }
-        .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.2);
+        .badge-verified {
+            background: linear-gradient(
+                135deg,
+                #ffd700 0%,
+                #fdb931 100%
+            ); /* Gold Gradient */
+            color: #7b5800;
+            border: 1px solid #eebb11;
         }
-        .status-approved {
-            background: rgba(16, 185, 129, 0.1);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        .badge-unverified {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .badge-unverified:hover {
+            background: #e5e7eb;
+            color: #374151;
         }
 
-        .info-grid {
-            width: 100%;
-            margin-top: 2rem;
-            text-align: left;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
+        /* 2. Dashboard Section (Grid) */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
         }
-        .info-item {
-            margin-bottom: 1rem;
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: transform 0.2s;
         }
-        .label {
-            font-size: 0.875rem;
+        .dash-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+        .dash-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dash-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .progress-bar {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 99px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        /* 3. Section Headers */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.75rem 0;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 4. Menu List */
+        .menu-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item:hover {
+            background: var(--bg-body);
+        }
+        .menu-icon {
+            margin-right: 0.75rem;
             color: var(--text-muted);
         }
-        .value {
-            font-size: 1rem;
-            color: var(--text-main);
-            font-weight: 500;
+
+        /* Modal for Verification */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
         }
 
-        #logoutBtn {
-            margin-top: 2rem;
-            padding: 0.5rem 1.5rem;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            cursor: pointer;
+        @media (max-width: 600px) {
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-name {
+                justify-content: center;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
-    <div class="profile-container">
-        <h1>마이페이지</h1>
-
-        <div id="loading" style="text-align:center;">로딩 중...</div>
-
-        <div id="profileContent" class="profile-card" style="display:none;">
-            <div class="avatar">👤</div>
-            <h2 id="userName">사용자 이름</h2>
-            <div id="userEmail" style="color:#6b7280;">email@example.com</div>
-
-            <div id="statusBadge" class="status-badge status-pending">
-                승인 대기 중 (관리자 승인 필요)
-            </div>
-
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">로그인 제공자</div>
-                    <div class="value" id="provider">Google</div>
+    <div class="mypage-container">
+        <!-- 1. Identity Section -->
+        <div class="profile-card">
+            <div class="profile-avatar" id="userAvatar">🧑‍⚕️</div>
+            <div class="profile-info">
+                <h2 class="profile-name">
+                    <span id="userName">김핵의</span>
+                    <!-- Verified Badge (Hidden by default) -->
+                    <span
+                        id="badgeVerified"
+                        class="badge badge-verified"
+                        style="display:none;"
+                    >
+                        👑 대한핵의학회 정회원
+                    </span>
+                    <!-- Unverified Action (Visible by default) -->
+                    <button id="btnVerifyParams" class="badge badge-unverified">
+                        ⚡ 학회원 인증하기
+                    </button>
+                </h2>
+                <div class="profile-email" id="userEmail">
+                    doctor@hospital.or.kr
+                </div>
+                <div
+                    style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;"
+                >
+                    카카오 로그인 중
                 </div>
             </div>
-
-            <button id="logoutBtn">로그아웃</button>
         </div>
 
-        <div id="guestContent" style="display:none; text-align:center;">
-            <p>로그인된 사용자가 아닙니다.</p>
-            <a
-                href="/login"
-                style="display:inline-block; margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white; border-radius:6px; text-decoration:none;"
-                >로그인 하러 가기</a
-            >
+        <!-- 2. Dashboard Section -->
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <div class="dash-title">수검 체크리스트 진행률 📝</div>
+                <div class="dash-value">45%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 45%;"></div>
+                </div>
+                <div
+                    style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"
+                >
+                    총 98개 항목 중 44개 완료
+                </div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-title">나의 등록 자료 📂</div>
+                <div class="dash-value">3건</div>
+                <div
+                    style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"
+                >
+                    최근 등록: 안전관리규정 (2025.10.12)
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. My Activity -->
+        <div>
+            <div class="section-title">나의 활동</div>
+            <div class="menu-list">
+                <a href="/resources?filter=my" class="menu-item">
+                    <span>📂 내가 올린 자료 관리</span>
+                    <span>›</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <span>💬 내가 보낸 의견/문의</span>
+                    <span>›</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. Settings -->
+        <div>
+            <div class="section-title">설정</div>
+            <div class="menu-list">
+                <div class="menu-item">
+                    <span>🔔 카카오 알림톡 수신</span>
+                    <label
+                        style="position:relative; display:inline-block; width:40px; height:24px;"
+                    >
+                        <input
+                            type="checkbox"
+                            checked
+                            style="opacity:0; width:0; height:0;"
+                        />
+                        <span
+                            style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px;"
+                        ></span>
+                        <span
+                            style="position:absolute; content:''; height:16px; width:16px; left:4px; bottom:4px; background-color:white; transition:.4s; border-radius:50%; transform: translateX(16px); background-color: white;"
+                        ></span>
+                        <!-- Mock Toggle ON style via JS needed actually, simplified here -->
+                        <span
+                            style="font-size:0.8rem; color:#2563eb; font-weight:bold; margin-left:10px;"
+                            >ON</span
+                        >
+                    </label>
+                </div>
+                <button
+                    id="logoutBtnBody"
+                    class="menu-item"
+                    style="width:100%; background:white; border:none; text-align:left;"
+                >
+                    <span style="color:#ef4444;">로그아웃</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div id="verifyModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="font-size:1.2rem; margin-bottom:1rem;">학회원 인증</h3>
+            <p style="color:#6b7280; margin-bottom:1.5rem; font-size:0.9rem;">
+                대한핵의학회/기술학회에 등록된<br />이메일 주소를 입력해 주세요.
+            </p>
+            <input
+                type="email"
+                placeholder="example@hospital.or.kr"
+                style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:8px; margin-bottom:1rem;"
+            />
+            <div style="display:flex; gap:0.5rem;">
+                <button
+                    id="closeVerifyBtn"
+                    style="flex:1; padding:0.75rem; background:#f3f4f6; border:none; border-radius:8px;"
+                    >닫기</button
+                >
+                <button
+                    style="flex:1; padding:0.75rem; background:var(--accent); color:white; border:none; border-radius:8px;"
+                    >인증 요청</button
+                >
+            </div>
         </div>
     </div>
 
     <script>
-        import { userProfile, clearUser } from "../store/user";
+        import { userProfile } from "../store/user";
         import { supabase } from "../lib/supabase";
 
-        function updateUI(user) {
-            const loading = document.getElementById("loading");
-            const profile = document.getElementById("profileContent");
-            const guest = document.getElementById("guestContent");
+        // *** DEVELOPMENT MOCK DATA ***
+        // If no user logic found, force this mock user for Design Review
+        const MOCK_USER = {
+            email: "preview@test.com",
+            full_name: "미리보기(김핵의)",
+            is_approved: false, // Toggle to true to see verified state
+        };
+        // *****************************
 
-            // Hide Loading
-            if (loading) loading.style.display = "none";
-
-            if (user && user.email) {
-                // Logged In
-                if (profile) profile.style.display = "flex";
-                if (guest) guest.style.display = "none";
-
-                const nameEl = document.getElementById("userName");
-                const emailEl = document.getElementById("userEmail");
-                const provEl = document.getElementById("provider");
-
-                if (nameEl) nameEl.textContent = user.full_name || "사용자";
-                if (emailEl) emailEl.textContent = user.email;
-                if (provEl) provEl.textContent = user.provider || "SNS";
-
-                const badge = document.getElementById("statusBadge");
-                if (badge) {
-                    if (user.is_approved === "true") {
-                        badge.textContent = "✅ 정회원 (승인 완료)";
-                        badge.className = "status-badge status-approved";
-                    } else {
-                        badge.textContent =
-                            "⏳ 승인 대기 중 (관리자 확인 필요)";
-                        badge.className = "status-badge status-pending";
-                    }
-                }
-            } else {
-                // Guest
-                if (profile) profile.style.display = "none";
-                if (guest) guest.style.display = "block";
-            }
-        }
-
-        function initMyPage() {
-            // Subscribe to store updates
+        document.addEventListener("astro:page-load", () => {
+            // Subscription
             userProfile.subscribe((user) => {
-                updateUI(user);
+                // For Design Review: If User is null, use MOCK_USER
+                const displayUser = user || MOCK_USER;
+
+                updateMyPageUI(displayUser);
             });
 
-            // Check real session
-            supabase.auth
-                .getSession()
-                .then(async ({ data: { session } }) => {
-                    if (session?.user) {
-                        const { user } = session;
+            // Modal Logic
+            const modal = document.getElementById("verifyModal");
+            const btnOpen = document.getElementById("btnVerifyParams");
+            const btnClose = document.getElementById("closeVerifyBtn");
 
-                        // Optimistic UI update first
-                        userProfile.set({
-                            ...userProfile.get(),
-                            id: user.id,
-                            email: user.email,
-                        });
+            btnOpen?.addEventListener("click", () =>
+                modal?.classList.add("active"),
+            );
+            btnClose?.addEventListener("click", () =>
+                modal?.classList.remove("active"),
+            );
 
-                        // Fetch additional profile data
-                        const { data: profile } = await supabase
-                            .from("profiles")
-                            .select("is_approved, full_name, avatar_url")
-                            .eq("id", user.id)
-                            .single();
-
-                        const isApproved = profile?.is_approved
-                            ? "true"
-                            : "false";
-
-                        userProfile.set({
-                            id: user.id,
-                            email: user.email,
-                            full_name:
-                                profile?.full_name ||
-                                user.user_metadata.full_name ||
-                                "사용자",
-                            avatar_url:
-                                profile?.avatar_url ||
-                                user.user_metadata.avatar_url,
-                            provider: user.app_metadata.provider || "sns",
-                            is_approved: isApproved,
-                        });
-                    } else {
-                        clearUser(); // Only clear if strictly no session
-                        updateUI(null); // Force guest UI
-                    }
-                })
-                .catch((err) => {
-                    console.error("Auth Error:", err);
-                    updateUI(null); // Fallback to guest
-                });
-
-            // Fallback: If loading takes > 2s, force guest view
-            setTimeout(() => {
-                const loading = document.getElementById("loading");
-                if (loading && loading.style.display !== "none") {
-                    updateUI(null);
-                }
-            }, 2000);
-
-            // Logout Handler
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-                // Remove old listeners to prevent duplicates if any
-                const newBtn = logoutBtn.cloneNode(true);
-                logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
-
-                newBtn.addEventListener("click", async () => {
+            // Logout
+            document
+                .getElementById("logoutBtnBody")
+                ?.addEventListener("click", async () => {
                     if (confirm("로그아웃 하시겠습니까?")) {
                         await supabase.auth.signOut();
-                        clearUser();
-                        window.location.href = "/radsafety";
+                        userProfile.set(null);
+                        window.location.href = "/";
                     }
                 });
+        });
+
+        function updateMyPageUI(user) {
+            if (!user) return; // Should not happen with mock
+
+            document.getElementById("userName").textContent =
+                user.full_name || "사용자";
+            document.getElementById("userEmail").textContent =
+                user.email || "-";
+
+            const badgeVerified = document.getElementById("badgeVerified");
+            const btnVerify = document.getElementById("btnVerifyParams");
+
+            if (user.is_approved === "true" || user.is_verified) {
+                // Handle string/bool
+                badgeVerified.style.display = "inline-flex";
+                if (btnVerify) btnVerify.style.display = "none";
+            } else {
+                badgeVerified.style.display = "none";
+                if (btnVerify) btnVerify.style.display = "inline-flex";
             }
         }
-
-        // Run on page load (support ViewTransitions)
-        document.addEventListener("astro:page-load", initMyPage);
-        // Initial load check
-        // Astro ViewTransitions typically handles this with astro:page-load
     </script>
 </DashboardLayout>

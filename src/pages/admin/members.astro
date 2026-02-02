@@ -1,0 +1,256 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import Icon from "../../components/Icon.astro";
+---
+
+<DashboardLayout title="회원 일괄 등록">
+    <div class="admin-container">
+        <div class="header">
+            <h1><Icon name="users" size="32" /> 회원 일괄 등록 (Excel)</h1>
+            <p class="subtitle">
+                엑셀 파일을 업로드하여 회원을 일괄 등록할 수 있습니다.
+            </p>
+        </div>
+
+        <!-- Drop Zone -->
+        <div id="dropZone" class="drop-zone">
+            <Icon name="upload" size="48" class="upload-icon" />
+            <p class="drop-text">
+                엑셀 파일(.xlsx, .xls)을 이곳에 드래그하거나 클릭하세요.
+            </p>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" hidden />
+        </div>
+
+        <!-- Preview Table -->
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <div class="preview-header">
+                <h3>미리보기 (<span id="rowCount">0</span>명)</h3>
+                <div class="actions">
+                    <button id="cancelBtn" class="btn-secondary">취소</button>
+                    <button id="uploadBtn" class="btn-primary"
+                        >DB에 저장하기</button
+                    >
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="previewTable">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>이메일</th>
+                            <th>소속</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Guard Script -->
+    <script>
+        import { userProfile } from "../../store/user";
+        import * as XLSX from "xlsx";
+
+        // 1. Admin Guard
+        const user = userProfile.get();
+        if (user.role !== "admin") {
+            alert("관리자 권한이 필요합니다.");
+            window.location.href = "/";
+        }
+
+        // 2. Excel Logic
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+        const previewSection = document.getElementById("previewSection");
+        const tableBody = document.querySelector("#previewTable tbody");
+        const rowCountSpan = document.getElementById("rowCount");
+
+        // Drag & Drop Handlers
+        dropZone.addEventListener("click", () => fileInput.click());
+
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("drag-over");
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("drag-over");
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("drag-over");
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener("change", (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+
+                // Read first sheet
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                renderTable(jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderTable(data) {
+            tableBody.innerHTML = "";
+
+            data.forEach((row) => {
+                const tr = document.createElement("tr");
+                // Auto-detect columns or assume standard keys
+                // For robustness, let's look for known keys or just dump values
+                const name = row["이름"] || row["Name"] || row["name"] || "-";
+                const email =
+                    row["이메일"] || row["Email"] || row["email"] || "-";
+                const aff =
+                    row["소속"] || row["Organization"] || row["org"] || "-";
+                const note = row["비고"] || row["Note"] || "";
+
+                tr.innerHTML = `
+                    <td>${name}</td>
+                    <td>${email}</td>
+                    <td>${aff}</td>
+                    <td>${note}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            rowCountSpan.textContent = data.length;
+            previewSection.style.display = "block";
+            dropZone.style.display = "none";
+        }
+
+        // Cancel
+        document.getElementById("cancelBtn").addEventListener("click", () => {
+            previewSection.style.display = "none";
+            dropZone.style.display = "flex";
+            fileInput.value = "";
+            tableBody.innerHTML = "";
+        });
+
+        // Upload (Mock)
+        document.getElementById("uploadBtn").addEventListener("click", () => {
+            // Here we would call Supabase
+            const count = rowCountSpan.textContent;
+            const confirmUpload = confirm(
+                `${count}명의 회원을 등록하시겠습니까?\n(현재는 DB가 없으므로 성공 메시지만 출력됩니다)`,
+            );
+            if (confirmUpload) {
+                alert("성공적으로 등록되었습니다! (Mock)");
+                location.reload();
+            }
+        });
+    </script>
+
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        .header {
+            margin-bottom: 2rem;
+        }
+        .subtitle {
+            color: var(--text-muted);
+        }
+
+        .drop-zone {
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(37, 99, 235, 0.05); /* Slight accent tint */
+        }
+        .upload-icon {
+            color: var(--text-muted);
+        }
+        .drop-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .preview-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th,
+        td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            color: var(--text-muted);
+        }
+    </style>
+</DashboardLayout>

@@ -123,7 +123,7 @@ const { title, description, scale } = Astro.props;
                     <Icon name="menu" size="24" />
                 </button>
                 <span style="font-weight:bold; font-size:1.1rem;"
-                    >{SITE_TITLE}</span
+                    >{SITE_TITLE} 0.1</span
                 >
             </div>
 
@@ -133,7 +133,7 @@ const { title, description, scale } = Astro.props;
                     style="background:none; border:none; color:white; cursor:pointer;"
                     aria-label="용어 사전"
                 >
-                    <Icon name="document-text" size="24" />
+                    <Icon name="search" size="24" />
                 </button>
                 <a
                     href="/notifications"
@@ -169,52 +169,60 @@ const { title, description, scale } = Astro.props;
         <MobileBottomNav />
         <!-- <PWAInstall /> -->
 
-        <script>
+        <script is:inline>
             // Mobile Menu Toggle
-            const menuBtn = document.getElementById("menuBtn");
-            const sidebar = document.querySelector(".sidebar");
-            const overlay = document.getElementById("sidebarOverlay");
-
-            function toggleMenu() {
-                sidebar?.classList.toggle("open");
-                overlay?.classList.toggle("active");
-            }
-
-            function closeMenu() {
-                sidebar?.classList.remove("open");
-                overlay?.classList.remove("active");
-            }
-
-            // Toggle on click
-            menuBtn?.addEventListener("click", toggleMenu);
-            // Close on overlay click
-            overlay?.addEventListener("click", closeMenu);
-
-            // Close on navigation (ViewTransitions might handle page reload, but for SPA feel)
-            document.addEventListener("astro:after-swap", closeMenu);
-
-            // Re-attach listeners after swap
-            document.addEventListener("astro:page-load", () => {
-                const btn = document.getElementById("menuBtn");
-                const sb = document.querySelector(".sidebar");
-                const ol = document.getElementById("sidebarOverlay");
-
-                btn?.addEventListener("click", () => {
-                    sb?.classList.toggle("open");
-                    ol?.classList.toggle("active");
-                });
-                ol?.addEventListener("click", () => {
-                    sb?.classList.remove("open");
-                    ol?.classList.remove("active");
-                });
-
-                // Glossary Trigger
+            function initMobileMenu() {
+                console.log("Initializing Mobile Menu...");
+                const menuBtn = document.getElementById("menuBtn");
+                const sidebar = document.querySelector(".sidebar");
+                const overlay = document.getElementById("sidebarOverlay");
                 const glossaryBtn =
                     document.getElementById("headerGlossaryBtn");
-                glossaryBtn?.addEventListener("click", () => {
-                    document.dispatchEvent(new CustomEvent("open-glossary"));
-                });
-            });
+
+                if (menuBtn && sidebar) {
+                    // Remove old listener to avoid duplicates if re-running
+                    const newBtn = menuBtn.cloneNode(true);
+                    menuBtn.parentNode.replaceChild(newBtn, menuBtn);
+
+                    newBtn.addEventListener("click", () => {
+                        console.log("Menu clicked");
+                        sidebar.classList.toggle("open");
+                        overlay?.classList.toggle("active");
+                    });
+                }
+
+                if (overlay && sidebar) {
+                    // Remove old listener
+                    const newOverlay = overlay.cloneNode(true);
+                    overlay.parentNode.replaceChild(newOverlay, overlay);
+
+                    newOverlay.addEventListener("click", () => {
+                        console.log("Overlay clicked");
+                        sidebar.classList.remove("open");
+                        newOverlay.classList.remove("active");
+                    });
+                }
+
+                if (glossaryBtn) {
+                    const newGlossaryBtn = glossaryBtn.cloneNode(true);
+                    glossaryBtn.parentNode.replaceChild(
+                        newGlossaryBtn,
+                        glossaryBtn,
+                    );
+
+                    newGlossaryBtn.addEventListener("click", () => {
+                        document.dispatchEvent(
+                            new CustomEvent("open-glossary"),
+                        );
+                    });
+                }
+            }
+
+            // Run immediately
+            initMobileMenu();
+
+            // Run on ViewTransitions navigation
+            document.addEventListener("astro:after-swap", initMobileMenu);
         </script>
     </body>
 </html>

@@ -4,23 +4,20 @@ const { pathname } = Astro.url;
 
 // Navigation Items
 const navItems = [
-    { href: "/", icon: "home", label: "홈" },
+    { name: "홈", path: "/", icon: "home" },
+    { name: "수검준비", path: "/inspection-prep", icon: "check-square" },
     {
-        href: "/inspection-guide",
-        icon: "check-square",
-        label: "체크리스트",
+        name: "지적권고사례",
+        path: "/findings-recommendations",
+        icon: "alert-circle",
     },
-    {
-        href: "/inspection-findings",
-        icon: "search",
-        label: "지적사례",
-    },
-    { href: "/resources", icon: "document-text", label: "자료실" },
+    { name: "자료실", path: "/resources", icon: "folder" },
+    { name: "의견보내기", path: "mailto:dev@radsafety.com", icon: "mail" },
 ];
 
-const isActive = (href) => {
-    if (href === "/") return pathname === "/" || pathname === "";
-    return pathname.startsWith(href);
+const isActive = (path) => {
+    if (path === "/") return pathname === "/" || pathname === "";
+    return pathname.startsWith(path);
 };
 ---
 
@@ -28,13 +25,13 @@ const isActive = (href) => {
     {
         navItems.map((item) => (
             <a
-                href={item.href}
-                class={`nav-item ${isActive(item.href) ? "active" : ""}`}
+                href={item.path}
+                class={`nav-item ${isActive(item.path) ? "active" : ""}`}
             >
                 <div class="icon-container">
                     <Icon name={item.icon} size="24" />
                 </div>
-                <span class="label">{item.label}</span>
+                <span class="label">{item.name}</span>
             </a>
         ))
     }

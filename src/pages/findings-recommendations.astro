@@ -1,0 +1,1522 @@
+---
+import DashboardLayout from "../layouts/DashboardLayout.astro";
+import Icon from "../components/Icon.astro";
+import { getCollection } from "astro:content";
+import { actions } from "astro:actions";
+import { supabase } from "../lib/supabase";
+
+const staticFindings = await getCollection("findings_recommendations");
+
+// Normalize Data: Ensure tags exist
+const normalizedFindings = await Promise.all(
+    findings.map(async (item) => {
+        const { Content } = await item.render();
+        let tags = item.data.tags || [];
+        // Fallback: Use category as a tag if tags are empty
+        if (tags.length === 0 && item.data.category) {
+            tags = [item.data.category];
+        }
+
+        let year = item.data.inspectionYear;
+        if (!year && item.data.date) {
+            year = new Date(item.data.date).getFullYear().toString();
+        }
+
+        return {
+            ...item,
+            Content,
+            normalized: {
+                tags,
+                year,
+            },
+        };
+    }),
+);
+
+// Tags List (Standardized)
+const AVAILABLE_TAGS = [
+    "교육훈련",
+    "건강진단",
+    "기록비치",
+    "안전관리규정",
+    "선량오염측정",
+    "기술기준",
+    "변경허가",
+    "자체처분",
+    "시설검사",
+    "변경신고",
+    "장비인력",
+    "피폭관리",
+    "보고",
+    "기타미분류",
+];
+---
+
+<DashboardLayout title="지적권고사례">
+    <style is:global>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .controls-area {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tag-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        /* Search Bar (Copied from Resources) */
+        .search-container {
+            margin-bottom: 2rem;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            gap: 0.5rem;
+        }
+        #findingSearch {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: 99px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        #findingSearch:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            display: flex;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Filter Dropdown Styles */
+        .controls-header {
+            display: grid;
+            /* mathematical alignment: Header Col 1 = Card Col 1 (1fr) + 1rem (padding-left offset) */
+            grid-template-columns: calc(1fr + 1rem) 1fr 1fr 50px; 
+            gap: 1rem;
+            padding: 0.5rem 1rem 0.5rem 0; /* Left padding 0 to align box edge with card border */
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+            overflow: visible !important;
+            font-size: 0.9rem; /* Match Resources header size */
+            font-weight: 600; /* Match Resources header weight */
+            color: var(--text-muted);
+        }
+        
+        
+        .filter-dropdown {
+            position: relative;
+            overflow: visible; 
+            z-index: 101; 
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .dropdown-btn {
+            list-style: none; /* Remove default marker */
+            width: 100%;
+            padding: 0.4rem 1rem; /* Enough internal padding to look professional */
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem; 
+            font-weight: 600;
+            color: var(--text-muted);
+            box-sizing: border-box;
+        }
+        .dropdown-btn::-webkit-details-marker {
+            display: none; /* Remove marker in WebKit */
+        }
+        .dropdown-btn:hover {
+            border-color: var(--accent); 
+            color: var(--text-main);
+        }
+        .dropdown-btn span {
+             /* Ensure text is flush left? It is inside the button */
+        }    
+
+        /* Dropdown Content */
+        .dropdown-content {
+            /* display: none; Removed: managed by details element */
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 240px; 
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25); 
+            padding: 0.5rem;
+            margin-top: 5px;
+            z-index: 200; 
+        }
+        /* No .show class needed */
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            color: var(--text-main);
+        }
+        .checkbox-item:hover {
+            background: var(--bg-hover);
+        }
+        .checkbox-item input {
+            cursor: pointer;
+        }
+
+        .sort-btn {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.3rem;
+            padding: 0; /* Compact like Resources */
+        }
+        .sort-btn:hover {
+            color: var(--text-main);
+        }
+        .sort-btn.active {
+            color: var(--accent);
+        }
+        .sort-icon {
+            transition: transform 0.2s;
+            opacity: 0;
+            display: inline-block;
+        }
+        .sort-btn.active .sort-icon {
+            opacity: 1;
+            transform: rotate(180deg);
+        }
+        .sort-btn[data-order="asc"] .sort-icon {
+            transform: rotate(0deg);
+        }
+        
+        /* List Layout */
+        .list-header {
+            display: none;
+            grid-template-columns: 110px 1fr 100px 50px;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .finding-item {
+            display: grid;
+            /* Perfectly even distribution: 1fr 1fr 1fr */
+            grid-template-columns: 1fr 1fr 1fr 50px; 
+            gap: 1rem;
+            padding: 0.5rem 1rem; /* Standard 0.5rem padding like Resources */
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease; /* Smooth like Resources */
+            font-size: 0.85rem;
+        }
+        .finding-item:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
+        .col-tags {
+            display: block; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-muted);
+        }
+        .tag-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem; /* Standardized to match Resources */
+            border-radius: 4px;
+            background: var(--bg-body);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            margin-right: 0.25rem;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+
+        .col-title {
+            font-weight: 500;
+            color: var(--text-main);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .finding-item:hover .col-title {
+            color: var(--accent);
+        }
+
+        .col-year {
+            font-size: 0.85rem; /* Match Resources col-date size */
+            color: var(--text-muted);
+            text-align: left; /* Standardize left alignment to match others */
+        }
+
+        /* Action Menu Styles */
+        .col-menu {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem; /* Compact like Resources */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .menu-btn:hover {
+            color: var(--text-main);
+            background-color: var(--bg-body);
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 140px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 50;
+            padding: 0.5rem;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .dropdown-menu.active {
+            display: flex;
+        }
+        
+        .dropdown-item {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            display: flex; /* Align icon and text */
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none; /* For links */
+        }
+        .dropdown-item:hover {
+            background-color: var(--bg-hover);
+        }
+        .dropdown-item.delete {
+            color: #ef4444;
+        }
+        .dropdown-item.delete:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Update Finding Item for relative positioning of menu */
+        .finding-item {
+            /* ... existing grid ... */
+            position: relative; /* For z-index context management if needed, though menu is absolute to col-menu */
+        }
+        .finding-item.menu-active {
+            z-index: 20; /* Bring above others when menu open */
+            border-color: var(--accent);
+        }
+
+        /* Mobile Layout Adjustments */
+        @media (max-width: 768px) {
+            /* ... existing ... */
+            .col-action {
+                /* We are replacing col-action contents with col-menu logic, 
+                   but keeping the grid cell '30px' */
+                justify-content: flex-end; /* Align right on mobile */
+                overflow: visible !important; /* Ensure menu not clipped */
+            }
+             .col-menu {
+                justify-content: flex-end;
+            }
+            .dropdown-menu {
+                right: 0; 
+                width: 120px; /* Smaller width on mobile */
+            }
+        }
+
+        /* Mobile Layout */
+        @media (max-width: 768px) {
+            .list-header {
+                display: none;
+            }
+            .finding-item {
+                display: grid;
+                grid-template-columns: 80px 1fr 50px 30px;
+                gap: 0.5rem;
+                padding: 0.75rem 0.5rem;
+                align-items: center;
+            }
+            
+            .col-tags {
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block; 
+            }
+            
+            .col-title {
+                font-size: 0.9rem;
+            }
+
+            .col-year {
+                font-size: 0.8rem;
+                text-align: right;
+            }
+
+            .col-action {
+                justify-content: flex-end;
+                position: static;
+                transform: none;
+            }
+            /* 1. Header: Use Grid to match Item exactly */
+            .controls-header {
+                display: grid !important; 
+                grid-template-columns: 95px 1fr 75px 30px; /* Adjusted: 95px Type, 75px Year */
+                gap: 0.5rem;
+                padding: 0.5rem 0.5rem; 
+                overflow-x: visible; 
+            }
+
+            /* 2. Items: Match Header Grid */
+            .finding-item {
+                display: grid;
+                grid-template-columns: 95px 1fr 75px 30px; /* Match header */
+                gap: 0.5rem;
+                padding: 0.75rem 0.5rem;
+                align-items: center;
+            }
+            
+            /* Elements inside grid */
+            .filter-dropdown {
+                width: 100%; 
+                max-width: none; 
+            }
+            
+            .dropdown-btn {
+                padding: 0.4rem 0.2rem; /* Reduce padding to fit text in 95px */
+                white-space: nowrap;
+                overflow: hidden; 
+                text-overflow: ellipsis;
+                font-size: 0.8rem; /* Slightly smaller text for fit */
+            }
+
+            /* Sort Buttons Alignment */
+            .sort-btn {
+                width: 100%;
+                background: none; 
+                border: none;
+                padding: 0;
+                white-space: nowrap; /* Prevent wrapping */
+                font-size: 0.85rem;
+            } 
+            
+            /* Title Sort: Left Align */
+            .sort-btn[data-sort="title"] {
+                justify-content: flex-start;
+            }
+            
+            /* Year Sort: Center Align */
+            .sort-btn[data-sort="year"] {
+                justify-content: center; 
+            }
+
+            .col-tags {
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block; 
+            }
+            
+            .col-title {
+                font-size: 0.9rem;
+            }
+
+            .col-year {
+                font-size: 0.8rem;
+                text-align: center; /* Align with header */
+            }
+
+            .col-action {
+                justify-content: flex-end;
+                position: static;
+                transform: none;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-container {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.5rem;
+        }
+        
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        
+        .radio-label input[type="radio"] {
+            cursor: pointer;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            padding: 0.5rem;
+            background: var(--bg-body);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Finding Type Badge */
+        .finding-type-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.35rem;
+        }
+        
+        .finding-type-badge.type-finding {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .finding-type-badge.type-recommendation {
+            background: #10b981;
+            color: white;
+        }
+
+        .modal-footer {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            background: var(--bg-body);
+        }
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-submit {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Detail Modal Specifics */
+        .detail-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        .detail-section h3 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .solution-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #10b981;
+        }
+        .clause-box {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ef4444;
+        }
+    </style>
+
+    <div class="page-header">
+        <div class="page-title">
+            <Icon name="alert-circle" size="28" /> 지적권고사례
+        </div>
+        <button id="registerBtn" class="action-btn">
+            <Icon name="plus" size="18" /> 사례 등록
+        </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input
+            type="text"
+            id="findingSearch"
+            placeholder="사례 검색 (제목, 내용)"
+            aria-label="사례 검색"
+        />
+        <span class="search-icon"><Icon name="search" size="18" /></span>
+    </div>
+
+    <!-- Unified Controls Header (Filter & Sort) -->
+    <div class="controls-header">
+        <!-- Col 1: Tag Filter Dropdown (Native Details) -->
+        <details class="filter-dropdown" id="tagDropdown">
+            <summary class="dropdown-btn" id="tagDropdownBtn">
+                <span>지적권고유형</span>
+                <Icon name="chevron-down" size="14" />
+            </summary>
+            <div class="dropdown-content" id="tagDropdownContent">
+                <label class="checkbox-item" style="border-bottom:1px solid var(--border-color); margin-bottom:0.5rem; font-weight:bold;">
+                    <input type="checkbox" id="selectAllTags" /> 전체 선택
+                </label>
+                {
+                    AVAILABLE_TAGS.map((tag) => (
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="filterTag" value={tag} /> {tag}
+                        </label>
+                    ))
+                }
+            </div>
+        </details>
+
+        <!-- Col 2: Title Sort -->
+        <div>
+            <button class="sort-btn" data-sort="title" data-order="none">
+                제목 <Icon name="chevron-down" size="14" class="sort-icon" />
+            </button>
+        </div>
+
+        <!-- Col 3: Year Sort -->
+        <div>
+             <button class="sort-btn" data-sort="year" data-order="none">
+                년도 <Icon name="chevron-down" size="14" class="sort-icon" />
+            </button>
+        </div>
+
+        <!-- Col 4: Action (Static) -->
+        <div style="text-align:center; color:var(--text-muted); font-size:0.9rem;"></div>
+    </div>
+
+
+    <div class="list-container" id="findingsGrid">
+        {/* Server Rendered Items */}
+        {
+            normalizedFindings.map((item) => {
+                const searchText =
+                    `${item.data.title} ${item.data.description} ${item.data.violationClause || ""} ${item.data.solution || ""}`.toLowerCase();
+                const tags = item.normalized.tags;
+                const year = item.normalized.year || "-";
+
+                return (
+                    <div
+                        class="finding-item"
+                        data-tags={JSON.stringify(tags)}
+                        data-search={searchText}
+                        data-id={item.id}
+                        data-title={item.data.title}  /* Added for Sort */
+                        data-year={year}              /* Added for Sort */
+                        data-content={JSON.stringify({
+                            title: item.data.title,
+                            tags: tags,
+                            year: year,
+                            description: item.data.description,
+                            violationClause: item.data.violationClause,
+                            solution: item.data.solution,
+                        })}
+                    >
+                        <div class="col-tags">
+                            {item.data.findingType && (
+                                <span class={`finding-type-badge ${item.data.findingType === '지적' ? 'type-finding' : 'type-recommendation'}`}>
+                                    {item.data.findingType}
+                                </span>
+                            )}
+                            {tags.map((t) => (
+                                <span class="tag-badge">{t}</span>
+                            ))}
+                        </div>
+                        <div class="col-title" title={item.data.description}>
+                            {item.data.title}
+                        </div>
+                        <div class="col-year">{year}</div>
+                        <div class="col-action">
+                             <div class="col-menu">
+                                <button class="menu-btn" aria-label="메뉴 열기">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button class="dropdown-item edit-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        수정
+                                    </button>
+                                    <button class="dropdown-item delete-btn delete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        삭제
+                                    </button>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                );
+            })
+        }
+    </div>
+
+    {/* Registration Modal */}
+    <div id="regModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>새로운 사례 등록</h2>
+                <button class="close-btn"><Icon name="x" size="24" /></button>
+            </div>
+            <div class="modal-body">
+                <form id="regForm">
+                    <input type="hidden" name="itemId" id="regItemId" />
+                    <div class="form-group">
+                        <label class="form-label">제목</label>
+                        <input
+                            type="text"
+                            name="title"
+                            class="form-input"
+                            placeholder="예: 방사선원 기록 누락"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">구분</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="findingType" value="지적" checked />
+                                지적
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="findingType" value="권고" />
+                                권고
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"
+                            >지적권고유형 (중복 선택 가능)</label
+                        >
+                        <div class="checkbox-group">
+                            {
+                                AVAILABLE_TAGS.map((tag) => (
+                                    <label class="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            name="tags"
+                                            value={tag}
+                                        />{" "}
+                                        {tag}
+                                    </label>
+                                ))
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">년도</label>
+                        <input
+                            type="number"
+                            name="year"
+                            class="form-input"
+                            placeholder="예: 2024"
+                            min="2000"
+                            max="2100"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">지적 내용 (설명)</label>
+                        <textarea
+                            name="description"
+                            class="form-textarea"
+                            placeholder="상세한 지적 내용을 입력하세요."
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">관련 법령 (선택)</label>
+                        <input
+                            type="text"
+                            name="clause"
+                            class="form-input"
+                            placeholder="예: 원자력안전법 제00조"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">조치 방안 (선택)</label>
+                        <textarea
+                            name="solution"
+                            class="form-textarea"
+                            placeholder="어떻게 조치해야 하는지 입력하세요."
+                            style="min-height: 80px;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel">취소</button>
+                <button class="btn-submit" id="submitReg">등록하기</button>
+            </div>
+        </div>
+    </div>
+
+    {/* Detail Modal */}
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="detailTitle">Title</h2>
+                <button class="close-btn"><Icon name="x" size="24" /></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-meta">
+                    <span style="color:var(--text-muted);"
+                        >년도: <strong id="detailYear">-</strong></span
+                    >
+                    <div
+                        id="detailTags"
+                        style="display:flex; gap:0.5rem; flex-wrap:wrap;"
+                    >
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>💡 지적 내용</h3>
+                    <p
+                        id="detailDesc"
+                        style="line-height: 1.6; color: var(--text-main);"
+                    >
+                        Description
+                    </p>
+                </div>
+                <div class="detail-section" id="detailClauseSection">
+                    <h3>⚖️ 관련 법령</h3>
+                    <div id="detailClause" class="clause-box">Clause</div>
+                </div>
+                <div class="detail-section" id="detailSolutionSection">
+                    <h3>✅ 조치 방안</h3>
+                    <div id="detailSolution" class="solution-box">Solution</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel close-btn-footer">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("astro:page-load", () => {
+            initApp();
+        });
+
+        // Fallback for first load
+        if (document.readyState !== "loading") {
+            initApp();
+        }
+
+        function initApp() {
+            const grid = document.getElementById("findingsGrid");
+            const searchInput = document.getElementById("findingSearch"); 
+            let cards = Array.from(document.querySelectorAll(".finding-item"));
+            
+            // Dropdown Elements
+            const dropdownBtn = document.getElementById("tagDropdownBtn");
+            const dropdownContent = document.getElementById("tagDropdownContent");
+            const tagCheckboxes = document.querySelectorAll('input[name="filterTag"]');
+            const selectAllCheckbox = document.getElementById("selectAllTags");
+
+            // Sort Elements
+            const sortBtns = document.querySelectorAll(".sort-btn");
+            let currentSort = { field: null, order: 'none' };
+
+            // 0. Load shared items from Supabase
+            async function loadSharedItems() {
+                const { data: sharedItems, error } = await supabase
+                    .from('findings')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Error fetching shared findings:", error);
+                    return;
+                }
+
+                sharedItems.forEach((item) => {
+                    // Normalize DB keys to UI keys
+                    const normalizedItem = {
+                        ...item,
+                        findingType: item.finding_type,
+                        violationClause: item.violation_clause,
+                        solution: item.solution
+                    };
+                    const card = createCardElement(normalizedItem);
+                    grid.appendChild(card);
+                    setupMenu(card); // Ensure menu is setup for shared items
+                });
+                
+                // Refresh the cards list for filtering/sorting
+                cards = Array.from(document.querySelectorAll(".finding-item"));
+            }
+
+            loadSharedItems();
+
+            // --- 1. Filter Logic (Dropdown) ---
+            
+            // Note: Using native <details>, so no manual toggle listener needed for opening.
+            // We just need to handle "Close on click outside".
+
+            const dropdownDetails = document.getElementById("tagDropdown");
+
+            // Close on click outside
+            document.addEventListener("click", (e) => {
+                if (!dropdownDetails.contains(e.target)) {
+                    dropdownDetails.removeAttribute("open");
+                }
+            });
+
+            function getSelectedTags() {
+                return Array.from(tagCheckboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+            }
+
+            function updateDropdownLabel() {
+                const selected = getSelectedTags();
+                if (selected.length === 0) {
+                    dropdownBtn.querySelector("span").textContent = "지적권고유형";
+                    selectAllCheckbox.checked = false;
+                } else if (selected.length === tagCheckboxes.length) {
+                    dropdownBtn.querySelector("span").textContent = "지적권고유형";
+                    selectAllCheckbox.checked = true;
+                } else {
+                    dropdownBtn.querySelector("span").textContent = `지적권고유형 (${selected.length})`;
+                    selectAllCheckbox.checked = false;
+                }
+            }
+
+            function applyFilter() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedTags = new Set(getSelectedTags());
+                
+                cards.forEach((card) => {
+                    const itemTags = JSON.parse(card.dataset.tags || "[]");
+                    const itemSearchData = card.dataset.search || "";
+                    
+                    const matchesTag = selectedTags.size === 0 || itemTags.some(t => selectedTags.has(t));
+                    const matchesSearch = itemSearchData.includes(searchTerm);
+
+                    if (matchesTag && matchesSearch) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            }
+
+            // Checkbox Events
+            tagCheckboxes.forEach(cb => {
+                cb.addEventListener("change", () => {
+                    updateDropdownLabel();
+                    applyFilter();
+                });
+            });
+
+            selectAllCheckbox.addEventListener("change", (e) => {
+                const checked = e.target.checked;
+                tagCheckboxes.forEach(cb => {
+                    cb.checked = checked;
+                });
+                updateDropdownLabel();
+                applyFilter();
+            });
+
+            // Search Event
+            searchInput.addEventListener("input", () => {
+                applyFilter();
+            });
+
+
+            // --- 2. Sorting Logic ---
+            sortBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const field = btn.dataset.sort;
+                    let order = btn.dataset.order;
+
+                    // Cycle: none -> desc -> asc -> none
+                    if (order === 'none') order = 'desc';
+                    else if (order === 'desc') order = 'asc';
+                    else order = 'none';
+
+                    // Verify consistency with Resources... Resources was desc->asc->none?
+                    // User said "Like resources". checking resources code... 
+                    // Resources code: desc -> asc -> none. Yes. 
+                    
+                    // Reset others
+                    sortBtns.forEach(b => {
+                        b.dataset.order = 'none';
+                        b.classList.remove('active');
+                        b.classList.remove('asc'); // Ensure asc class is removed
+                    });
+                    
+                    // Set current
+                    if (order !== 'none') {
+                        btn.dataset.order = order;
+                        btn.classList.add('active');
+                        // Update Icon direction? handled by CSS based on data-order check?
+                        // CSS used .active and .asc class. 
+                        // I added data-order and CSS rule for rotate.
+                        // I need to update classList for Asc
+                        if (order === 'asc') btn.classList.add('asc');
+                         else btn.classList.remove('asc');
+                    }
+
+                    currentSort = { field, order };
+                    sortCards();
+                });
+            });
+
+            function sortCards() {
+                if (currentSort.order === 'none') {
+                    // Default sort? ID desc
+                    cards.sort((a, b) => {
+                         // Fallback to DOM order or ID
+                         return 0; // Or reload default? 
+                         // Actually, just sorting by ID or Date Desc is standard.
+                         // Let's assume ID is somewhat chronological.
+                         return b.dataset.id.localeCompare(a.dataset.id);
+                    });
+                } else {
+                    cards.sort((a, b) => {
+                        let valA = a.dataset[currentSort.field];
+                        let valB = b.dataset[currentSort.field];
+                        
+                        if (currentSort.field === 'year') {
+                             // Year is number-like string
+                             return currentSort.order === 'asc' 
+                                ? parseInt(valA) - parseInt(valB) 
+                                : parseInt(valB) - parseInt(valA);
+                        } else {
+                             // Title string
+                             return currentSort.order === 'asc'
+                                ? valA.localeCompare(valB, 'ko')
+                                : valB.localeCompare(valA, 'ko');
+                        }
+                    });
+                }
+                
+                cards.forEach(c => grid.appendChild(c));
+            }
+
+            // 2. Registration Modal Logic
+            const regModal = document.getElementById("regModal");
+            const registerBtn = document.getElementById("registerBtn");
+            const closeRegBtns = regModal.querySelectorAll(".close-btn, .btn-cancel");
+            const submitReg = document.getElementById("submitReg");
+            const regForm = document.getElementById("regForm");
+
+            registerBtn.addEventListener("click", () => {
+                regForm.reset();
+                document.getElementById('regItemId').value = ""; 
+                regModal.querySelector('.modal-header h2').textContent = "새로운 사례 등록";
+                regModal.classList.add("open");
+            });
+
+            closeRegBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    regModal.classList.remove("open");
+                });
+            });
+
+            submitReg.addEventListener("click", async () => {
+                if (!regForm.checkValidity()) {
+                    regForm.reportValidity();
+                    return;
+                }
+
+                submitReg.disabled = true;
+                submitReg.textContent = "저장 중...";
+
+                const formData = new FormData(regForm);
+                const { data: result, error } = await actions.saveFinding(formData);
+
+                if (error) {
+                    alert("저장 중 오류가 발생했습니다: " + error.message);
+                    submitReg.disabled = false;
+                    submitReg.textContent = "등록하기";
+                    return;
+                }
+
+                // Normalize result
+                const newItem = {
+                    ...result,
+                    findingType: result.finding_type,
+                    violationClause: result.violation_clause,
+                    solution: result.solution
+                };
+
+                const updateId = document.getElementById('regItemId').value;
+                if (updateId) {
+                    // Update DOM Card
+                    const card = grid.querySelector(`.finding-item[data-id="${updateId}"]`);
+                    if (card) {
+                        card.dataset.tags = JSON.stringify(newItem.tags);
+                        card.dataset.title = newItem.title;
+                        card.dataset.year = newItem.year;
+                        card.dataset.search = `${newItem.title} ${newItem.description} ${newItem.violationClause||""} ${newItem.solution||""}`.toLowerCase();
+                        card.dataset.content = JSON.stringify(newItem);
+                        
+                        const findingTypeBadge = newItem.findingType ? `<span class="finding-type-badge ${newItem.findingType === '지적' ? 'type-finding' : 'type-recommendation'}">${newItem.findingType}</span>` : '';
+                        const tagsHtml = newItem.tags.map(t => `<span class="tag-badge">${t}</span>`).join("");
+                        card.querySelector('.col-tags').innerHTML = findingTypeBadge + tagsHtml;
+                        card.querySelector('.col-title').textContent = newItem.title;
+                        card.querySelector('.col-title').title = newItem.description;
+                        card.querySelector('.col-year').textContent = newItem.year;
+                    }
+                    alert("사례가 수정되었습니다.");
+                } else {
+                    const card = createCardElement(newItem);
+                    grid.appendChild(card);
+                    setupMenu(card);
+                    cards.push(card);
+                    alert("사례가 등록되었습니다.");
+                }
+
+                regModal.classList.remove("open");
+                regForm.reset();
+                submitReg.disabled = false;
+                submitReg.textContent = "등록하기";
+            });
+            
+            // --- Action Menu Logic ---
+            function setupMenu(card) {
+                if(card.dataset.menuInitialized === "true") return;
+                card.dataset.menuInitialized = "true";
+
+                const menuBtn = card.querySelector('.menu-btn');
+                const dropdown = card.querySelector('.dropdown-menu');
+                const editBtn = card.querySelector('.edit-btn');
+                const deleteBtn = card.querySelector('.delete-btn');
+
+                if (menuBtn && dropdown) {
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Stop propagation
+                        // Close others
+                        document.querySelectorAll('.dropdown-menu.active').forEach(m => {
+                            if (m !== dropdown) {
+                                m.classList.remove('active');
+                                m.closest('.finding-item')?.classList.remove('menu-active');
+                            }
+                        });
+                        
+                        const isActive = dropdown.classList.toggle('active');
+                        if(isActive) card.classList.add('menu-active');
+                         else card.classList.remove('menu-active');
+                    });
+                }
+                
+                if (editBtn) {
+                     editBtn.addEventListener('click', (e) => {
+                         e.stopPropagation();
+                         const content = JSON.parse(card.dataset.content);
+                         const id = card.dataset.id;
+                         
+                         // Populate Form
+                         document.getElementById('regItemId').value = id;
+                         regForm.querySelector('[name="title"]').value = content.title;
+                         regForm.querySelector('[name="year"]').value = content.year;
+                         regForm.querySelector('[name="description"]').value = content.description;
+                         
+                         const clauseInput = regForm.querySelector('[name="clause"]');
+                         if(clauseInput) clauseInput.value = content.violationClause || "";
+                         
+                         const solInput = regForm.querySelector('[name="solution"]');
+                         if(solInput) solInput.value = content.solution || "";
+                         
+                         // Set finding type radio button
+                         const findingTypeRadios = regForm.querySelectorAll('input[name="findingType"]');
+                         findingTypeRadios.forEach(radio => {
+                             radio.checked = radio.value === (content.findingType || '지적');
+                         });
+                         
+                         // Check tags
+                         regForm.querySelectorAll('input[name="tags"]').forEach(cb => {
+                             cb.checked = content.tags.includes(cb.value);
+                         });
+                         
+                         // Change Title & Open
+                         regModal.querySelector('.modal-header h2').textContent = "사례 수정";
+                         regModal.classList.add("open");
+                         
+                         dropdown.classList.remove('active');
+                         card.classList.remove('menu-active');
+                     });
+                }
+
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        if(confirm('정말 삭제하시겠습니까?')) {
+                             const id = card.dataset.id;
+                             
+                             const { error } = await actions.deleteFinding({ id });
+                             if (error) {
+                                  alert("삭제 중 오류가 발생했습니다: " + error.message);
+                                  return;
+                             }
+
+                             card.remove();
+                             
+                             // Remove from memory array
+                             const idx = cards.indexOf(card);
+                             if (idx > -1) cards.splice(idx, 1);
+                             
+                             alert("사례가 삭제되었습니다.");
+                        }
+                        dropdown.classList.remove('active');
+                    });
+                }
+            }
+
+            // Initialize Menu for existing cards
+            document.querySelectorAll('.finding-item').forEach(card => setupMenu(card));
+            
+            // Global click to close menus
+            document.addEventListener('click', (e) => {
+                 if (!e.target.closest('.col-menu')) {
+                     document.querySelectorAll('.dropdown-menu.active').forEach(m => {
+                         m.classList.remove('active');
+                         m.closest('.finding-item')?.classList.remove('menu-active');
+                     });
+                 }
+            });
+
+            // 3. Detail Modal Logic
+            const detailModal = document.getElementById("detailModal");
+            const closeDetailBtns = detailModal.querySelectorAll(
+                ".close-btn, .close-btn-footer",
+            );
+
+            closeDetailBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    detailModal.classList.remove("open");
+                });
+            });
+
+            grid.addEventListener("click", (e) => {
+                // Ignore clicks from action menu or dropdown
+                if (e.target.closest('.col-menu') || e.target.closest('.dropdown-menu')) return;
+                
+                const card = e.target.closest(".finding-item");
+                if (card) {
+                    const data = JSON.parse(card.dataset.content);
+
+                    document.getElementById("detailTitle").textContent =
+                        data.title;
+                    document.getElementById("detailYear").textContent =
+                        data.year;
+
+                    // Render Tags
+                    const tagsContainer = document.getElementById("detailTags");
+                    tagsContainer.innerHTML = "";
+                    const tags = data.tags || [];
+                    tags.forEach((t) => {
+                        const span = document.createElement("span");
+                        span.className = "tag-badge";
+                        span.textContent = t;
+                        tagsContainer.appendChild(span);
+                    });
+
+                    document.getElementById("detailDesc").textContent =
+                        data.description;
+
+                    const clauseEl = document.getElementById("detailClause");
+                    const clauseSection = document.getElementById(
+                        "detailClauseSection",
+                    );
+                    if (data.violationClause) {
+                        clauseEl.textContent = data.violationClause;
+                        clauseSection.style.display = "block";
+                    } else {
+                        clauseSection.style.display = "none";
+                    }
+
+                    const solEl = document.getElementById("detailSolution");
+                    const solSection = document.getElementById(
+                        "detailSolutionSection",
+                    );
+                    if (data.solution) {
+                        solEl.textContent = data.solution;
+                        solSection.style.display = "block";
+                    } else {
+                        solSection.style.display = "none";
+                    }
+
+                    detailModal.classList.add("open");
+                }
+            });
+        }
+
+        function createCardElement(item) {
+            const div = document.createElement("div");
+            div.className = "finding-item";
+            div.dataset.tags = JSON.stringify(item.tags);
+            div.dataset.id = item.id;
+            
+            // Search & Sort Data
+            const searchText = `${item.title} ${item.description} ${item.violationClause || ""} ${item.solution || ""}`.toLowerCase();
+            div.dataset.search = searchText;
+            div.dataset.title = item.title;
+            div.dataset.year = item.year;
+
+            div.dataset.content = JSON.stringify(item);
+
+            const findingTypeBadge = item.findingType 
+                ? `<span class="finding-type-badge ${item.findingType === '지적' ? 'type-finding' : 'type-recommendation'}">${item.findingType}</span>` 
+                : '';
+            const tagsHtml = item.tags
+                .map((t) => `<span class="tag-badge">${t}</span>`)
+                .join("");
+
+            div.innerHTML = `
+                <div class="col-tags">
+                     ${findingTypeBadge}${tagsHtml}
+                </div>
+                <div class="col-title" title="${item.description.replace(/"/g, "&quot;")}">
+                    ${item.title}
+                </div>
+                <div class="col-year">${item.year}</div>
+                <div class="col-action">
+                    <div class="col-menu">
+                        <button class="menu-btn" aria-label="메뉴 열기">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item edit-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                수정
+                            </button>
+                            <button class="dropdown-item delete-btn delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+    </script>
+</DashboardLayout>

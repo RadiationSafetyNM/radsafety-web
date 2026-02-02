@@ -6,6 +6,7 @@ if (typeof item.render === "function") {
     Content = rendered.Content;
 }
 import Icon from "./Icon.astro";
+import { resources } from "../data/resources";
 ---
 
 <div class={`checklist-item ${open ? "open" : ""}`} data-id={item.id}>
@@ -76,6 +77,39 @@ import Icon from "./Icon.astro";
                         </div>
                     </div>
                 )
+            }
+            {
+                (() => {
+                    const resourceId = item.data.resourceId;
+                    const resource = resourceId
+                        ? resources.find((r) => r.id === resourceId)
+                        : null;
+
+                    if (
+                        resource &&
+                        resource.previewUrl &&
+                        resource.previewUrl !== "#"
+                    ) {
+                        return (
+                            <div
+                                class="resource-link-wrapper"
+                                style="margin-top: 1rem;"
+                            >
+                                <button
+                                    onclick={`window.open('${resource.previewUrl}', '_blank'); event.stopPropagation();`}
+                                    type="button"
+                                    style="background: none; border: none; color: #059669; text-decoration: underline; cursor: pointer; padding: 0; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;"
+                                >
+                                    <span class="icon">
+                                        <Icon name="document-text" size="16" />
+                                    </span>
+                                    관련 자료 보기: {resource.title}
+                                </button>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()
             }
         </div>
     </div>
@@ -236,11 +270,31 @@ import Icon from "./Icon.astro";
     }
 
     /* Specific overrides for li inside lists */
+    /* Specific overrides for li inside lists */
     :global(.checklist-item .content ul li) {
         list-style-type: none;
     }
-    :global(.checklist-item .content ol li) {
+
+    /* Only apply disc to direct OL children */
+    :global(.checklist-item .content ol > li) {
         list-style-type: disc; /* Use round dots instead of numbers */
+    }
+
+    /* Nested items (indented) -> Dash bullet */
+    :global(.checklist-item .content ul ul li),
+    :global(.checklist-item .content ol ul li) {
+        list-style-type: none;
+        position: relative;
+    }
+
+    /* Render Dash using pseudo-element */
+    :global(.checklist-item .content ul ul li::before),
+    :global(.checklist-item .content ol ul li::before) {
+        content: "-";
+        position: absolute;
+        left: -1rem;
+        font-weight: bold;
+        color: var(--text-muted);
     }
 
     /* Monochrome Emojis - Removed to fix link readability */
@@ -299,6 +353,27 @@ import Icon from "./Icon.astro";
         box-shadow:
             0 0 0 2px var(--bg-card),
             0 0 0 4px var(--accent);
+    }
+
+    /* Table Styling for Markdown Content */
+    :global(.checklist-item .content table) {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+    }
+
+    :global(.checklist-item .content th),
+    :global(.checklist-item .content td) {
+        border: 1px solid #52525b; /* Zinc-600 for visibility */
+        padding: 0.75rem;
+        text-align: left;
+    }
+
+    :global(.checklist-item .content th) {
+        background-color: rgba(255, 255, 255, 0.05);
+        font-weight: 600;
+        color: var(--text-main);
     }
 </style>
 

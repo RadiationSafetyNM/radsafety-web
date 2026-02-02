@@ -2,299 +2,14 @@
 import DashboardLayout from "../layouts/DashboardLayout.astro";
 import Icon from "../components/Icon.astro";
 
-// Mock Data for Resources (Eventually from Supabase or Content Collection)
-// Mock Data for Resources (Eventually from Supabase or Content Collection)
-const resources = [
-    {
-        id: 103,
-        title: "질병관리청 방사선안전관리규정(제161호)",
-        version: "2025.03.19",
-        category: "가이드북",
-        date: "2025-03-19",
-        author: "질병관리청",
-        authority: "KDCA",
-        description:
-            "질병관리청 예규 제161호에 따른 방사선안전관리규정 표준안입니다.",
-        tags: ["#질병관리청", "#안전관리규정", "#표준안"],
-        fileSize: "PDF",
-        isNew: true,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 104,
-        title: "가나다라 방사선 이론 기초",
-        version: "v1.0",
-        category: "교육자료",
-        date: "2024-05-10",
-        author: "김철수",
-        authority: "Private",
-        description:
-            "방사선 이론의 기초를 설명하는 교육 자료입니다. (가나다 정렬 테스트용)",
-        tags: ["#이론", "#기초"],
-        fileSize: "PDF",
-        isNew: true,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 105,
-        title: "마바사 아저씨의 안전 꿀팁",
-        version: "v2.1",
-        category: "안내문",
-        date: "2024-04-01",
-        author: "박영희",
-        authority: "Private",
-        description:
-            "현장에서 유용한 안전 팁 모음집입니다. (가나다 정렬 테스트용)",
-        tags: ["#꿀팁", "#현장"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 47,
-        title: "A_Radiation Safety Guide (English)",
-        version: "2024 Ed.",
-        category: "가이드북",
-        date: "2024-01-15",
-        author: "IAEA",
-        authority: "IAEA",
-        description:
-            "International safety guide for basic radiation protection. (ABC test)",
-        tags: ["#IAEA", "#Safety"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 1,
-        title: "방사선분야 정기검사 수검가이드",
-        version: "2022년 개정 최종본",
-        category: "가이드북",
-        date: "2022-12-01",
-        author: "한국원자력안전기술원(KINS)",
-        authority: "KINS",
-        description:
-            "방사선안전관리 정기검사 수검을 위한 공식 가이드라인입니다.",
-        tags: ["#정기검사", "#KINS"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 101,
-        title: "안전관리규정 작성지침",
-        version: "2024.12.31 고시 반영",
-        category: "가이드북",
-        date: "2024-12-31",
-        author: "원자력안전위원회",
-        authority: "NSSC",
-        description:
-            "원자력안전법 시행규칙 및 관련 고시에 따른 작성 기준입니다.",
-        tags: ["#규정작성", "#인허가"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 102,
-        title: "안전관리규정 예시 (의료기관)",
-        version: "v1.0",
-        category: "서식",
-        date: "2024-01-01",
-        author: "KINS",
-        authority: "KINS",
-        description: "의료기관을 위한 안전관리규정 작성 예시입니다.",
-        tags: ["#의료기관", "#서식"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 3,
-        title: "방사선작업종사자 교육일지 양식",
-        version: "표준양식",
-        category: "서식",
-        date: "2023-12-20",
-        author: "관리자",
-        authority: "Society",
-        description:
-            "법정 의무 교육 이수 내용을 기록하기 위한 표준 양식입니다.",
-        tags: ["#교육", "#일지"],
-        fileSize: "HWP",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-        fileType: "HWP",
-    },
-    {
-        id: 301,
-        title: "자자 이제 2020년 자료입니다",
-        version: "Old",
-        category: "아카이브",
-        date: "2020-01-01",
-        author: "홍길동",
-        authority: "Historic",
-        description: "오래된 자료 정렬 테스트용입니다. (날짜: 2020-01-01)",
-        tags: ["#옛날자료"],
-        fileSize: "TXT",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-    },
-    {
-        id: 302,
-        title: "차차 2021년 자료입니다",
-        version: "Old",
-        category: "아카이브",
-        date: "2021-06-15",
-        author: "홍길동",
-        authority: "Historic",
-        description: "오래된 자료 정렬 테스트용입니다. (날짜: 2021-06-15)",
-        tags: ["#옛날자료"],
-        fileSize: "TXT",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-    },
-    {
-        id: 401,
-        title: "2019년 방사선 안전 백서",
-        version: "2019",
-        category: "가이드북",
-        date: "2019-11-20",
-        author: "원자력안전재단",
-        authority: "KoFONS",
-        description: "2019년도 안전 백서입니다.",
-        tags: ["#백서", "#2019"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 402,
-        title: "2023년 상반기 정기교육 자료",
-        version: "Rev.1",
-        category: "교육자료",
-        date: "2023-03-10",
-        author: "교육팀",
-        authority: "Internal",
-        description: "2023년 상반기 정기교육 배포 자료입니다.",
-        tags: ["#교육", "#2023"],
-        fileSize: "PPT",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-    },
-    {
-        id: 403,
-        title: "긴급 점검 지시사항 (2022)",
-        version: "긴급",
-        category: "안내문",
-        date: "2022-07-08",
-        author: "안전관리책임자",
-        authority: "Internal",
-        description: "장마철 대비 긴급 점검 지시사항입니다.",
-        tags: ["#긴급", "#점검"],
-        fileSize: "HWP",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-        fileType: "HWP",
-    },
-    {
-        id: 404,
-        title: "방사성동위원소 취급 가이드 V2",
-        version: "V2.0",
-        category: "가이드북",
-        date: "2023-01-15",
-        author: "KINS",
-        authority: "KINS",
-        description: "취급 가이드 개정판입니다.",
-        tags: ["#RI", "#취급"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "pdf",
-    },
-    {
-        id: 405,
-        title: "연말 정기 재고조사 보고서",
-        version: "Final",
-        category: "서식",
-        date: "2022-12-28",
-        author: "자산관리팀",
-        authority: "Internal",
-        description: "2022년도 RI/RG 재고조사 결과입니다.",
-        tags: ["#재고", "#보고"],
-        fileSize: "XLSX",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-    },
-    {
-        id: 5,
-        title: "원자력안전법 주요 개정사항 요약",
-        version: "2023 하반기",
-        category: "법령정보",
-        date: "2023-10-10",
-        author: "관리자",
-        authority: "Society",
-        description:
-            "2023년 하반기에 개정된 원자력안전법의 주요 내용을 요약하였습니다.",
-        tags: ["#법령", "#요약"],
-        fileSize: "PDF",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-        fileType: "PDF",
-    },
-    {
-        id: 999,
-        title: "Z_Last Item Check",
-        version: "End",
-        category: "기타",
-        date: "2010-12-31",
-        author: "Z-Man",
-        authority: "None",
-        description: "맨 마지막에 와야 하는 자료입니다. (제목 Z, 날짜 2010)",
-        tags: ["#Last"],
-        fileSize: "TXT",
-        isNew: false,
-        previewUrl: "#",
-        downloadUrl: "#",
-        type: "file",
-    },
-];
+// Mock Data for Resources
+import { resources } from "../data/resources";
 
-const categories = ["전체", "가이드북", "서식", "법령정보", "안내문"];
+const categories = ["작성지침", "작성예시", "서식", "교육자료", "법령정보", "안내문", "아카이브", "기타"];
 ---
 
 <DashboardLayout title="자료실">
-    <style>
+    <style is:global>
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -311,7 +26,7 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         /* Search Bar */
         .search-container {
-            margin-bottom: 0.5rem;
+            margin-bottom: 2rem;
             position: relative;
             width: 100%;
             max-width: 500px;
@@ -345,188 +60,97 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             display: flex;
         }
 
-        /* List Styles - Compact Modern */
-        .resource-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem; /* Tighter gap */
+        /* Sort & Filter Header */
+        .controls-header {
+            display: grid;
+            grid-template-columns: calc(120px + 1rem) 1fr 120px 120px 30px; 
+            gap: 1rem;
+            padding: 0.5rem 1rem 0.5rem 0; /* Left padding 0 to align with card border */
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
-        .resource-card {
+
+        /* Category Filter Dropdown */
+        .cat-filter-dropdown {
+            position: relative;
+            overflow: visible;
+            z-index: 101;
+        }
+
+        .cat-filter-btn {
+            list-style: none;
+            width: 100%;
+            padding: 0.4rem 0.5rem;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 8px; /* Slightly smaller radius */
-            padding: 0.75rem 1rem; /* Compact padding */
-            display: flex;
-            align-items: center; /* Center vertically */
-            justify-content: space-between;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); /* Very subtle shadow */
-        }
-        .resource-card:hover {
-            background: var(
-                --bg-hover
-            ); /* Highlight on hover instead of lift */
-            border-color: var(--accent);
-        }
-
-        .card-left {
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-            overflow: hidden; /* Prevent text spill */
-        }
-
-        .resource-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.1rem;
-            overflow: hidden;
-        }
-
-        .info-top {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .resource-title {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .new-dot {
-            width: 6px;
-            height: 6px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .info-meta {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .meta-item {
-            display: inline-block;
-        }
-        .meta-item.category {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .meta-divider {
-            color: var(--border-color);
-            font-size: 0.7rem;
-        }
-
-        .version-badge {
-            background: var(--bg-body);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 0 0.3rem;
-            font-size: 0.7rem;
-        }
-
-        .download-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 0.4rem;
             border-radius: 6px;
-            transition: all 0.2s;
+            text-align: left;
+            cursor: pointer;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
         }
-        .download-btn:hover {
-            background: var(--bg-body);
-            color: var(--accent);
+
+        .cat-filter-btn::-webkit-details-marker {
+            display: none;
+        }
+
+        .cat-filter-btn:hover {
             border-color: var(--accent);
+            color: var(--text-main);
         }
 
-        @media (max-width: 640px) {
-            .resource-list {
-                gap: 0.35rem;
-            }
-            .resource-card {
-                padding: 0.6rem 0.8rem;
-                gap: 0.8rem;
-            }
-            /* Keep row layout on mobile! */
-            .resource-title {
-                font-size: 0.9rem;
-            }
-            .info-meta {
-                font-size: 0.75rem;
-            }
-            /* Mobile Meta: Show Category and Date, Hide Author */
-            /* Hide Author (3rd item) and its preceding divider (2nd item) */
-            .meta-item:nth-child(3),
-            .meta-divider:nth-child(2) {
-                display: none;
-            }
-
-            /* Ensure Date (5th item) is visible - Override any previous hidden rules if any */
-            /* We removed the generic n+4 hidden rule so 5th item (Date) should be visible by default now */
-            /* Sort Header */
-            .sort-header {
-                display: flex;
-                gap: 1rem;
-                margin-bottom: 1rem;
-                padding: 0 0.5rem;
-            }
-            .sort-btn {
-                background: none;
-                border: none;
-                font-size: 0.85rem;
-                color: var(--text-muted);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 0.25rem;
-                padding: 0.2rem 0;
-            }
-            .sort-btn:hover {
-                color: var(--text-main);
-            }
-            .sort-btn.active {
-                color: var(--accent);
-                font-weight: 600;
-            }
-            .sort-icon {
-                transition: transform 0.2s;
-                opacity: 0;
-            }
-            .sort-btn.active .sort-icon {
-                opacity: 1;
-            }
-            .sort-btn.asc .sort-icon {
-                transform: rotate(180deg);
-            }
+        .cat-filter-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            padding: 0.5rem;
+            margin-top: 5px;
+            z-index: 200;
         }
-    </style>
 
-    <style>
-        /* Sort Header - Global/Desktop */
-        .sort-header {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 0 0.5rem;
-            align-items: center;
+        .cat-filter-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            color: var(--text-main);
+            background: none;
+            border: none;
         }
+
+        .cat-filter-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .filter-select {
+            padding: 0.4rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: auto; /* Fit content text, but inside fixed column */
+        }
+
         .sort-btn {
             background: none;
             border: none;
@@ -536,21 +160,20 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
             display: flex;
             align-items: center;
             gap: 0.25rem;
-            padding: 0.2rem 0;
-            transition: color 0.2s;
+            padding: 0;
+            font-weight: 600;
+            justify-content: flex-start;
         }
         .sort-btn:hover {
             color: var(--text-main);
         }
         .sort-btn.active {
             color: var(--accent);
-            font-weight: 600;
         }
         .sort-icon {
             transition: transform 0.2s ease-in-out;
             opacity: 0;
             display: inline-block;
-            transform-origin: center center;
         }
         .sort-btn.active .sort-icon {
             opacity: 1;
@@ -558,13 +181,301 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         .sort-btn.asc .sort-icon {
             transform: rotate(180deg);
         }
+
+        /* Resource List */
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        /* PC: Static Grid */
+        .resource-card {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 120px 30px;  
+            gap: 1rem;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            /* Removed overflow: hidden to allow dropdowns */
+        }
+        .resource-card:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+        .resource-card.menu-active {
+            z-index: 100; /* Bring to front */
+            border: 2px solid var(--color-medical-green) !important;
+        }
+
+        .col-cat {
+            display: flex;
+            align-items: center;
+        }
+        .cat-badge {
+            font-size: 0.75rem;
+            background: var(--bg-body);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+        }
+
+        .col-title {
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .col-title:hover {
+            color: var(--accent);
+        }
+
+        .col-date,
+        .col-author {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+        }
+        
+        .col-menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; 
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 50%;
+        }
+        .menu-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-body);
+        }
+        
+        /* Dropdown Menu (Universal) */
+        .dropdown-menu {
+            position: absolute;
+            right: 0.5rem;
+            top: 30px; /* Fixed offset instead of % to rely on button */
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* More shadow for visibility */
+            z-index: 1000; /* High Z */
+            display: none;
+            flex-direction: column;
+            min-width: 130px;
+        }
+        .dropdown-menu.active {
+            display: flex !important;
+            z-index: 9999;
+            background-color: var(--bg-card); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
+            border: 2px solid blue !important; /* DEBUG: Confirm menu visibility */
+        }
+        .dropdown-item {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            text-align: left;
+            width: 100%;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-hover);
+        }
+        .dropdown-item.delete {
+            color: #ef4444;
+        }
+
+        /* Mobile Layout */
+        @media (max-width: 768px) {
+            .controls-header {
+                display: flex; /* Show on mobile */
+                flex-wrap: wrap;
+                justify-content: space-between; /* Evenly distribute items */
+                gap: 0; /* Let space-between handle gaps */
+                grid-template-columns: none;
+                margin-bottom: 1rem;
+                padding: 0.5rem 0; /* Align perfectly with card edge */
+                border-bottom: 1px solid var(--border-color);
+            }
+            /* Remove manual positioning */
+            .controls-header .header-item:nth-child(1),
+            .controls-header .header-item:nth-child(3),
+            .controls-header .header-item:nth-child(4) {
+                margin: 0;
+            }
+            .controls-header .header-item:last-child {
+                display: none; /* Hide empty PC spacer */
+            }
+            .header-item {
+                flex: 0 0 auto; /* Don't stretch */
+            }
+            .filter-select {
+                width: auto; /* Auto width on mobile */
+                min-width: auto; /* Allow shrinking to content size */
+            }
+            
+            .resource-card {
+                /* Horizontal Flex Layout */
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 0.5rem;
+            }
+            
+            .col-cat {
+                flex-shrink: 0; 
+            }
+            .cat-badge {
+                padding: 0.15rem 0.4rem;
+                font-size: 0.7rem;
+            }
+
+            .col-title {
+                flex: 1; /* Take space */
+                min-width: 0; 
+                font-size: 0.9rem; 
+                white-space: nowrap; 
+                overflow: hidden; 
+                text-overflow: ellipsis; 
+            }
+
+            .col-date, .col-author {
+                flex-shrink: 0; 
+                font-size: 0.75rem; 
+                color: var(--text-muted); 
+                white-space: nowrap; 
+            }
+            
+            /* Show Menu on Mobile */
+            .col-menu {
+                flex-shrink: 0;
+                margin-left: auto;
+                display: flex !important; /* Force Show */
+            }
+            
+            .dropdown-menu {
+                right: 0.5rem;
+            }
+        }
+        
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-body);
+            color: var(--text-main);
+            box-sizing: border-box;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+        .btn-submit {
+            background: var(--accent);
+            color: white;
+        }
     </style>
 
     <div class="page-header">
         <div class="page-title">
-            <Icon name="document-text" size="28" /> 자료실
+            <Icon name="folder" size="28" /> 자료실
         </div>
-        <!-- Maybe Admin Upload Button later -->
+        <div>
+            <button
+                id="openModalBtn"
+                class="download-btn"
+                style="gap: 0.5rem; padding: 0.5rem 1rem;"
+            >
+                <Icon name="pencil" size="16" /> 자료 등록
+            </button>
+        </div>
     </div>
 
     <!-- Search Bar -->
@@ -572,7 +483,7 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         <input
             type="text"
             id="resourceSearch"
-            placeholder="자료 검색 (예: 가이드, 서식, 2024)"
+            placeholder="자료 검색 (제목, 작성자)"
             aria-label="자료 검색"
         />
         <span class="search-icon"><Icon name="search" size="18" /></span>
@@ -585,20 +496,42 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
         검색 결과가 없습니다.
     </div>
 
-    <!-- Sort Header -->
-    <div class="sort-header">
-        <button class="sort-btn active" data-sort="date" data-order="desc">
-            날짜 <Icon name="chevron-down" size="14" class="sort-icon" />
-        </button>
-        <button class="sort-btn" data-sort="title" data-order="none">
-            제목 <Icon name="chevron-down" size="14" class="sort-icon" />
-        </button>
-        <button class="sort-btn" data-sort="author" data-order="none">
-            작성자 <Icon name="chevron-down" size="14" class="sort-icon" />
-        </button>
-        <button class="sort-btn" data-sort="category" data-order="none">
-            태그(분류) <Icon name="chevron-down" size="14" class="sort-icon" />
-        </button>
+    <!-- Header / Controls -->
+    <div class="controls-header">
+        <div class="header-item">
+            <details class="cat-filter-dropdown" id="catFilterDropdown">
+                <summary class="cat-filter-btn" id="catFilterBtn">
+                    <span>자료유형</span>
+                    <Icon name="chevron-down" size="14" />
+                </summary>
+                <div class="cat-filter-content">
+                    <button class="cat-filter-item" data-value="">전체</button>
+                    {
+                        categories.map((cat) => (
+                            <button class="cat-filter-item" data-value={cat}>
+                                {cat}
+                            </button>
+                        ))
+                    }
+                </div>
+            </details>
+        </div>
+        <div class="header-item">
+            <button class="sort-btn" data-sort="title" data-order="none">
+                제목 <Icon name="chevron-down" size="14" class="sort-icon" />
+            </button>
+        </div>
+        <div class="header-item">
+            <button class="sort-btn active" data-sort="date" data-order="desc">
+                날짜 <Icon name="chevron-down" size="14" class="sort-icon" />
+            </button>
+        </div>
+        <div class="header-item">
+            <button class="sort-btn" data-sort="author" data-order="none">
+                작성자 <Icon name="chevron-down" size="14" class="sort-icon" />
+            </button>
+        </div>
+        <div class="header-item"></div>
     </div>
 
     <div class="resource-list" id="resourceList">
@@ -610,70 +543,159 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
                 )
                 .map((item) => (
                     <div
-                        class="resource-card"
+                        class="resource-card static-item"
+                        data-id={item.id}
                         data-title={item.title}
                         data-date={item.date}
                         data-author={item.author}
                         data-category={item.category}
-                        onclick={`if(event.target.closest('.download-btn')) return; 
-                            ${
-                                item.previewUrl && item.previewUrl !== "#"
-                                    ? `window.open('${item.previewUrl}', '_blank')`
-                                    : `alert('미리보기가 준비되지 않았습니다.\\n오른쪽 다운로드 버튼을 이용해 주세요.');`
-                            }`}
+                        data-society-email={item.societyEmail ?? item.registrant}
+                        data-registrant={item.registrant}
+                        onclick={`
+                            if ('${item.previewUrl}' !== '#') {
+                                window.open('${item.previewUrl}', '_blank');
+                            } else {
+                                alert('미리보기: 연결된 파일이 없습니다.');
+                            }
+                        `}
                     >
-                        <div class="card-left">
-                            <div class="resource-info">
-                                <div class="info-top">
-                                    <span class="resource-title">
-                                        {item.title}
-                                    </span>
-                                    {item.isNew && <span class="new-dot" />}
-                                </div>
-
-                                <div class="info-meta">
-                                    <span class="meta-item category">
-                                        {item.category}
-                                    </span>
-                                    <span class="meta-divider">|</span>
-                                    <span class="meta-item">{item.author}</span>
-                                    <span class="meta-divider">|</span>
-                                    <span class="meta-item">{item.date}</span>
-                                    {item.version && (
-                                        <span class="version-badge">
-                                            {item.version}
-                                        </span>
-                                    )}
-                                </div>
+                         <a href={item.previewUrl} target="_blank" class="resource-link-wrapper" style="display:contents; color:inherit; text-decoration:none;">
+                            <div class="col-cat">
+                                <span class="cat-badge">{item.category}</span>
                             </div>
-                        </div>
-
-                        <div class="card-right">
-                            <a
-                                href={item.downloadUrl}
-                                class="download-btn"
-                                download={item.downloadUrl !== "#"}
-                                target={
-                                    item.downloadUrl !== "#"
-                                        ? "_blank"
-                                        : "_self"
-                                }
-                                onclick={
-                                    item.downloadUrl === "#"
-                                        ? "event.preventDefault(); event.stopPropagation(); alert('다운로드 파일이 준비되지 않았습니다.');"
-                                        : "event.stopPropagation();"
-                                }
-                                aria-label="Download"
-                            >
-                                <Icon name="download" size="20" />
-                            </a>
+                            <div class="col-title" title={item.title}>
+                                {item.title}
+                            </div>
+                            <div class="col-date">{item.date}</div>
+                            <div class="col-author" title={item.author}>
+                                {item.author}
+                            </div>
+                        </a>
+                        
+                        <!-- Menu (Universal) -->
+                        <div class="col-menu">
+                            <button class="menu-btn" aria-label="메뉴 열기">
+                                <Icon name="dots" size="20" />
+                            </button>
+                            <div class="dropdown-menu">
+                                <a 
+                                    href="#" 
+                                    class="dropdown-item" 
+                                    onclick={`alert('다운로드: ${item.fileName || "가상 파일"} (가상 다운로드)'); return false;`}
+                                >
+                                    <Icon name="download" size="14" /> 다운로드
+                                </a>
+                                <button class="dropdown-item edit-btn">
+                                    <Icon name="pencil" size="14" /> 수정
+                                </button>
+                                <button class="dropdown-item delete-btn delete">
+                                    <Icon name="trash" size="14" /> 삭제
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))
         }
     </div>
 
+    <!-- Add/Edit Resource Modal -->
+    <div id="addResourceModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">자료 등록</div>
+            <form id="addResourceForm">
+                <input type="hidden" id="resId" />
+                <div class="form-group">
+                    <label class="form-label" for="resTitle">제목</label>
+                    <input
+                        type="text"
+                        id="resTitle"
+                        class="form-input"
+                        required
+                        placeholder="10자 이내 입력"
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resDate">날짜</label>
+                    <input
+                        type="date"
+                        id="resDate"
+                        class="form-input"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resAuthor">작성자</label>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.4;">
+                        자료를 올리는 사람이 아니라 <strong>실제 자료를 만든 저자</strong>를 의미합니다.
+                    </p>
+                    <input
+                        type="text"
+                        id="resAuthor"
+                        class="form-input"
+                        value="관리자"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resEmail">학회 등록 이메일</label>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.4;">
+                        마이페이지에 등록된 이메일 정보가 자동으로 입력됩니다.
+                    </p>
+                    <input
+                        type="email"
+                        id="resEmail"
+                        class="form-input"
+                        placeholder="로그인 후 이용해주세요."
+                        readonly
+                        style="background-color: var(--bg-hover); color: var(--text-muted); cursor: not-allowed;"
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="resCategory">카테고리</label>
+                    <select id="resCategory" class="form-input">
+                        {
+                            categories
+                                .filter((c) => c !== "전체 선택")
+                                .map((c) => <option value={c}>{c}</option>)
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                     <label class="form-label" for="resFile">첨부 파일 (PDF)</label>
+                     <input type="file" id="resFile" class="form-input" accept=".pdf" />
+                </div>
+                <div class="form-actions">
+                    <button
+                        type="button"
+                        id="closeModalBtn"
+                        class="btn btn-cancel">취소</button
+                    >
+                    <button type="submit" class="btn btn-submit">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        import { userProfile } from "../store/user";
+
+        // Local mock for dev if store is empty (optional, but store is source of truth)
+        let currentUserEmail = "";
+
+        userProfile.subscribe(user => {
+            if(user) {
+                currentUserEmail = user.email;
+            } else {
+                currentUserEmail = "";
+            }
+            // Update input if modal is open or exists
+            const emailInput = document.getElementById("resEmail");
+            if(emailInput) emailInput.value = currentUserEmail;
+        });
+
+        // Local mock removed. Use store.
+        const currentUser = userProfile.get();
+
         document.addEventListener("astro:page-load", () => {
             initResources();
         });
@@ -684,124 +706,459 @@ const categories = ["전체", "가이드북", "서식", "법령정보", "안내�
 
         function initResources() {
             const searchInput = document.getElementById("resourceSearch");
+            const catFilterDropdown = document.getElementById("catFilterDropdown");
+            const catFilterBtn = document.getElementById("catFilterBtn");
+            const catFilterItems = document.querySelectorAll(".cat-filter-item");
             const sortBtns = document.querySelectorAll(".sort-btn");
             const resourceList = document.getElementById("resourceList");
             const noResults = document.getElementById("noResults");
+            
+            // Modal Elements
+            const openModalBtn = document.getElementById("openModalBtn");
+            const closeModalBtn = document.getElementById("closeModalBtn");
+            const modal = document.getElementById("addResourceModal");
+            const modalTitle = document.getElementById("modalTitle");
+            const form = document.getElementById("addResourceForm");
 
+            function setupMenu(card) {
+                if(card.dataset.menuInitialized === "true") return;
+                card.dataset.menuInitialized = "true";
+
+                // Menu Logic
+                const menuBtn = card.querySelector('.menu-btn');
+                const dropdown = card.querySelector('.dropdown-menu');
+                const deleteBtn = card.querySelector('.delete-btn');
+                const editBtn = card.querySelector('.edit-btn');
+                
+                const registrant = card.getAttribute('data-registrant');
+                const societyEmail = card.getAttribute('data-society-email') || registrant;
+                
+                // Permission Check
+                // Use currentUserEmail (from store definition above) for dynamic comparison
+                const isOwner = (currentUserEmail && societyEmail && currentUserEmail === societyEmail);
+                const isAdmin = (currentUser.role === 'admin');
+                
+                if (!isOwner && !isAdmin) {
+                    if(deleteBtn) deleteBtn.style.display = 'none';
+                    if(editBtn) editBtn.style.display = 'none';
+                } else {
+                    // Ensure they are visible if conditions met (in case recycled or re-rendered)
+                    if(deleteBtn) deleteBtn.style.display = 'block';
+                    if(editBtn) editBtn.style.display = 'block';
+                }
+
+                if (menuBtn && dropdown) {
+                    // Explicitly stop propagation on the container too
+                    const colMenu = card.querySelector('.col-menu');
+                    if(colMenu) {
+                        colMenu.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        });
+                    }
+
+                    menuBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); 
+                        e.stopPropagation(); 
+                        
+                        // Close Others
+                        document.querySelectorAll('.dropdown-menu.active').forEach(m => {
+                           if(m !== dropdown) {
+                               m.classList.remove('active');
+                               // Remove z-index from other cards
+                               const parentCard = m.closest('.resource-card');
+                               if(parentCard) parentCard.classList.remove('menu-active');
+                           }
+                        });
+                        
+                        // Toggle Current
+                        const isActive = dropdown.classList.toggle('active');
+                        if (isActive) {
+                            card.classList.add('menu-active');
+                        } else {
+                            card.classList.remove('menu-active');
+                        }
+                    });
+                }
+                
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', (e) => {
+                         e.stopPropagation();
+                         if(confirm('정말 삭제하시겠습니까?')) {
+                             const id = card.getAttribute('data-id');
+                             deleteResource(id, card);
+                         }
+                         dropdown.classList.remove('active');
+                    });
+                }
+
+                if (editBtn) {
+                     editBtn.addEventListener('click', (e) => {
+                         e.stopPropagation();
+                         const id = card.getAttribute('data-id');
+                         openEditModalFromCard(card);
+                         dropdown.classList.remove('active');
+                     });
+                }
+            }
+
+            // Global Click to close menus
+            document.addEventListener('click', () => {
+                 document.querySelectorAll('.dropdown-menu.active').forEach(m => {
+                     m.classList.remove('active');
+                     const parentCard = m.closest('.resource-card');
+                     if(parentCard) parentCard.classList.remove('menu-active');
+                 });
+            });
+                
+
+
+            function openEditModalFromCard(card) {
+                const id = card.getAttribute('data-id');
+                const title = card.getAttribute('data-title');
+                const date = card.getAttribute('data-date');
+                const author = card.getAttribute('data-author');
+                const category = card.getAttribute('data-category');
+                const societyEmail = card.getAttribute('data-society-email') || "";
+
+                openEditModal(id, title, date, author, category, societyEmail);
+            }
+            
+            function deleteResource(id, cardElement) {
+                cardElement.remove();
+                let stored = JSON.parse(localStorage.getItem("addedResources") || "[]");
+                stored = stored.filter(item => String(item.id) !== String(id));
+                localStorage.setItem("addedResources", JSON.stringify(stored));
+                filterItems();
+            }
+
+            function openEditModal(id, title, date, author, category, societyEmail) {
+                 if(!modal) return;
+                 modal.classList.add("active");
+                 modalTitle.textContent = "자료 수정";
+                 document.getElementById("resId").value = id;
+                 document.getElementById("resTitle").value = title;
+                 document.getElementById("resDate").value = date;
+                 document.getElementById("resAuthor").value = author;
+                 document.getElementById("resCategory").value = category;
+                 document.getElementById("resEmail").value = societyEmail;
+            }
+
+            // ... (modal logic same) ...
+            if (openModalBtn && modal) {
+                openModalBtn.addEventListener("click", () => {
+                    modal.classList.add("active");
+                    modalTitle.textContent = "자료 등록";
+                    form.reset();
+                    document.getElementById("resId").value = "";
+                    const today = new Date().toISOString().split("T")[0];
+                    document.getElementById("resDate").value = today;
+                    
+                    // Auto-fill email from store
+                    if(document.getElementById("resEmail")) {
+                        document.getElementById("resEmail").value = currentUserEmail;
+                    }
+                });
+            }
+            if (closeModalBtn && modal) {
+                closeModalBtn.addEventListener("click", () => {
+                    modal.classList.remove("active");
+                });
+            }
+
+            if (form && !form.dataset.attached) {
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById("resId").value;
+                    const title = document.getElementById("resTitle").value;
+                    const date = document.getElementById("resDate").value;
+                    const author = document.getElementById("resAuthor").value;
+                    const category = document.getElementById("resCategory").value;
+                    const societyEmail = document.getElementById("resEmail").value;
+                    const fileInput = document.getElementById("resFile");
+                    const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : "";
+                    
+                    if (id) {
+                        updateResource(id, title, date, author, category, fileName, societyEmail);
+                    } else {
+                        createResource(title, date, author, category, fileName, societyEmail);
+                    }
+                    modal.classList.remove("active");
+                    form.reset();
+                });
+                form.dataset.attached = "true";
+            }
+
+            function createResource(title, date, author, category, fileName, societyEmail) {
+                 const newResource = {
+                    id: Date.now(),
+                    title,
+                    date,
+                    author,
+                    category,
+                    fileName,
+                    societyEmail,
+                    registrant: currentUser.email,
+                    previewUrl: "#",
+                    downloadUrl: "#",
+                };
+                const stored = JSON.parse(localStorage.getItem("addedResources") || "[]");
+                stored.push(newResource);
+                localStorage.setItem("addedResources", JSON.stringify(stored));
+
+                const card = createResourceCard(newResource);
+                resourceList.insertBefore(card, resourceList.firstChild);
+                setupMenu(card);
+                filterItems();
+                sortItems('date', 'desc');
+            }
+
+            function updateResource(id, title, date, author, category, fileName, societyEmail) {
+                 const card = document.querySelector(`.resource-card[data-id="${id}"]`);
+                 if(card) {
+                     card.setAttribute('data-title', title);
+                     card.setAttribute('data-date', date);
+                     card.setAttribute('data-author', author);
+                     card.setAttribute('data-category', category);
+                     card.setAttribute('data-society-email', societyEmail);
+                     if(fileName) card.setAttribute('data-filename', fileName);
+                     
+                     card.querySelector('.col-title').innerText = title; 
+                     card.querySelector('.col-date').innerText = date;
+                     card.querySelector('.col-author').innerText = author;
+                     card.querySelector('.cat-badge').innerText = category;
+                 }
+                 let stored = JSON.parse(localStorage.getItem("addedResources") || "[]");
+                 const index = stored.findIndex(item => String(item.id) === String(id));
+                 if(index !== -1) {
+                     stored[index].title = title;
+                     stored[index].date = date;
+                     stored[index].author = author;
+                     stored[index].category = category;
+                     stored[index].societyEmail = societyEmail;
+                     if(fileName) stored[index].fileName = fileName;
+                     localStorage.setItem("addedResources", JSON.stringify(stored));
+                 }
+            }
+
+             // Load Stored
+            const storedResources = JSON.parse(
+                localStorage.getItem("addedResources") || "[]",
+            );
+            if (!resourceList.hasAttribute("data-local-loaded")) {
+                storedResources.forEach((item) => {
+                    const card = createResourceCard(item);
+                    resourceList.appendChild(card);
+                    setupMenu(card);
+                });
+                resourceList.setAttribute("data-local-loaded", "true");
+                sortItems("date", "desc");
+            }
+            
+            // Close menu listener
+            document.addEventListener('click', (e) => {
+                 if (!e.target.closest('.col-menu')) {
+                      document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
+                 }
+            });
+
+            document.querySelectorAll('.resource-card').forEach(card => {
+                 setupMenu(card);
+            });
+
+            // Local Helper
             let currentSearch = "";
+            let currentCat = "";
 
+            function getIconSvg(name, size = "24", className = "") {
+                const paths = {
+                    dots: "M12 12h.01 M12 19h.01 M12 5h.01",
+                    download: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3",
+                    pencil: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z",
+                    trash: "M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                };
+                return `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}">
+                    <path d="${paths[name] || ''}"></path>
+                </svg>
+                `;
+            }
+
+            function createResourceCard(item) {
+                const div = document.createElement("div");
+                div.className = "resource-card local-item";
+                div.setAttribute("data-id", item.id);
+                div.setAttribute("data-title", item.title);
+                div.setAttribute("data-date", item.date);
+                div.setAttribute("data-author", item.author);
+                div.setAttribute("data-category", item.category);
+                div.setAttribute("data-society-email", item.societyEmail || "");
+                div.setAttribute("data-filename", item.fileName || "");
+
+                // Update Click Handler: Use Real URL if available
+                div.onclick = (e) => {
+                    // If clicking menu, don't trigger
+                    if (e.target.closest('.col-menu') || e.target.closest('a')) return;
+                    
+                    if (item.previewUrl && item.previewUrl !== "#") {
+                        window.open(item.previewUrl, '_blank');
+                    } else {
+                        const msg = item.fileName ? `미리보기: ${item.fileName} (가상 뷰어)` : '미리보기: 연결된 파일이 없습니다.';
+                        alert(msg);
+                    }
+                };
+                
+                const downloadAction = item.fileName 
+                    ? `alert('다운로드: ${item.fileName} (가상 다운로드)');` 
+                    : `alert('첨부파일이 없습니다.'); return false;`;
+
+                div.innerHTML = `
+                         <a href="${item.previewUrl}" target="_blank" class="resource-link-wrapper" style="display:contents; color:inherit; text-decoration:none;">
+                            <div class="col-cat">
+                                <span class="cat-badge">${item.category}</span>
+                            </div>
+                            <div class="col-title" title="${item.title}">
+                                ${item.title}
+                            </div>
+                            <div class="col-date">${item.date}</div>
+                            <div class="col-author" title="${item.author}">
+                                ${item.author}
+                            </div>
+                            </div>
+                        </a>
+                        <div class="col-menu">
+                            <button class="menu-btn" aria-label="메뉴 열기">
+                                ${getIconSvg('dots', '20')}
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="alert('다운로드: ${item.fileName || '가상 파일'} (가상 다운로드)'); return false;">
+                                    ${getIconSvg('download', '14')} 다운로드
+                                </a>
+                                <button class="dropdown-item edit-btn">
+                                    ${getIconSvg('pencil', '14')} 수정
+                                </button>
+                                <button class="dropdown-item delete-btn delete">
+                                    ${getIconSvg('trash', '14')} 삭제
+                                </button>
+                            </div>
+                        </div>
+                `;
+                return div;
+            }
+            
             function filterItems() {
+                // ... same ...
                 const cards = Array.from(resourceList.children);
                 let hasVisible = false;
-
                 cards.forEach((card) => {
-                    const title =
-                        card.getAttribute("data-title")?.toLowerCase() || "";
+                    const title = card.getAttribute("data-title")?.toLowerCase() || "";
+                    const author = card.getAttribute("data-author")?.toLowerCase() || "";
                     const category = card.getAttribute("data-category") || "";
+                    const matchSearch = title.includes(currentSearch) || author.includes(currentSearch);
+                    const matchCat = currentCat === "" || category === currentCat;
 
-                    // Simple search filtering (includes category name in search)
-                    const matchSearch =
-                        title.includes(currentSearch) ||
-                        category.toLowerCase().includes(currentSearch);
-
-                    if (matchSearch) {
-                        card.style.display = "flex";
+                    if (matchSearch && matchCat) {
+                        card.style.display = "grid"; 
+                        if (window.innerWidth <= 768) {
+                            card.style.display = "flex"; 
+                        }
                         hasVisible = true;
                     } else {
                         card.style.display = "none";
                     }
                 });
-
                 if (noResults) {
                     noResults.style.display = hasVisible ? "none" : "block";
                 }
             }
-
-            function sortItems(key, order) {
-                const visibleCards = Array.from(resourceList.children);
-
-                // If order is 'none' or null, revert to default (Date Descending)
-                if (!order || order === "none") {
-                    visibleCards.sort((a, b) => {
-                        const dateA = a.getAttribute("data-date") || "";
-                        const dateB = b.getAttribute("data-date") || "";
-                        return (
-                            new Date(dateB).getTime() -
-                            new Date(dateA).getTime()
-                        );
-                    });
-                } else {
-                    visibleCards.sort((a, b) => {
-                        let valA = a.getAttribute(`data-${key}`) || "";
-                        let valB = b.getAttribute(`data-${key}`) || "";
-
-                        if (key === "date") {
-                            return order === "asc"
-                                ? new Date(valA).getTime() -
-                                      new Date(valB).getTime()
-                                : new Date(valB).getTime() -
-                                      new Date(valA).getTime();
-                        }
-
-                        return order === "asc"
-                            ? valA.localeCompare(valB)
-                            : valB.localeCompare(valA);
-                    });
-                }
-
-                visibleCards.forEach((card) => resourceList.appendChild(card));
-            }
-
-            // Search Logic
-            if (searchInput) {
+            
+            // ... (keep search/sort listeners) ...
+             if (searchInput) {
                 searchInput.addEventListener("input", (e) => {
                     currentSearch = e.target.value.toLowerCase().trim();
                     filterItems();
                 });
             }
-
-            // Sort Logic (3-State: Desc -> Asc -> None)
+            // Category Filter Logic
+            if (catFilterItems.length > 0) {
+                catFilterItems.forEach(item => {
+                    item.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const selectedCat = item.dataset.value;
+                        currentCat = selectedCat;
+                        
+                        // Update button text
+                        const btnSpan = catFilterBtn.querySelector("span");
+                        if (selectedCat === "") {
+                            btnSpan.textContent = "자료유형";
+                        } else {
+                            btnSpan.textContent = `자료유형 (${selectedCat})`;
+                        }
+                        
+                        // Close dropdown
+                        catFilterDropdown.removeAttribute("open");
+                        
+                        // Apply filter
+                        filterItems();
+                    });
+                });
+                
+                // Close dropdown on outside click
+                document.addEventListener("click", (e) => {
+                    if (!catFilterDropdown.contains(e.target)) {
+                        catFilterDropdown.removeAttribute("open");
+                    }
+                });
+            }
+            
+             // Sort Button Listeners
             sortBtns.forEach((btn) => {
                 btn.addEventListener("click", () => {
                     const key = btn.getAttribute("data-sort");
-                    const currentOrder = btn.getAttribute("data-order"); // 'desc', 'asc', or null/'none'
-
-                    // Cycle: Desc -> Asc -> None -> Desc ...
-                    // If currently 'desc' -> go 'asc'
-                    // If currently 'asc' -> go 'none'
-                    // If currently 'none' (or other) -> go 'desc'
-
+                    const currentOrder = btn.getAttribute("data-order"); 
                     let newOrder = "desc";
-                    if (currentOrder === "desc") {
-                        newOrder = "asc";
-                    } else if (currentOrder === "asc") {
-                        newOrder = "none";
-                    } else {
-                        newOrder = "desc";
-                    }
+                    if (currentOrder === "desc") newOrder = "asc";
+                    else if (currentOrder === "asc") newOrder = "none";
 
-                    // Reset all buttons first
                     sortBtns.forEach((b) => {
                         b.classList.remove("active", "asc", "desc");
                         b.setAttribute("data-order", "none");
                     });
 
-                    // Update current button if not 'none'
                     if (newOrder !== "none") {
                         btn.classList.add("active", newOrder);
                         btn.setAttribute("data-order", newOrder);
-                        console.log(`Sort updated: ${key} -> ${newOrder}`); // Debug Log
-                    } else {
-                        // If 'none', no button is active (or maybe Date default?
-                        // UX Choice: Visual reset implies "Default".
-                        // Let's keep Date button active if it matches default?
-                        // For simplicity/clarity, 'none' means no *explicit* sort highlight, just default list.
-                        // But user might want to know it's back to default.
-                        // Let's just remove highlight for true 'none'.
                     }
-
                     sortItems(key, newOrder);
                 });
+            });
+            
+            function sortItems(key, order) {
+                 const visibleCards = Array.from(resourceList.children);
+                 // ... sort logic ...
+                 if (!order || order === "none") {
+                    visibleCards.sort((a, b) => {
+                        const dateA = a.getAttribute("data-date") || "";
+                        const dateB = b.getAttribute("data-date") || "";
+                        return new Date(dateB).getTime() - new Date(dateA).getTime();
+                    });
+                } else {
+                    visibleCards.sort((a, b) => {
+                        let valA = a.getAttribute(`data-${key}`) || "";
+                        let valB = b.getAttribute(`data-${key}`) || "";
+                        if (key === "date") {
+                            return order === "asc"
+                                ? new Date(valA).getTime() - new Date(valB).getTime()
+                                : new Date(valB).getTime() - new Date(valA).getTime();
+                        }
+                        return order === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    });
+                }
+                visibleCards.forEach((card) => resourceList.appendChild(card));
+            }
+
+            window.addEventListener("resize", () => {
+                filterItems();
             });
         }
     </script>

@@ -1,0 +1,302 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import Icon from "../../components/Icon.astro";
+import { ADMIN_EMAILS } from "../../config/auth";
+---
+
+<DashboardLayout title="관리자 설정">
+    <div class="settings-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title-group">
+                <h1>
+                    <Icon name="settings" size="32" class="title-icon" /> 관리자 권한
+                    관리
+                </h1>
+                <p class="subtitle">
+                    앱의 관리자(Admin) 권한을 가진 사용자 목록입니다.
+                </p>
+            </div>
+            <div class="nav-links">
+                <a href="/admin/members" class="nav-btn">
+                    <Icon name="users" size="18" /> 회원 일괄 등록으로 가기
+                </a>
+            </div>
+        </div>
+
+        <!-- Add Admin Form -->
+        <div class="card add-admin-card">
+            <h3><Icon name="plus" size="20" /> 관리자 추가</h3>
+            <p class="card-desc">
+                새로운 관리자의 이메일을 입력하세요. (DB에 저장됩니다)
+            </p>
+            <div class="input-group">
+                <input
+                    type="email"
+                    id="newAdminEmail"
+                    placeholder="email@example.com"
+                />
+                <button id="addAdminBtn" class="btn-primary">추가</button>
+            </div>
+        </div>
+
+        <!-- Admin List -->
+        <div class="card list-card">
+            <h3>관리자 목록</h3>
+            <div class="table-wrapper">
+                <table id="adminTable">
+                    <thead>
+                        <tr>
+                            <th>이메일</th>
+                            <th>구분</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        import { userProfile } from "../../store/user";
+        import { ADMIN_EMAILS } from "../../config/auth";
+
+        // Guard
+        const user = userProfile.get();
+        if (user.role !== "admin") {
+            alert("관리자 권한이 필요합니다.");
+            window.location.href = "/";
+        }
+
+        // Mock State (Simulating DB)
+        let dbAdmins = ["manager@test.com"];
+
+        const tableBody = document.querySelector("#adminTable tbody");
+        const input = document.getElementById("newAdminEmail");
+        const addBtn = document.getElementById("addAdminBtn");
+
+        function render() {
+            tableBody.innerHTML = "";
+
+            // 1. Env Admins (Super Admins)
+            ADMIN_EMAILS.forEach((email) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>
+                        <span class="email-text">${email}</span>
+                        ${email === user.email ? '<span class="badge me">나</span>' : ""}
+                    </td>
+                    <td><span class="badge env">시스템(Env)</span></td>
+                    <td><span class="lock-icon">🔒 제거 불가</span></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // 2. DB Admins (Sub Admins)
+            dbAdmins.forEach((email, index) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${email}</td>
+                    <td><span class="badge db">DB</span></td>
+                    <td><button class="btn-delete" data-index="${index}">삭제</button></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Re-attach delete listeners
+            document.querySelectorAll(".btn-delete").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const idx = e.target.dataset.index;
+                    if (confirm("이 관리자를 삭제하시겠습니까?")) {
+                        dbAdmins.splice(idx, 1);
+                        render();
+                    }
+                });
+            });
+        }
+
+        // Add Admin
+        addBtn.addEventListener("click", () => {
+            const email = input.value.trim();
+            if (!email) return alert("이메일을 입력하세요.");
+            if (ADMIN_EMAILS.includes(email) || dbAdmins.includes(email)) {
+                return alert("이미 존재하는 관리자입니다.");
+            }
+
+            // Mock Save
+            dbAdmins.push(email);
+            input.value = "";
+            alert(`${email} 님을 관리자로 추가했습니다. (Mock)`);
+            render();
+        });
+
+        // Initial Render
+        render();
+    </script>
+
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .subtitle {
+            margin: 0;
+            color: var(--text-muted);
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+        }
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05); /* Dark input */
+            color: white;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .table-wrapper {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th,
+        td {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .badge.env {
+            background: #4b5563;
+            color: white;
+        }
+        .badge.db {
+            background: #2563eb;
+            color: white;
+        }
+        .badge.me {
+            background: var(--accent);
+            color: white;
+            margin-left: 0.5rem;
+        }
+
+        .lock-icon {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .btn-delete {
+            background: transparent;
+            color: #ef4444; /* Red */
+            border: 1px solid #ef4444;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+            }
+            .nav-links {
+                width: 100%;
+            }
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            .btn-primary {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</DashboardLayout>

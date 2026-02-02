@@ -4,7 +4,7 @@ import LoginButton from "../components/auth/LoginButton.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 ---
 
-<DashboardLayout title="로그인 / 회원가입">
+<DashboardLayout title="로그인으로 시작하기">
     <style>
         .login-wrapper {
             max-width: 480px;
@@ -111,9 +111,19 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
     <div class="login-wrapper">
         <div class="login-container">
-            <h1>로그인 / 회원가입</h1>
+            <h1>로그인으로 시작하기</h1>
             <p class="subtitle">
                 RadSafety 앱 서비스 이용을 위해 로그인해 주세요.
+            </p>
+
+            <!-- Guidance Text Above Button -->
+            <p
+                style="font-size: 0.9rem; color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6; word-break: keep-all;"
+            >
+                카카오로 시작하시면 <strong>별도의 가입 절차 없이</strong> 빠르고
+                간편하게 이용할 수 있으며, 자동 로그인으로 <strong
+                    >재접속도 편리</strong
+                >합니다.
             </p>
 
             <!-- SNS Buttons Wrapper -->
@@ -124,33 +134,22 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                     color="#FEE500"
                     textColor="#000000"
                 />
-                <LoginButton
-                    provider="naver"
-                    label="네이버로 시작하기"
-                    color="#03C75A"
-                    textColor="white"
-                />
-                <LoginButton
-                    provider="google"
-                    label="Google 계정으로 계속하기"
-                    color="#4285F4"
-                    textColor="white"
-                />
-                <LoginButton
-                    provider="facebook"
-                    label="Facebook으로 계속하기"
-                    color="#1877F2"
-                    textColor="white"
-                />
-                <LoginButton
-                    provider="apple"
-                    label="Apple로 계속하기"
-                    color="#000000"
-                    textColor="white"
-                />
             </div>
 
-            <div class="divider">또는 이메일로 로그인</div>
+            <!-- Post-Login Verification Notice -->
+            <div
+                style="margin-top: 1.5rem; text-align: center; background: #f3f4f6; padding: 1rem; border-radius: 8px;"
+            >
+                <p
+                    style="font-size: 0.85rem; color: #6b7280; margin: 0; line-height: 1.5; word-break: keep-all;"
+                >
+                    💡 <strong>학회원 인증</strong>은 로그인 후,
+                    [마이페이지]에서<br />
+                    별도의 이메일로 편리하게 진행하실 수 있습니다.
+                </p>
+            </div>
+
+            <div class="divider">또는 이메일로 시작하기</div>
 
             <div class="email-login-section">
                 <form id="emailLoginForm" class="email-form">
@@ -161,7 +160,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                         required
                     />
                     <button type="submit" class="email-btn"
-                        >이메일로 로그인 (매직링크)</button
+                        >이메일로 시작하기 (매직링크)</button
                     >
                 </form>
                 <div class="helper-text">
@@ -190,12 +189,12 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
     </div>
 
     <script>
-        import { userProfile } from "../store/user";
+        import { userProfile, setUser } from "../store/user";
         import { supabase } from "../lib/supabase";
 
         // Mock Login Logic
         const mockLogin = (isApproved) => {
-            userProfile.set({
+            const user = {
                 id: "mock-user-123",
                 email: isApproved
                     ? "admin@radsafety.com"
@@ -203,9 +202,14 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
                 full_name: isApproved ? "김관리" : "홍길동",
                 avatar_url: "",
                 provider: "google",
-                is_approved: isApproved ? "true" : "false", // 'false' needs admin approval
-            });
-            alert("로그인되었습니다. (Mock)");
+            };
+            setUser(user);
+
+            alert(
+                "로그인되었습니다. (Mock Role: " +
+                    (isApproved ? "Admin" : "User") +
+                    ")",
+            );
             window.location.href = "/mypage";
         };
 
