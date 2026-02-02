@@ -347,20 +347,15 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
         import { userProfile } from "../store/user";
         import { supabase } from "../lib/supabase";
 
-        // *** DEVELOPMENT MOCK DATA ***
-        // If no user logic found, force this mock user for Design Review
-        const MOCK_USER = {
-            email: "preview@test.com",
-            full_name: "미리보기(김핵의)",
-            is_approved: false, // Toggle to true to see verified state
-        };
+        // *** DEVELOPMENT MOCK DATA REMOVED ***
+        // Real user data from store will be used
         // *****************************
 
         document.addEventListener("astro:page-load", () => {
             // Subscription
             userProfile.subscribe((user) => {
-                // For Design Review: If User is null, use MOCK_USER
-                const displayUser = user || MOCK_USER;
+                // Use real user data, if null then UI shows empty/login state
+                const displayUser = user;
 
                 updateMyPageUI(displayUser);
             });
@@ -390,7 +385,16 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
         });
 
         function updateMyPageUI(user) {
-            if (!user) return; // Should not happen with mock
+            if (!user || !user.email) {
+                // Not logged in -> Redirect to login or show empty state
+                // For MyPage, usually we redirect to login if no session
+                console.log("No user session found in MyPage");
+                // window.location.href = "/login"; // Optional: Force login
+                document.getElementById("userName").textContent =
+                    "로그인이 필요합니다";
+                document.getElementById("userEmail").textContent = "-";
+                return;
+            }
 
             document.getElementById("userName").textContent =
                 user.full_name || "사용자";

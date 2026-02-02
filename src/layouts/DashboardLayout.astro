@@ -224,5 +224,30 @@ const { title, description, scale } = Astro.props;
             // Run on ViewTransitions navigation
             document.addEventListener("astro:after-swap", initMobileMenu);
         </script>
+        <script>
+            import { supabase } from "../lib/supabase";
+            import { setUser, clearUser } from "../store/user";
+
+            // Global Auth Listener
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                console.log("Auth State Change:", event, session?.user?.email);
+                if (session?.user) {
+                    setUser({
+                        id: session.user.id,
+                        email: session.user.email || "",
+                        full_name:
+                            session.user.user_metadata?.full_name ||
+                            session.user.user_metadata?.name ||
+                            "사용자",
+                        avatar_url:
+                            session.user.user_metadata?.avatar_url || "",
+                        provider:
+                            session.user.app_metadata?.provider || "email",
+                    });
+                } else if (event === "SIGNED_OUT") {
+                    clearUser();
+                }
+            });
+        </script>
     </body>
 </html>

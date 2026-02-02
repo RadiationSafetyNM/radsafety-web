@@ -61,6 +61,11 @@ npm run dev -- --port 4321
     - DB에 쌓인 데이터 중 '영구 보존'이나 '공식 지침'이 된 건은 추후 **마크다운(`.md`) 파일**로 변환하여 `src/content`에 저장하는 것을 권장합니다.
     - 이유: 정적 파일이 DB보다 조회 속도가 빠르고 검색엔진(SEO)에 더 유리하기 때문입니다.
 
+### 보안 및 개인정보 보호 (Security & Privacy)
+- **Data Minimization**: 회원 인증에는 오직 `이름`, `소속`, `이메일` 3가지만 사용하며, 주민번호나 전화번호 등 민감정보는 절대 수집하지 않습니다.
+- **Secure Data Handling**: 회원 명부는 **암호화된 엑셀 파일**을 통해 전달받으며, DB 적재 후 원본 파일은 즉시 파기합니다. (추후 보안 업로드 포털 구축 예정)
+- **Verification Only**: 수집된 정보는 오직 '학회원 자격 확인' 용도로만 사용됩니다.
+
 ### 배포 시 주의사항 (Vercel)
 - 이 프로젝트는 `@astrojs/vercel` 어댑터를 사용합니다.
 - Vercel 환경 변수에 `PUBLIC_SUPABASE_URL`와 `PUBLIC_SUPABASE_ANON_KEY`가 반드시 설정되어야 합니다.
